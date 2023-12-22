@@ -1,0 +1,9 @@
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+
+Name: @CMAKE_PROJECT_NAME@
+Description: A rendering engine written in Vulkan.
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lloquat@LOQUAT_LIBRARY_SUFFIX@
+Libs.private: @LIBSTDC++_LIBRARIES@
+Cflags: -I${includedir}
