@@ -164,7 +164,7 @@ LogManager::LogManager()
 
 LogManager::~LogManager()
 {
-	std::scoped_lock lock(error_mutex);
+	std::scoped_lock lock{ error_mutex };
 	for (auto it = error_loggers.begin(); it != error_loggers.end(); ++it)
 	{
 		Logger::ErrorLogger* logger = *it;
@@ -177,23 +177,25 @@ void LogManager::log(const std::string& tag, const std::string& message,
 	const char* function_name, const char* source_file,
 	unsigned int line_number)
 {
-	std::unique_lock lock(tag_mutex);
+	LogFlag flags;
+	{
+		std::scoped_lock lock{ tag_mutex };
 
-	Tags::iterator result = tags.find(tag);
-	if (result != tags.end()) {
-		lock.release();
-
-		std::string buffer = 
-			format_message(tag, message, function_name, source_file,
-			line_number);
-		output_buffer_to_logs(buffer, result->second);
+		Tags::iterator result = tags.find(tag);
+		if (result == tags.end()) {
+			return;
+		}
+		flags = result->second;
 	}
-	//NOTE(ches) lock unlocks the mutex when it goes out of scope
+
+	std::string buffer =
+		format_message(tag, message, function_name, source_file, line_number);
+	output_buffer_to_logs(buffer, flags);
 }
 
 void LogManager::set_display_flags(const std::string& tag, unsigned char flags)
 {
-	std::scoped_lock lock(tag_mutex);
+	std::scoped_lock lock{ tag_mutex };
 
 	if (flags == 0)
 	{
@@ -215,7 +217,7 @@ void LogManager::set_display_flags(const std::string& tag, unsigned char flags)
 
 void LogManager::add_error_logger(Logger::ErrorLogger* logger)
 {
-	std::scoped_lock lock(error_mutex);
+	std::scoped_lock lock{ error_mutex };
 	error_loggers.push_back(logger);
 }
 
@@ -228,15 +230,16 @@ LogManager::ErrorDialogResult LogManager::error(
 	std::string buffer =
 		format_message(tag, error_message, function_name, source_file,
 			line_number);
-
-	std::unique_lock lock(tag_mutex);
-	// Log first, dialog later
-	Tags::iterator result = tags.find(tag);
-	if (result != tags.end())
+	
 	{
-		output_buffer_to_logs(buffer, result->second);
+		std::scoped_lock lock{ tag_mutex };
+		// Log first, dialog later
+		Tags::iterator result = tags.find(tag);
+		if (result != tags.end())
+		{
+			output_buffer_to_logs(buffer, result->second);
+		}
 	}
-	lock.release();
 
 #if defined(WIN32)
 	// Show a dialog box, with an error icon, defaulting to abort
