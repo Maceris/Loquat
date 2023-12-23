@@ -10,6 +10,7 @@ SET(PUBLIC_HEADERS
   # ${HEADER_PATH}/device
   ${HEADER_PATH}/main/global_state.h
   ${HEADER_PATH}/main/loquat.h
+  ${HEADER_PATH}/main/vulkan_instance.h
   # ${HEADER_PATH}/memory
   # ${HEADER_PATH}/pipeline
   # ${HEADER_PATH}/shader
@@ -20,6 +21,7 @@ SET(PUBLIC_HEADERS
 SET(CORE_SRCS
   debug/logger.cpp
   main/loquat.cpp
+  main/vulkan_instance.cpp
   window/window.cpp
 )
 
