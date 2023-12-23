@@ -5,11 +5,21 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 SET(HEADER_PATH ../include)
 
 SET(PUBLIC_HEADERS
-  ${HEADER_PATH}/main/Loquat.h
+  ${HEADER_PATH}/main/loquat.h
+  # ${HEADER_PATH}/command
+  # ${HEADER_PATH}/debug
+  # ${HEADER_PATH}/device
+  # ${HEADER_PATH}/main
+  # ${HEADER_PATH}/memory
+  # ${HEADER_PATH}/pipeline
+  ${HEADER_PATH}/platform/platform.h
+  ${HEADER_PATH}/platform/windows/platform_win32.h
+  # ${HEADER_PATH}/shader
+  ${HEADER_PATH}/window/window_surface.h
 )
 
 SET(CORE_SRCS
-  main/Loquat.cpp
+  main/loquat.cpp
 )
 
 SOURCE_GROUP(include FILES ${PUBLIC_HEADERS})
