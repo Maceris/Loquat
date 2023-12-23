@@ -12,8 +12,6 @@ SET(PUBLIC_HEADERS
   # ${HEADER_PATH}/main
   # ${HEADER_PATH}/memory
   # ${HEADER_PATH}/pipeline
-  ${HEADER_PATH}/platform/platform.h
-  ${HEADER_PATH}/platform/windows/platform_win32.h
   # ${HEADER_PATH}/shader
   ${HEADER_PATH}/window/window_surface.h
 )
@@ -97,9 +95,12 @@ ENDIF()
 # adds C_FLAGS required to compile zip.c on old GCC 4.x compiler
 TARGET_COMPILE_FEATURES(loquat PRIVATE c_std_99)
 
+TARGET_LINK_LIBRARIES(loquat glfw ${GLFW_LIBRARIES})
+
 TARGET_INCLUDE_DIRECTORIES (loquat PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
+  $<BUILD_INTERFACE:${GLFW_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${LOQUAT_INCLUDE_INSTALL_DIR}>
 )
 
