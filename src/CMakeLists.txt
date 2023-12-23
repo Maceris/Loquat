@@ -7,7 +7,7 @@ SET(HEADER_PATH ../include)
 SET(PUBLIC_HEADERS
   ${HEADER_PATH}/main/loquat.h
   # ${HEADER_PATH}/command
-  # ${HEADER_PATH}/debug
+  ${HEADER_PATH}/debug/logger.h
   # ${HEADER_PATH}/device
   # ${HEADER_PATH}/main
   # ${HEADER_PATH}/memory
@@ -17,6 +17,7 @@ SET(PUBLIC_HEADERS
 )
 
 SET(CORE_SRCS
+  debug/logger.cpp
   main/loquat.cpp
 )
 
@@ -95,7 +96,9 @@ ENDIF()
 # adds C_FLAGS required to compile zip.c on old GCC 4.x compiler
 TARGET_COMPILE_FEATURES(loquat PRIVATE c_std_99)
 
-TARGET_LINK_LIBRARIES(loquat glfw ${GLFW_LIBRARIES})
+FIND_PACKAGE(Vulkan REQUIRED)
+
+TARGET_LINK_LIBRARIES(loquat glfw Vulkan::Vulkan)
 
 TARGET_INCLUDE_DIRECTORIES (loquat PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
@@ -103,6 +106,11 @@ TARGET_INCLUDE_DIRECTORIES (loquat PUBLIC
   $<BUILD_INTERFACE:${GLFW_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${LOQUAT_INCLUDE_INSTALL_DIR}>
 )
+
+# Copy DLL files on platforms where it's needed 
+IF (CMAKE_IMPORT_LIBRARY_SUFFIX) 
+	add_custom_command(TARGET loquat POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:loquat> $<TARGET_FILE_DIR:loquat> COMMAND_EXPAND_LISTS)
+ENDIF()
 
 IF(MSVC)
   # in order to prevent DLL hell, each of the DLLs are suffixed with the major version and msvc prefix
