@@ -22,6 +22,11 @@ int main(int argc, char* argv[])
 	create_vulkan_instance();
 	create_vulkan_window();
 
+	while (!g_global_state->window_state->window->should_close())
+	{
+		glfwPollEvents();
+	}
+
 	delete g_global_state;
 	glfwTerminate();
 	Logger::destroy();

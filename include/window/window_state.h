@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
 typedef struct Window;
 typedef struct WindowSurface;
 
@@ -10,8 +12,13 @@ struct WindowState
 {
 	Window* window = nullptr;
 	WindowSurface* surface = nullptr;
+	VkSwapchainKHR swap_chain = nullptr;
 
 	WindowState() = default;
+	WindowState(const WindowState&) = delete;
+	WindowState& operator=(const WindowState&) = delete;
+	WindowState(const WindowState&&) = delete;
+	WindowState& operator=(const WindowState&&) = delete;
 	~WindowState();
 
 	/// <summary>

@@ -8,9 +8,9 @@
 
 WindowSurface::WindowSurface(Window* window)
 {
-	LOG_ASSERT(g_global_state && g_global_state->has_instance()
+	LOG_ASSERT(g_global_state != nullptr && g_global_state->has_instance()
 		&& "We require a Vulkan instance before setting up a surface");
-	LOG_ASSERT(window && window->glfw_window
+	LOG_ASSERT(window != nullptr && window->glfw_window
 		&& "Trying to create a surface for a null window");
 
 	if (glfwCreateWindowSurface(g_global_state->instance, 
