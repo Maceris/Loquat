@@ -15,6 +15,7 @@ SET(PUBLIC_HEADERS
   # ${HEADER_PATH}/pipeline
   # ${HEADER_PATH}/shader
   ${HEADER_PATH}/window/window.h
+  ${HEADER_PATH}/window/window_state.h
   ${HEADER_PATH}/window/window_surface.h
 )
 
@@ -23,6 +24,8 @@ SET(CORE_SRCS
   main/loquat.cpp
   main/vulkan_instance.cpp
   window/window.cpp
+  window/window_state.cpp
+  window/window_surface.cpp
 )
 
 SOURCE_GROUP(include FILES ${PUBLIC_HEADERS})

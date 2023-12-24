@@ -2,24 +2,23 @@
 
 #include <vulkan/vulkan.h>
 
-typedef struct Window;
+#include "window/window_state.h"
 
 /// <summary>
 /// Global state information about the rendering ecosystem.
 /// </summary>
 struct GlobalState
 {
-public:
 	VkInstance instance = nullptr;
-	Window* window = nullptr;
+	WindowState* window_state = nullptr;
 
 	GlobalState() = default;
 	~GlobalState()
 	{
-		if (window)
+		if (window_state)
 		{
-			delete window;
-			window = nullptr;
+			delete window_state;
+			window_state = nullptr;
 		}
 		if (instance)
 		{
@@ -45,7 +44,7 @@ public:
 	/// <returns>If there is currently a window created.</returns>
 	[[nodiscard]] bool constexpr has_window() const noexcept
 	{
-		return window != nullptr;
+		return window_state != nullptr;
 	}
 };
 

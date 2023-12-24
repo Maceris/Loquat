@@ -3,8 +3,12 @@
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
+/// <summary>
+/// A wrapper around the GLFW window that handles lifecycle.
+/// </summary>
 class Window
 {
+	friend class WindowSurface;
 public:
 	Window();
 	Window(const Window&) = delete;
@@ -13,5 +17,5 @@ public:
 	Window& operator=(const Window&&) = delete;
 	~Window();
 private:
-	GLFWwindow* glfw_window;
+	GLFWwindow* glfw_window = nullptr;
 };

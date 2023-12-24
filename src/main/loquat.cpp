@@ -20,8 +20,7 @@ int main(int argc, char* argv[])
 	}
 
 	create_vulkan_instance();
-	g_global_state->window = new Window();
-
+	create_vulkan_window();
 
 	delete g_global_state;
 	glfwTerminate();
