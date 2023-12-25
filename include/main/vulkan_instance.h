@@ -8,19 +8,6 @@
 #include "main/global_state.h"
 
 /// <summary>
-/// Create a Vulkan instance, storing it in the global state. 
-/// Expected to only be called once.
-/// </summary>
-void create_vulkan_instance() noexcept;
-
-/// <summary>
-/// Fetch a list of available extensions.
-/// </summary>
-/// <returns>All the available Vulkan extensions.</returns>
-[[nodiscard]]
-std::vector<VkExtensionProperties> get_available_extensions() noexcept;
-
-/// <summary>
 /// Attemt to load and call an extension function.
 /// </summary>
 /// <typeparam name="...ParamTypes">The types of the parameters.</typeparam>
@@ -60,3 +47,23 @@ void call_extension_function(const char* function_name, ResultType&& result,
             actual_func(std::forward<ParamTypes>(params)...);
     }
 }
+
+/// <summary>
+/// Create a Vulkan instance, storing it in the global state. 
+/// Expected to only be called once.
+/// </summary>
+void create_vulkan_instance() noexcept;
+
+/// <summary>
+/// Fetch a list of available extensions.
+/// </summary>
+/// <returns>All the available Vulkan extensions.</returns>
+[[nodiscard]]
+std::vector<VkExtensionProperties> get_available_extensions() noexcept;
+
+/// <summary>
+/// Initialize and fill out the debug create info structure.
+/// </summary>
+/// <param name="create_info">The structure to fill out.</param>
+void popualate_debug_info(VkDebugUtilsMessengerCreateInfoEXT& create_info)
+noexcept;

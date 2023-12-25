@@ -48,4 +48,4 @@ extern GlobalState* g_global_state;
 /// once, and only if we need the validation layer logging.
 /// </summary>
 /// <returns>Whether we were able to attach the debugger.</returns>
-bool load_debug_messenger(PFN_vkDebugUtilsMessengerCallbackEXT callback);
+bool load_debug_messenger();

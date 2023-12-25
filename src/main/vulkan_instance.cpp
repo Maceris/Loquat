@@ -150,7 +150,22 @@ void create_vulkan_instance() noexcept
     VkInstanceCreateInfo create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     create_info.pApplicationInfo = &app_info;
-    create_info.enabledLayerCount = 0;
+    
+    if constexpr (ENABLE_VALIDATION_LAYERS)
+    {
+        create_info.enabledLayerCount = 
+            static_cast<uint32_t>(VALIDATION_LAYERS.size());
+        create_info.ppEnabledLayerNames = VALIDATION_LAYERS.data();
+
+        VkDebugUtilsMessengerCreateInfoEXT debug_create_info{};
+        popualate_debug_info(debug_create_info);
+        create_info.pNext = &debug_create_info;
+    }
+    else
+    {
+        create_info.enabledLayerCount = 0;
+        create_info.pNext = nullptr;
+    }
 
     std::vector<const char*> extensions = get_required_extensions();
     create_info.enabledExtensionCount = 
@@ -163,7 +178,7 @@ void create_vulkan_instance() noexcept
         LOG_FATAL("Failed to create Vulkan instance");
     }
 
-    if (!load_debug_messenger(debug_callback))
+    if (!load_debug_messenger())
     {
         LOG_ERROR("Failed attaching a debug callback for validation logs");
     }
@@ -180,4 +195,23 @@ std::vector<VkExtensionProperties> get_available_extensions() noexcept
     vkEnumerateInstanceExtensionProperties(layer_name, &extension_count,
         results.data());
     return results;
+}
+
+void popualate_debug_info(VkDebugUtilsMessengerCreateInfoEXT& create_info)
+noexcept
+{
+    create_info = {};
+    create_info.sType = 
+        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    create_info.messageSeverity =
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    create_info.messageType =
+        VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    create_info.pfnUserCallback = debug_callback;
+    create_info.pUserData = nullptr;
 }
