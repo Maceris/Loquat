@@ -4,6 +4,9 @@
 
 typedef struct Window;
 
+/// <summary>
+/// A wrapper around the Vulkan surface.
+/// </summary>
 struct WindowSurface
 {
 public:

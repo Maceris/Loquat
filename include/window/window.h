@@ -6,7 +6,7 @@
 #include "GLFW/glfw3.h"
 
 /// <summary>
-/// A wrapper around the GLFW window that handles lifecycle.
+/// A wrapper around the GLFW window.
 /// </summary>
 class Window
 {

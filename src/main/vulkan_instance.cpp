@@ -1,5 +1,7 @@
 #include "main/vulkan_instance.h"
 
+#include <cstdint>
+
 #include "revision.h"
 #include "debug/logger.h"
 #include "main/global_state.h"
@@ -34,10 +36,21 @@ void create_vulkan_instance() noexcept
     create_info.enabledExtensionCount = glfw_extension_count;
     create_info.ppEnabledExtensionNames = glfw_extensions;
 
-    VkInstance result;
     if (vkCreateInstance(&create_info, nullptr, &g_global_state->instance)
         != VK_SUCCESS)
     {
         LOG_FATAL("Failed to create Vulkan instance");
     }
+}
+
+std::vector<VkExtensionProperties> get_available_extensions() noexcept
+{
+    uint32_t extension_count = 0;
+    const char* layer_name = nullptr;
+    vkEnumerateInstanceExtensionProperties(layer_name, &extension_count, 
+        nullptr);
+    std::vector<VkExtensionProperties> results(extension_count);
+    vkEnumerateInstanceExtensionProperties(layer_name, &extension_count,
+        results.data());
+    return results;
 }
