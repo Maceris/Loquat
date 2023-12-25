@@ -12,20 +12,13 @@ struct GlobalState
 	VkInstance instance = nullptr;
 	WindowState* window_state = nullptr;
 
+	/// <summary>
+	/// The debug messenger, which is generally only set in debug builds.
+	/// </summary>
+	VkDebugUtilsMessengerEXT debug_messenger = nullptr;
+
 	GlobalState() = default;
-	~GlobalState()
-	{
-		if (window_state)
-		{
-			delete window_state;
-			window_state = nullptr;
-		}
-		if (instance)
-		{
-			vkDestroyInstance(instance, nullptr);
-			instance = nullptr;
-		}
-	}
+	~GlobalState();
 
 	/// <summary>
 	/// Check if we currently have an instance. We should not be able to create
@@ -49,3 +42,10 @@ struct GlobalState
 };
 
 extern GlobalState* g_global_state;
+
+/// <summary>
+/// Set up the debug messenger to use a callback. This should only be called
+/// once, and only if we need the validation layer logging.
+/// </summary>
+/// <returns>Whether we were able to attach the debugger.</returns>
+bool load_debug_messenger(PFN_vkDebugUtilsMessengerCallbackEXT callback);

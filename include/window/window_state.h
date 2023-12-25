@@ -32,4 +32,8 @@ struct WindowState
 	}
 };
 
+/// <summary>
+/// Create a vulkan window, including associated things like the window 
+/// surface.
+/// </summary>
 void create_vulkan_window();

@@ -21,6 +21,7 @@ SET(PUBLIC_HEADERS
 
 SET(CORE_SRCS
   debug/logger.cpp
+  main/global_state.cpp
   main/loquat.cpp
   main/vulkan_instance.cpp
   window/window.cpp

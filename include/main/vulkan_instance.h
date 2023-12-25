@@ -4,6 +4,9 @@
 
 #include <vulkan/vulkan.h>
 
+#include "debug/logger.h"
+#include "main/global_state.h"
+
 /// <summary>
 /// Create a Vulkan instance, storing it in the global state. 
 /// Expected to only be called once.
@@ -16,3 +19,44 @@ void create_vulkan_instance() noexcept;
 /// <returns>All the available Vulkan extensions.</returns>
 [[nodiscard]]
 std::vector<VkExtensionProperties> get_available_extensions() noexcept;
+
+/// <summary>
+/// Attemt to load and call an extension function.
+/// </summary>
+/// <typeparam name="...ParamTypes">The types of the parameters.</typeparam>
+/// <typeparam name="ResultType">The return type.</typeparam>
+/// <param name="function_name">The name of the function to call.</param>
+/// <param name="result">An out paramter where the result will be stored.
+/// If there is no result, this should be nullptr.</param>
+/// <param name="...params">Parameters to the extension function.</param>
+template <typename ResultType, typename... ParamTypes>
+void call_extension_function(const char* function_name, ResultType&& result,
+	ParamTypes... params)
+{
+    PFN_vkVoidFunction func = vkGetInstanceProcAddr(g_global_state->instance, 
+        function_name);
+
+    if (func == nullptr)
+    {
+        LOG_ERROR("Invalid extension function called: "
+            + std::string(function_name));
+        return;
+    }
+
+    using ActualReturn = std::conditional<
+        std::is_same_v<ResultType, std::nullptr_t>, void, ResultType>::type;
+
+    typedef ActualReturn (VKAPI_PTR* ActualSignature)(ParamTypes...);
+
+    ActualSignature actual_func = (ActualSignature) func;
+
+    if constexpr (std::is_same_v<ResultType, std::nullptr_t>)
+    {
+        actual_func(std::forward<ParamTypes>(params)...);
+    }
+    else
+    {
+        result = (ResultType)
+            actual_func(std::forward<ParamTypes>(params)...);
+    }
+}

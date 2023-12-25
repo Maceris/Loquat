@@ -13,6 +13,8 @@ GlobalState* g_global_state = new GlobalState();
 int main(int argc, char* argv[])
 {
 	Logger::init();
+	Logger::set_display_flags("Debug", FLAG_WRITE_TO_DEBUGGER);
+
 	glfwInit();
 	if (!glfwVulkanSupported())
 	{

@@ -5,6 +5,12 @@
 using LogFlag = unsigned char;
 
 /// <summary>
+/// A no-op flag that writes nowhere, so we can specify logging more 
+/// consistently. Not intended to be combined with other flags.
+/// </summary>
+const LogFlag FLAG_WRITE_NOWHERE = 0;
+
+/// <summary>
 /// Writes the log to a file.
 /// </summary>
 const LogFlag FLAG_WRITE_TO_LOG_FILE = 1 << 0;

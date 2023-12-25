@@ -5,11 +5,12 @@
 #include <vector>
 
 #include "revision.h"
-#include "debug/logger.h"
-#include "main/global_state.h"
 
 #include "GLFW/glfw3.h"
 
+/// <summary>
+/// The validation layers that we want to enable.
+/// </summary>
 const std::vector<const char*> VALIDATION_LAYERS = {
     "VK_LAYER_KHRONOS_validation"
 };
@@ -19,6 +20,59 @@ constexpr bool ENABLE_VALIDATION_LAYERS = true;
 #elif
 constexpr bool ENABLE_VALIDATION_LAYERS = false;
 #endif
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+    VkDebugUtilsMessageTypeFlagsEXT message_type,
+    const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+    void* user_data)
+{
+    std::string tag;
+    switch (message_type)
+    {
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+        // Not relate dto specification or performance
+        tag = "[General]";
+        break;
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+        // Violates specification or a possible mistake
+        tag = "[Validation]";
+        break;
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+        // Potential non-optimal use of Vulkan
+        tag = "[Performance]";
+        break;
+    default:
+        tag = "[Other]";
+        break;
+    }
+
+    const std::string message = tag + " Validation layer message: "
+        + std::string(callback_data->pMessage);
+
+    switch (message_severity)
+    {
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+        // Diagnostic message
+        LOG_TAGGED("Debug", message);
+        break;
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+    default:
+        // Basic info like creation of a resource
+        LOG_INFO(message);
+        break;
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+        // Very likely a bug
+        LOG_WARNING(message);
+        break;
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        // Invalid behavior that may cause crashes
+        LOG_ERROR(message);
+        break;
+    }
+
+    return VK_FALSE;
+}
 
 /// <summary>
 /// Check that we have all the validation layers that we expect to have.
@@ -54,6 +108,23 @@ constexpr bool ENABLE_VALIDATION_LAYERS = false;
     return true;
 }
 
+[[nodiscard]]
+std::vector<const char*> get_required_extensions() noexcept
+{
+    uint32_t glfw_extension_count = 0;
+    const char** glfw_extensions;
+    glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+
+    std::vector<const char*> extensions(glfw_extensions,
+        glfw_extensions + glfw_extension_count);
+    if (ENABLE_VALIDATION_LAYERS)
+    {
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
+    return extensions;
+}
+
 void create_vulkan_instance() noexcept
 {
     if (g_global_state->has_instance())
@@ -81,16 +152,20 @@ void create_vulkan_instance() noexcept
     create_info.pApplicationInfo = &app_info;
     create_info.enabledLayerCount = 0;
 
-    uint32_t glfw_extension_count = 0;
-    const char** glfw_extensions;
-    glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-    create_info.enabledExtensionCount = glfw_extension_count;
-    create_info.ppEnabledExtensionNames = glfw_extensions;
+    std::vector<const char*> extensions = get_required_extensions();
+    create_info.enabledExtensionCount = 
+        static_cast<uint32_t>(extensions.size());
+    create_info.ppEnabledExtensionNames = extensions.data();
 
     if (vkCreateInstance(&create_info, nullptr, &g_global_state->instance)
         != VK_SUCCESS)
     {
         LOG_FATAL("Failed to create Vulkan instance");
+    }
+
+    if (!load_debug_messenger(debug_callback))
+    {
+        LOG_ERROR("Failed attaching a debug callback for validation logs");
     }
 }
 
