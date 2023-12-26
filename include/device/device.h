@@ -24,6 +24,7 @@ struct Device
 	VkPhysicalDevice physical_device = VK_NULL_HANDLE;
 	VkDevice logical_device = VK_NULL_HANDLE;
 	VkQueue graphics_queue = nullptr;
+	VkQueue present_queue = nullptr;
 
 	Device();
 	Device(const Device&) = delete;
@@ -34,6 +35,11 @@ struct Device
 
 private:
 	QueueFamilyIndices indices;
+
+	/// <summary>
+	/// Set up the device queues.
+	/// </summary>
+	void create_queues() noexcept;
 
 	[[nodiscard]]
 	QueueFamilyIndices 

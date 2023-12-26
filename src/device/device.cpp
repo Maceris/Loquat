@@ -1,6 +1,7 @@
 #include "device/device.h"
 
 #include <map>
+#include <set>
 #include <vector>
 
 #include "debug/logger.h"
@@ -12,19 +13,26 @@ Device::Device()
 {
 	select_physical_device();
 	select_logical_device();
-
-	const uint32_t queue_index = 0;
-	vkGetDeviceQueue(logical_device, indices.graphics_family.value(), 
-		queue_index, &graphics_queue);
+	create_queues();
 }
 
 Device::~Device()
 {
+	//NOTE(ches) queues are implicity destroyed when the logical device is
 	//NOTE(ches) physical device gets destroyed implicitly with the instance
 	if (logical_device != VK_NULL_HANDLE)
 	{
 		vkDestroyDevice(logical_device, nullptr);
 	}
+}
+
+void Device::create_queues() noexcept
+{
+	const uint32_t queue_index = 0;
+	vkGetDeviceQueue(logical_device, indices.present_family.value(),
+		queue_index, &present_queue);
+	vkGetDeviceQueue(logical_device, indices.graphics_family.value(),
+		queue_index, &graphics_queue);
 }
 
 [[nodiscard]] QueueFamilyIndices
@@ -135,21 +143,30 @@ void Device::select_logical_device() noexcept
 {
 	indices = find_queue_families(physical_device);
 
-	VkDeviceQueueCreateInfo queue_create_info{};
-	queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	queue_create_info.queueFamilyIndex = indices.graphics_family.value();
-	queue_create_info.queueCount = 1;
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::set<uint32_t> uniqueQueueFamilies = { 
+		indices.graphics_family.value(),
+		indices.present_family.value()
+	};
 
-	float queue_priority = 1.0f;
-	queue_create_info.pQueuePriorities = &queue_priority;
+	float queuePriority = 1.0f;
+	for (uint32_t queueFamily : uniqueQueueFamilies) {
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
+	}
 
 	VkPhysicalDeviceFeatures device_features{};
 	//TODO(ches) Select device features
 
 	VkDeviceCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	create_info.pQueueCreateInfos = &queue_create_info;
-	create_info.queueCreateInfoCount = 1;
+	create_info.pQueueCreateInfos = queueCreateInfos.data();
+	create_info.queueCreateInfoCount = 
+		static_cast<uint32_t>(queueCreateInfos.size());;
 	create_info.pEnabledFeatures = &device_features;
 
 	create_info.enabledExtensionCount = 0;
