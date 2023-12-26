@@ -38,6 +38,10 @@ QueueFamilyIndices find_queue_families(const VkPhysicalDevice device)
 			indices.graphics_family = i;
 		}
 		++i;
+		if (indices.has_all_values())
+		{
+			break;
+		}
 	}
 
 	return indices;
@@ -53,6 +57,13 @@ int rate_device(const VkPhysicalDevice device) noexcept
 	vkGetPhysicalDeviceFeatures(device, &device_features);
 
 	if (!device_features.geometryShader)
+	{
+		return 0;
+	}
+
+	QueueFamilyIndices queue_families = find_queue_families(device);
+
+	if (!queue_families.has_all_values())
 	{
 		return 0;
 	}
