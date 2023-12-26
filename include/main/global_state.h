@@ -11,6 +11,7 @@ struct GlobalState
 {
 	VkInstance instance = nullptr;
 	WindowState* window_state = nullptr;
+	VkPhysicalDevice physical_device = VK_NULL_HANDLE;
 
 	/// <summary>
 	/// The debug messenger, which is generally only set in debug builds.

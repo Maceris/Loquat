@@ -7,9 +7,8 @@ SET(HEADER_PATH ../include)
 SET(PUBLIC_HEADERS
   # ${HEADER_PATH}/command
   ${HEADER_PATH}/debug/logger.h
-  # ${HEADER_PATH}/device
+  ${HEADER_PATH}/device/physical_device.h
   ${HEADER_PATH}/main/global_state.h
-  ${HEADER_PATH}/main/loquat.h
   ${HEADER_PATH}/main/vulkan_instance.h
   # ${HEADER_PATH}/memory
   # ${HEADER_PATH}/pipeline
@@ -21,6 +20,7 @@ SET(PUBLIC_HEADERS
 
 SET(CORE_SRCS
   debug/logger.cpp
+  device/physical_device.cpp
   main/global_state.cpp
   main/loquat.cpp
   main/vulkan_instance.cpp
