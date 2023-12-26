@@ -6,6 +6,7 @@
 #include "debug/logger.h"
 #include "main/vulkan_instance.h"
 #include "main/global_state.h"
+#include "window/window_surface.h"
 
 Device::Device()
 {
@@ -39,11 +40,22 @@ Device::find_queue_families(const VkPhysicalDevice device) const noexcept
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count,
 		queue_families.data());
 
+	const VkSurfaceKHR surface = 
+		g_global_state->window_state->surface->surface;
+
 	int i = 0;
 	for (const auto& queue_family : queue_families) {
 		if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			indices.graphics_family = i;
 		}
+		VkBool32 present_support = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface,
+			&present_support);
+
+		if (present_support) {
+			indices.present_family = i;
+		}
+
 		++i;
 		if (indices.has_all_values())
 		{

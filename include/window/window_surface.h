@@ -9,6 +9,7 @@ typedef struct Window;
 /// </summary>
 struct WindowSurface
 {
+	friend class Device;
 public:
 	WindowSurface(Window* window);
 	WindowSurface(const WindowSurface&) = delete;

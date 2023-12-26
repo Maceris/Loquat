@@ -10,10 +10,12 @@
 struct QueueFamilyIndices
 {
 	std::optional<uint32_t> graphics_family;
+	std::optional<uint32_t> present_family;
 
 	[[nodiscard]] bool has_all_values() const noexcept
 	{
-		return graphics_family.has_value();
+		return graphics_family.has_value()
+			&& present_family.has_value();
 	}
 };
 
