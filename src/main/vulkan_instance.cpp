@@ -8,19 +8,6 @@
 
 #include "GLFW/glfw3.h"
 
-/// <summary>
-/// The validation layers that we want to enable.
-/// </summary>
-const std::vector<const char*> VALIDATION_LAYERS = {
-    "VK_LAYER_KHRONOS_validation"
-};
-
-#if _DEBUG
-constexpr bool ENABLE_VALIDATION_LAYERS = true;
-#elif
-constexpr bool ENABLE_VALIDATION_LAYERS = false;
-#endif
-
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
     VkDebugUtilsMessageTypeFlagsEXT message_type,

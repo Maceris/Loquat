@@ -1,20 +1,19 @@
 #include "main/global_state.h"
 
 #include "main/vulkan_instance.h"
+#include "memory/memory_utils.h"
 
 void unload_debug_messenger();
 
 GlobalState::~GlobalState()
 {
+	SAFE_DELETE(device);
 	if (debug_messenger)
 	{
 		unload_debug_messenger();
 	}
-	if (window_state)
-	{
-		delete window_state;
-		window_state = nullptr;
-	}
+	SAFE_DELETE(window_state);
+	
 	if (instance)
 	{
 		vkDestroyInstance(instance, nullptr);

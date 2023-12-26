@@ -8,6 +8,19 @@
 #include "main/global_state.h"
 
 /// <summary>
+/// The validation layers that we want to enable.
+/// </summary>
+const std::vector<const char*> VALIDATION_LAYERS = {
+    "VK_LAYER_KHRONOS_validation"
+};
+
+#if _DEBUG
+constexpr bool ENABLE_VALIDATION_LAYERS = true;
+#elif
+constexpr bool ENABLE_VALIDATION_LAYERS = false;
+#endif
+
+/// <summary>
 /// Attemt to load and call an extension function.
 /// </summary>
 /// <typeparam name="...ParamTypes">The types of the parameters.</typeparam>

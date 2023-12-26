@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "device/device.h"
 #include "window/window_state.h"
 
 /// <summary>
@@ -11,8 +12,8 @@ struct GlobalState
 {
 	VkInstance instance = nullptr;
 	WindowState* window_state = nullptr;
-	VkPhysicalDevice physical_device = VK_NULL_HANDLE;
-
+	Device* device = nullptr;
+	
 	/// <summary>
 	/// The debug messenger, which is generally only set in debug builds.
 	/// </summary>

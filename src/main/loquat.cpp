@@ -2,7 +2,6 @@
 #include "GLFW/glfw3.h"
 
 #include "debug/logger.h"
-#include "device/physical_device.h"
 #include "main/global_state.h"
 #include "main/vulkan_instance.h"
 #include "window/window.h"
@@ -22,7 +21,7 @@ int main(int argc, char* argv[])
 
 	create_vulkan_instance();
 	create_vulkan_window();
-	select_physical_device();
+	g_global_state->device = new Device();
 
 	while (!g_global_state->window_state->window->should_close())
 	{
