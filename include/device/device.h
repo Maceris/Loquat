@@ -50,7 +50,8 @@ private:
 
 	/// <summary>
 	/// Select a logical device to use among the system devices, and store it
-	/// in the game state. Might have a fatal problem if we can't pick a device.
+	/// in the game state. Might have a fatal problem if we can't pick a
+	/// device.
 	/// </summary>
 	void select_logical_device() noexcept;
 
@@ -59,5 +60,14 @@ private:
 	/// in the game state. Might have a fatal problem if we can't find a GPU.
 	/// </summary>
 	void select_physical_device() noexcept;
+
+	/// <summary>
+	/// Checks if a device supports all the extensions we need.
+	/// </summary>
+	/// <param name="device">The device to check.</param>
+	/// <returns>If it supports the required extensions.</returns>
+	[[nodiscard]]
+	bool supports_required_extensions(const VkPhysicalDevice device) 
+		const noexcept;
 };
 

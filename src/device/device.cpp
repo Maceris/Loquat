@@ -9,6 +9,13 @@
 #include "main/global_state.h"
 #include "window/window_surface.h"
 
+/// <summary>
+/// The extensions that we require on a device.
+/// </summary>
+const std::vector<const char*> REQUIRED_EXTENSIONS = {
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
 Device::Device()
 {
 	select_physical_device();
@@ -95,6 +102,11 @@ int Device::rate_device(const VkPhysicalDevice device) const noexcept
 		return 0;
 	}
 
+	if (!supports_required_extensions(device))
+	{
+		return 0;
+	}
+
 	//NOTE(ches) Discrete GPU is much better than on-chip
 	if (device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 	{
@@ -169,7 +181,9 @@ void Device::select_logical_device() noexcept
 		static_cast<uint32_t>(queueCreateInfos.size());;
 	create_info.pEnabledFeatures = &device_features;
 
-	create_info.enabledExtensionCount = 0;
+	create_info.enabledExtensionCount = 
+		static_cast<uint32_t>(REQUIRED_EXTENSIONS.size());
+	create_info.ppEnabledExtensionNames = REQUIRED_EXTENSIONS.data();
 
 	if (ENABLE_VALIDATION_LAYERS) {
 		create_info.enabledLayerCount =
@@ -184,4 +198,26 @@ void Device::select_logical_device() noexcept
 		&logical_device) != VK_SUCCESS) {
 		LOG_FATAL("Could not create a logical device");
 	}
+}
+
+[[nodiscard]]
+bool Device::supports_required_extensions(const VkPhysicalDevice device) 
+	const noexcept
+{
+	uint32_t extension_count;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, 
+		&extension_count, nullptr);
+
+	std::vector<VkExtensionProperties> available_extensions(extension_count);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count,
+		available_extensions.data());
+
+	std::set<std::string> required_extensions(REQUIRED_EXTENSIONS.begin(), 
+		REQUIRED_EXTENSIONS.end());
+
+	for (const auto& extension : available_extensions) {
+		required_extensions.erase(extension.extensionName);
+	}
+
+	return required_extensions.empty();
 }
