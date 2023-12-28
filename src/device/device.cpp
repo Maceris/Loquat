@@ -180,7 +180,6 @@ void Device::select_logical_device() noexcept
 	create_info.queueCreateInfoCount = 
 		static_cast<uint32_t>(queueCreateInfos.size());;
 	create_info.pEnabledFeatures = &device_features;
-
 	create_info.enabledExtensionCount = 
 		static_cast<uint32_t>(REQUIRED_EXTENSIONS.size());
 	create_info.ppEnabledExtensionNames = REQUIRED_EXTENSIONS.data();

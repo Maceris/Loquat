@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <vector>
 
 #include <vulkan/vulkan.h>
 
@@ -19,6 +20,19 @@ struct QueueFamilyIndices
 	}
 };
 
+/// <summary>
+/// Information about swap chain support.
+/// </summary>
+struct SwapChainDetails
+{
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> present_modes;
+};
+
+/// <summary>
+/// Stores information about a device and what we need to interact with it.
+/// </summary>
 struct Device
 {
 	VkPhysicalDevice physical_device = VK_NULL_HANDLE;
@@ -37,14 +51,32 @@ private:
 	QueueFamilyIndices indices;
 
 	/// <summary>
+	/// Check what kind of swap chain support the device has.
+	/// </summary>
+	/// <param name="device">The device we are checking.</param>
+	/// <returns></returns>
+	[[nodiscard]] SwapChainDetails
+		check_swap_chain_support(const VkPhysicalDevice device) const noexcept;
+
+	/// <summary>
 	/// Set up the device queues.
 	/// </summary>
 	void create_queues() noexcept;
 
-	[[nodiscard]]
-	QueueFamilyIndices 
+	/// <summary>
+	/// Find all the queue family indices we care about for a device.
+	/// </summary>
+	/// <param name="device">The device we are checking.</param>
+	/// <returns>What queue family indices we could find.</returns>
+	[[nodiscard]] QueueFamilyIndices 
 		find_queue_families(const VkPhysicalDevice device) const noexcept;
 
+	/// <summary>
+	/// Calculate a score to represent how much desireable a device is. Will
+	/// be zero if it's not usable for us.
+	/// </summary>
+	/// <param name="device">The device we are rating.</param>
+	/// <returns>A score for the device.</returns>
 	[[nodiscard]]
 	int rate_device(const VkPhysicalDevice device) const noexcept;
 
