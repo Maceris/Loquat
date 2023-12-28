@@ -11,6 +11,19 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/main/global_state.h
   ${HEADER_PATH}/main/vulkan_instance.h
   ${HEADER_PATH}/memory/memory_utils.h
+  ${HEADER_PATH}/pbr/base/bxdf.h
+  ${HEADER_PATH}/pbr/base/camera.h
+  ${HEADER_PATH}/pbr/base/filter.h
+  ${HEADER_PATH}/pbr/base/integrator.h
+  ${HEADER_PATH}/pbr/base/light.h
+  ${HEADER_PATH}/pbr/base/light_sampler.h
+  ${HEADER_PATH}/pbr/base/material.h
+  ${HEADER_PATH}/pbr/base/medium.h
+  ${HEADER_PATH}/pbr/base/primitive.h
+  ${HEADER_PATH}/pbr/base/sampler.h
+  ${HEADER_PATH}/pbr/base/shape.h
+  ${HEADER_PATH}/pbr/base/spectrum.h
+  ${HEADER_PATH}/pbr/base/texture.h
   # ${HEADER_PATH}/pipeline
   # ${HEADER_PATH}/shader
   ${HEADER_PATH}/window/window.h
@@ -29,7 +42,7 @@ SET(CORE_SRCS
   window/window_surface.cpp
 )
 
-SOURCE_GROUP(include FILES ${PUBLIC_HEADERS})
+SOURCE_GROUP(TREE ${HEADER_PATH} PREFIX "include" FILES ${PUBLIC_HEADERS})
 
 SET(loquat_src
   ${CORE_SRCS}
