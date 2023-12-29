@@ -3,6 +3,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
 SET(HEADER_PATH ../include)
+SET(SOURCE_PATH ../src)
 
 SET(PUBLIC_HEADERS
   # ${HEADER_PATH}/command
@@ -39,17 +40,18 @@ SET(PUBLIC_HEADERS
 )
 
 SET(CORE_SRCS
-  debug/logger.cpp
-  device/device.cpp
-  main/global_state.cpp
-  main/loquat.cpp
-  main/vulkan_instance.cpp
-  window/window.cpp
-  window/window_state.cpp
-  window/window_surface.cpp
+  ${SOURCE_PATH}/debug/logger.cpp
+  ${SOURCE_PATH}/device/device.cpp
+  ${SOURCE_PATH}/main/global_state.cpp
+  ${SOURCE_PATH}/main/loquat.cpp
+  ${SOURCE_PATH}/main/vulkan_instance.cpp
+  ${SOURCE_PATH}/window/window.cpp
+  ${SOURCE_PATH}/window/window_state.cpp
+  ${SOURCE_PATH}/window/window_surface.cpp
 )
 
 SOURCE_GROUP(TREE ${HEADER_PATH} PREFIX "include" FILES ${PUBLIC_HEADERS})
+SOURCE_GROUP(TREE ${SOURCE_PATH} PREFIX "src" FILES ${CORE_SRCS})
 
 SET(loquat_src
   ${CORE_SRCS}
