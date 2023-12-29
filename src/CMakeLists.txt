@@ -9,6 +9,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/debug/logger.h
   ${HEADER_PATH}/device/device.h
   ${HEADER_PATH}/main/global_state.h
+  ${HEADER_PATH}/main/loquat.h
   ${HEADER_PATH}/main/vulkan_instance.h
   ${HEADER_PATH}/memory/memory_utils.h
   ${HEADER_PATH}/pbr/ray.h
