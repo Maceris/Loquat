@@ -1,14 +1,17 @@
 #pragma once
 
-enum class LightType
+namespace loquat
 {
-	Point,
-	Spot,
-	Area,
-	Directional
-};
+	enum class LightType
+	{
+		Point,
+		Spot,
+		Area,
+		Directional
+	};
 
-class Light
-{
+	class Light
+	{
 
-};
+	};
+}

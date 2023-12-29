@@ -1,6 +1,9 @@
 #pragma once
 
-class Ray
+namespace loquat
 {
-	
-};
+	class Ray
+	{
+
+	};
+}

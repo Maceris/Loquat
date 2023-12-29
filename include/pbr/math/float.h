@@ -2,266 +2,268 @@
 
 #include <bit>
 #include <cmath>
-#include <cstdint>
 #include <concepts>
 #include <limits>
 
-#if defined(DOUBLE_PRECISION_FLOAT)
-/// <summary>
-/// Floating point number.
-/// </summary>
-using Float = double;
-#else
-/// <summary>
-/// Floating point number.
-/// </summary>
-using Float = float;
-#endif
-
-#if defined(DOUBLE_PRECISION_FLOAT)
-/// <summary>
-/// An unsigned integer used to access bits for a floating point number.
-/// </summary>
-using FloatBits = uint64_t;
-#else
-/// <summary>
-/// An unsigned integer used to access bits for a floating point number.
-/// </summary>
-using FloatBits = uint32_t;
-#endif
-
-static_assert(sizeof(Float) == sizeof(FloatBits), "Floats are an unexpected size on this device");
-
-/// <summary>
-/// As close to infinity as we can represent.
-/// </summary>
-static constexpr Float FLOAT_INFINITY = std::numeric_limits<Float>::infinity();
-
-/// <summary>
-/// A very small number.
-/// </summary>
-static constexpr Float MACHINE_EPSILON = std::numeric_limits<Float>::epsilon() * 0.5f;
-
-static constexpr double ONE_MINUS_EPSILON_DOUBLE = 0x1.fffffffffffffp-1;
-static constexpr float ONE_MINUS_EPSILON_FLOAT = 0x1.fffffep-1;
-
-#if defined(DOUBLE_PRECISION_FLOAT)
-static constexpr Float ONE_MINUS_EPSILON = ONE_MINUS_EPSILON_DOUBLE;
-#else
-static constexpr Float ONE_MINUS_EPSILON = ONE_MINUS_EPSILON_FLOAT;
-#endif
-
-template <std::floating_point T>
-inline T is_NaN(T v)
+namespace loquat
 {
-    return std::isnan(v);
-}
+    #if defined(DOUBLE_PRECISION_FLOAT)
+    /// <summary>
+    /// Floating point number.
+    /// </summary>
+    using Float = double;
+    #else
+    /// <summary>
+    /// Floating point number.
+    /// </summary>
+    using Float = float;
+    #endif
 
-template <std::integral T>
-inline T is_NaN(T v)
-{
-    return false;
-}
+    #if defined(DOUBLE_PRECISION_FLOAT)
+    /// <summary>
+    /// An unsigned integer used to access bits for a floating point number.
+    /// </summary>
+    using FloatBits = uint64_t;
+    #else
+    /// <summary>
+    /// An unsigned integer used to access bits for a floating point number.
+    /// </summary>
+    using FloatBits = uint32_t;
+    #endif
 
-template <std::floating_point T>
-inline T is_inf(T v)
-{
-    return std::isinf(v);
-}
+    static_assert(sizeof(Float) == sizeof(FloatBits), "Floats are an unexpected size on this device");
 
-template <std::integral T>
-inline T is_inf(T v)
-{
-    return false;
-}
+    /// <summary>
+    /// As close to infinity as we can represent.
+    /// </summary>
+    static constexpr Float FLOAT_INFINITY = std::numeric_limits<Float>::infinity();
 
-template <std::floating_point T>
-inline T is_inf(T v)
-{
-    return std::isfinite(v);
-}
+    /// <summary>
+    /// A very small number.
+    /// </summary>
+    static constexpr Float MACHINE_EPSILON = std::numeric_limits<Float>::epsilon() * 0.5f;
 
-template <std::integral T>
-inline T is_inf(T v)
-{
-    return true;
-}
+    static constexpr double ONE_MINUS_EPSILON_DOUBLE = 0x1.fffffffffffffp-1;
+    static constexpr float ONE_MINUS_EPSILON_FLOAT = 0x1.fffffep-1;
 
-template <std::floating_point T>
-inline T FMA(T a, T b, T c)
-{
-    return std::fma(a, b, c);
-}
+    #if defined(DOUBLE_PRECISION_FLOAT)
+    static constexpr Float ONE_MINUS_EPSILON = ONE_MINUS_EPSILON_DOUBLE;
+    #else
+    static constexpr Float ONE_MINUS_EPSILON = ONE_MINUS_EPSILON_FLOAT;
+    #endif
 
-inline Float bits_to_float(FloatBits i)
-{
-    return std::bit_cast<Float>(i);
-}
-
-inline FloatBits float_to_bits(Float f)
-{
-    return std::bit_cast<FloatBits>(f);
-}
-
-
-inline int exponent_float(float f) {
-    return (std::bit_cast<uint32_t>(f) >> 23) - 127;
-}
-
-inline int exponent_double(double d) {
-    return (std::bit_cast<uint64_t>(d) >> 52) - 1023;
-}
-
-inline int exponent(Float f)
-{
-    if constexpr (std::is_same_v<Float, float>)
+    template <std::floating_point T>
+    inline T is_NaN(T v)
     {
-        return exponent_float(f);
+        return std::isnan(v);
     }
-    else
+
+    template <std::integral T>
+    inline T is_NaN(T v)
     {
-        return exponent_double(f);
+        return false;
     }
-}
 
-inline int significand_float(float f) {
-    return std::bit_cast<uint32_t>(f) & ((1 << 23) - 1);
-}
-
-inline uint64_t significand_double(double d) {
-    return std::bit_cast<uint64_t>(d) & ((1LL << 52) - 1);
-}
-
-inline FloatBits significand(Float f)
-{
-    if constexpr (std::is_same_v<Float, float>)
+    template <std::floating_point T>
+    inline T is_inf(T v)
     {
-        return std::bit_cast<FloatBits>(f)& ((1 << 23) - 1);
+        return std::isinf(v);
     }
-    else
+
+    template <std::integral T>
+    inline T is_inf(T v)
     {
-        return std::bit_cast<FloatBits>(f) & ((1LL << 52) - 1);
+        return false;
     }
-}
 
-inline int sign_bit_float(float f) {
-    return (std::bit_cast<uint32_t>(f) >> 32) & 0x1;
-}
-
-inline int sign_bit_double(double d) {
-    return (std::bit_cast<uint64_t>(d) >> 64) & 0x1;
-}
-
-inline int sign_bit(Float f)
-{
-    if constexpr (std::is_same_v<Float, float>)
+    template <std::floating_point T>
+    inline T is_inf(T v)
     {
-        return sign_bit_float(f);
+        return std::isfinite(v);
     }
-    else
-    {
-        return sign_bit_double(f);
-    }
-}
 
-inline Float next_float_up(Float v) {
+    template <std::integral T>
+    inline T is_inf(T v)
+    {
+        return true;
+    }
+
+    template <std::floating_point T>
+    inline T FMA(T a, T b, T c)
+    {
+        return std::fma(a, b, c);
+    }
+
+    inline Float bits_to_float(FloatBits i)
+    {
+        return std::bit_cast<Float>(i);
+    }
+
+    inline FloatBits float_to_bits(Float f)
+    {
+        return std::bit_cast<FloatBits>(f);
+    }
+
+
+    inline int exponent_float(float f) {
+        return (std::bit_cast<uint32_t>(f) >> 23) - 127;
+    }
+
+    inline int exponent_double(double d) {
+        return (std::bit_cast<uint64_t>(d) >> 52) - 1023;
+    }
+
+    inline int exponent(Float f)
+    {
+        if constexpr (std::is_same_v<Float, float>)
+        {
+            return exponent_float(f);
+        }
+        else
+        {
+            return exponent_double(f);
+        }
+    }
+
+    inline int significand_float(float f) {
+        return std::bit_cast<uint32_t>(f) & ((1 << 23) - 1);
+    }
+
+    inline uint64_t significand_double(double d) {
+        return std::bit_cast<uint64_t>(d) & ((1LL << 52) - 1);
+    }
+
+    inline FloatBits significand(Float f)
+    {
+        if constexpr (std::is_same_v<Float, float>)
+        {
+            return std::bit_cast<FloatBits>(f)& ((1 << 23) - 1);
+        }
+        else
+        {
+            return std::bit_cast<FloatBits>(f) & ((1LL << 52) - 1);
+        }
+    }
+
+    inline int sign_bit_float(float f) {
+        return (std::bit_cast<uint32_t>(f) >> 32) & 0x1;
+    }
+
+    inline int sign_bit_double(double d) {
+        return (std::bit_cast<uint64_t>(d) >> 64) & 0x1;
+    }
+
+    inline int sign_bit(Float f)
+    {
+        if constexpr (std::is_same_v<Float, float>)
+        {
+            return sign_bit_float(f);
+        }
+        else
+        {
+            return sign_bit_double(f);
+        }
+    }
+
+    inline Float next_float_up(Float v) {
   
-    if (is_inf(v) && v > 0.0f)
-    {
-        return v;
-    }
+        if (is_inf(v) && v > 0.0f)
+        {
+            return v;
+        }
 
-    if (v == -0.0f)
-    {
-        v = 0.0f;
-    }
+        if (v == -0.0f)
+        {
+            v = 0.0f;
+        }
 
-    uint32_t bit_value = float_to_bits(v);
-    if (v >= 0)
-    {
-        ++bit_value;
-    }
-    else
-    {
-        --bit_value;
-    }
+        uint32_t bit_value = float_to_bits(v);
+        if (v >= 0)
+        {
+            ++bit_value;
+        }
+        else
+        {
+            --bit_value;
+        }
         
-    return bits_to_float(bit_value);
-}
-
-inline Float next_float_down(Float v) {
-    if (is_inf(v) && v < 0.0f)
-    {
-        return v;
-    }
-    if (v == 0.0f)
-    {
-        v = -0.0f;
+        return bits_to_float(bit_value);
     }
 
-    uint32_t bit_value = float_to_bits(v);
-    if (v > 0)
-    {
-        --bit_value;
+    inline Float next_float_down(Float v) {
+        if (is_inf(v) && v < 0.0f)
+        {
+            return v;
+        }
+        if (v == 0.0f)
+        {
+            v = -0.0f;
+        }
+
+        uint32_t bit_value = float_to_bits(v);
+        if (v > 0)
+        {
+            --bit_value;
+        }
+        else
+        {
+            ++bit_value;
+        }
+
+        return bits_to_float(bit_value);
     }
-    else
-    {
-        ++bit_value;
+
+    inline constexpr Float gamma(int n) {
+        return (n * MACHINE_EPSILON) / (1 - n * MACHINE_EPSILON);
     }
 
-    return bits_to_float(bit_value);
-}
+    inline Float add_ceil(Float a, Float b)
+    {
+        return next_float_up(a + b);
+    }
 
-inline constexpr Float gamma(int n) {
-    return (n * MACHINE_EPSILON) / (1 - n * MACHINE_EPSILON);
-}
+    inline Float add_floor(Float a, Float b)
+    {
+        return next_float_down(a + b);
+    }
 
-inline Float add_ceil(Float a, Float b)
-{
-    return next_float_up(a + b);
-}
+    inline Float mul_ceil(Float a, Float b)
+    {
+        return next_float_up(a * b);
+    }
 
-inline Float add_floor(Float a, Float b)
-{
-    return next_float_down(a + b);
-}
+    inline Float mul_floor(Float a, Float b)
+    {
+        return next_float_down(a * b);
+    }
 
-inline Float mul_ceil(Float a, Float b)
-{
-    return next_float_up(a * b);
-}
+    inline Float div_ceil(Float a, Float b)
+    {
+        return next_float_up(a / b);
+    }
 
-inline Float mul_floor(Float a, Float b)
-{
-    return next_float_down(a * b);
-}
+    inline Float div_floor(Float a, Float b)
+    {
+        return next_float_down(a / b);
+    }
 
-inline Float div_ceil(Float a, Float b)
-{
-    return next_float_up(a / b);
-}
+    inline Float sqrt_ceil(Float a)
+    {
+        return next_float_up(std::sqrt(a));
+    }
 
-inline Float div_floor(Float a, Float b)
-{
-    return next_float_down(a / b);
-}
+    inline Float sqrt_floor(Float a)
+    {
+        return next_float_down(std::sqrt(a));
+    }
 
-inline Float sqrt_ceil(Float a)
-{
-    return next_float_up(std::sqrt(a));
-}
+    inline Float FMA_ceil(Float a, Float b, Float c)
+    {
+        return next_float_up(FMA(a, b, c));
+    }
 
-inline Float sqrt_floor(Float a)
-{
-    return next_float_down(std::sqrt(a));
-}
-
-inline Float FMA_ceil(Float a, Float b, Float c)
-{
-    return next_float_up(FMA(a, b, c));
-}
-
-inline Float FMA_floor(Float a, Float b, Float c)
-{
-    return next_float_down(FMA(a, b, c));
+    inline Float FMA_floor(Float a, Float b, Float c)
+    {
+        return next_float_down(FMA(a, b, c));
+    }
 }

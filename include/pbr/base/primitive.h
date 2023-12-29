@@ -1,6 +1,9 @@
 #pragma once
 
-class Primitive
+namespace loquat
 {
+	class Primitive
+	{
 
-};
+	};
+}
