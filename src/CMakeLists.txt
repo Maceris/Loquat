@@ -26,7 +26,11 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/base/shape.h
   ${HEADER_PATH}/pbr/base/spectrum.h
   ${HEADER_PATH}/pbr/base/texture.h
+  ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/float.h
+  ${HEADER_PATH}/pbr/math/point.h
+  ${HEADER_PATH}/pbr/math/qualifier.h
+  ${HEADER_PATH}/pbr/math/vector.h
   # ${HEADER_PATH}/pipeline
   # ${HEADER_PATH}/shader
   ${HEADER_PATH}/window/window.h

@@ -24,8 +24,13 @@ namespace loquat
 		virtual void render() = 0;
 		virtual std::string to_string() const noexcept = 0;
 
+		[[nodiscard]]
+		bool has_intersection(const Ray& ray,
+			Float t_max = FLOAT_INFINITY) const noexcept;
+		
+		[[nodiscard]]
 		std::optional<ShapeIntersection> intersect(const Ray& ray,
-			Float t_max = FLOAT_INFINITY) const;
+			Float t_max = FLOAT_INFINITY) const noexcept;
 
 		Primitive aggregate;
 		std::vector<Light> lights;
