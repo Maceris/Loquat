@@ -31,8 +31,13 @@ OPTION(LOQUAT_BUILD_DOCS
   OFF
 )
 
-OPTION(1
+OPTION(LOQUAT_USE_WAYLAND
   "Use Wayland instead of X11 on linux"
+  OFF
+)
+
+OPTION(DOUBLE_PRECISION_FLOAT
+  "Use double-precision floating points"
   OFF
 )
 
