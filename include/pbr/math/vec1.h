@@ -10,8 +10,6 @@ namespace loquat
 	template <typename T, Qualifier Q>
 	struct vec<1, T, Q>
 	{
-		using value_type = T;
-		using type = vec<1, T, Q>;
 		union
 		{
 			T x;
