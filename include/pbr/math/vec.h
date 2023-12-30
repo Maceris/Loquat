@@ -8,16 +8,17 @@
 
 namespace loquat
 {
-	template <unsigned int Dims, typename T, Qualifier Q = default_precision>
+	template <unsigned int Dims, typename T, 
+		Qualifier Q = Qualifier::default_precision>
 	struct vec;
 
-	template <typename T, Qualifier Q = default_precision>
+	template <typename T, Qualifier Q = Qualifier::default_precision>
 	using vec1 = vec<1, T, Q>;
 
-	template <typename T, Qualifier Q = default_precision>
+	template <typename T, Qualifier Q = Qualifier::default_precision>
 	using vec2 = vec<2, T, Q>;
 
-	template <typename T, Qualifier Q = default_precision>
+	template <typename T, Qualifier Q = Qualifier::default_precision>
 	using vec3 = vec<3, T, Q>;
 
 	using vec1f = vec1<Float>;

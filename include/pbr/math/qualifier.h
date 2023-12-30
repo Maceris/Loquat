@@ -5,7 +5,7 @@ namespace loquat
 	/// <summary>
 	/// Used to specify packing, alignment, and precision for other types.
 	/// </summary>
-	enum Qualifier
+	enum class Qualifier
 	{
 		packed_high_precision,
 		packed_medium_precision,

@@ -2,14 +2,14 @@
 
 #include <vulkan/vulkan.h>
 
-typedef struct Window;
+struct Window;
 
 /// <summary>
 /// A wrapper around the Vulkan surface.
 /// </summary>
 struct WindowSurface
 {
-	friend class Device;
+	friend struct Device;
 public:
 	WindowSurface(Window* window);
 	WindowSurface(const WindowSurface&) = delete;

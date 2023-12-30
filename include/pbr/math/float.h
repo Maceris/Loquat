@@ -146,11 +146,11 @@ namespace loquat
     }
 
     inline int sign_bit_float(float f) {
-        return (std::bit_cast<uint32_t>(f) >> 32) & 0x1;
+        return (std::bit_cast<uint32_t>(f) >> 31) & 0x1;
     }
 
     inline int sign_bit_double(double d) {
-        return (std::bit_cast<uint64_t>(d) >> 64) & 0x1;
+        return (std::bit_cast<uint64_t>(d) >> 63) & 0x1;
     }
 
     inline int sign_bit(Float f)

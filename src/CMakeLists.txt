@@ -29,7 +29,6 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/base/texture.h
   ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/float.h
-  ${HEADER_PATH}/pbr/math/point.h
   ${HEADER_PATH}/pbr/math/qualifier.h
   ${HEADER_PATH}/pbr/math/vec.h
   ${HEADER_PATH}/pbr/math/vec1.h

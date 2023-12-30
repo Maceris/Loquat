@@ -2,8 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
-typedef struct Window;
-typedef struct WindowSurface;
+struct Window;
+struct WindowSurface;
 
 /// <summary>
 /// Stores the state information for a window.

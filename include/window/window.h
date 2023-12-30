@@ -10,7 +10,7 @@
 /// </summary>
 struct Window
 {
-	friend class WindowSurface;
+	friend struct WindowSurface;
 public:
 	Window();
 	Window(const Window&) = delete;
