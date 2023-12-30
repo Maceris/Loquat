@@ -32,8 +32,10 @@ namespace loquat
 	struct AABB
 	{
 	public:
-		vec<Dims, T, Q> min;
-		vec<Dims, T, Q> max;
+		using VecType = vec<Dims, T, Q>;
+
+		VecType min;
+		VecType max;
 
 		constexpr AABB() noexcept
 			: min{ 0 }
@@ -60,5 +62,15 @@ namespace loquat
 			this->max = std::move(aabb.max);
 			return *this;
 		}
+
+		constexpr AABB(const VecType& min, const VecType& max) noexcept
+			: min{ min }
+			, max{ max }
+		{}
+		constexpr AABB(VecType&& min, VecType&& max) noexcept
+			: min{ std::move(min) }
+			, max{ std::move(max) }
+		{}
+
 	};
 }
