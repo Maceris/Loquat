@@ -3,6 +3,7 @@
 
 #include "debug/logger.h"
 #include "main/global_state.h"
+#include "main/loquat.h"
 #include "main/vulkan_instance.h"
 #include "window/window.h"
 

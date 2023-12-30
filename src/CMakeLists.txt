@@ -31,7 +31,10 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/float.h
   ${HEADER_PATH}/pbr/math/point.h
   ${HEADER_PATH}/pbr/math/qualifier.h
-  ${HEADER_PATH}/pbr/math/vector.h
+  ${HEADER_PATH}/pbr/math/vec.h
+  ${HEADER_PATH}/pbr/math/vec1.h
+  ${HEADER_PATH}/pbr/math/vec2.h
+  ${HEADER_PATH}/pbr/math/vec3.h
   # ${HEADER_PATH}/pipeline
   # ${HEADER_PATH}/shader
   ${HEADER_PATH}/window/window.h

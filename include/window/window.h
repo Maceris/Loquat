@@ -8,7 +8,7 @@
 /// <summary>
 /// A wrapper around the GLFW window.
 /// </summary>
-class Window
+struct Window
 {
 	friend class WindowSurface;
 public:

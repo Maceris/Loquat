@@ -77,13 +77,13 @@ namespace loquat
     }
 
     template <std::floating_point T>
-    inline T is_inf(T v)
+    inline T is_finite(T v)
     {
         return std::isfinite(v);
     }
 
     template <std::integral T>
-    inline T is_inf(T v)
+    inline T is_finite(T v)
     {
         return true;
     }
