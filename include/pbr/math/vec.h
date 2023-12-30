@@ -2,6 +2,7 @@
 
 #include <concepts>
 
+#include "debug/logger.h"
 #include "pbr/math/float.h"
 #include "pbr/math/qualifier.h"
 
@@ -29,6 +30,8 @@ namespace loquat
 	using vec3i = vec3<int>;
 }
 
+#define _VECTOR_PARENT_INCLUDE_
 #include "pbr/math/vec1.h"
 #include "pbr/math/vec2.h"
 #include "pbr/math/vec3.h"
+#undef _VECTOR_PARENT_INCLUDE_
