@@ -33,6 +33,40 @@ Device::~Device()
 	}
 }
 
+[[nodiscard]] SwapChainSupport
+	Device::check_swap_chain_support(const VkPhysicalDevice device)
+	const noexcept
+{
+	const VkSurfaceKHR surface =
+		g_global_state->window_state->surface->vulkan_surface;
+
+	SwapChainSupport details;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
+		&details.capabilities);
+
+	uint32_t format_count;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, 
+		&format_count, nullptr);
+
+	if (format_count != 0) {
+		details.formats.resize(format_count);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface,
+			&format_count, details.formats.data());
+	}
+
+	uint32_t present_mode_count;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, 
+		&present_mode_count, nullptr);
+
+	if (present_mode_count != 0) {
+		details.present_modes.resize(present_mode_count);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface,
+			&present_mode_count, details.present_modes.data());
+	}
+
+	return details;
+}
+
 void Device::create_queues() noexcept
 {
 	const uint32_t queue_index = 0;
@@ -56,7 +90,7 @@ Device::find_queue_families(const VkPhysicalDevice device) const noexcept
 		queue_families.data());
 
 	const VkSurfaceKHR surface = 
-		g_global_state->window_state->surface->surface;
+		g_global_state->window_state->surface->vulkan_surface;
 
 	int i = 0;
 	for (const auto& queue_family : queue_families) {
@@ -103,6 +137,13 @@ int Device::rate_device(const VkPhysicalDevice device) const noexcept
 	}
 
 	if (!supports_required_extensions(device))
+	{
+		return 0;
+	}
+
+	SwapChainSupport swap_chain_support = check_swap_chain_support(device);
+	if (swap_chain_support.formats.empty() 
+		|| swap_chain_support.present_modes.empty())
 	{
 		return 0;
 	}

@@ -23,7 +23,7 @@ struct QueueFamilyIndices
 /// <summary>
 /// Information about swap chain support.
 /// </summary>
-struct SwapChainDetails
+struct SwapChainSupport
 {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
@@ -39,6 +39,7 @@ struct Device
 	VkDevice logical_device = VK_NULL_HANDLE;
 	VkQueue graphics_queue = nullptr;
 	VkQueue present_queue = nullptr;
+	VkSurfaceKHR surface;
 
 	Device();
 	Device(const Device&) = delete;
@@ -55,7 +56,7 @@ private:
 	/// </summary>
 	/// <param name="device">The device we are checking.</param>
 	/// <returns></returns>
-	[[nodiscard]] SwapChainDetails
+	[[nodiscard]] SwapChainSupport
 		check_swap_chain_support(const VkPhysicalDevice device) const noexcept;
 
 	/// <summary>

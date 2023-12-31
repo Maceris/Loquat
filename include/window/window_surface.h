@@ -18,5 +18,5 @@ public:
 	WindowSurface& operator=(const WindowSurface&&) = delete;
 	~WindowSurface();
 private:
-	VkSurfaceKHR surface = nullptr;
+	VkSurfaceKHR vulkan_surface = nullptr;
 };

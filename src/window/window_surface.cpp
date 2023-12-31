@@ -15,7 +15,7 @@ WindowSurface::WindowSurface(Window* window)
 
 	if (glfwCreateWindowSurface(g_global_state->instance, 
 		window->glfw_window, 
-		NULL, &surface) != VK_SUCCESS)
+		NULL, &vulkan_surface) != VK_SUCCESS)
 	{
 		LOG_FATAL("Failed to create a window surface");
 	}
@@ -23,5 +23,5 @@ WindowSurface::WindowSurface(Window* window)
 
 WindowSurface::~WindowSurface()
 {
-	vkDestroySurfaceKHR(g_global_state->instance, surface, nullptr);
+	vkDestroySurfaceKHR(g_global_state->instance, vulkan_surface, nullptr);
 }
