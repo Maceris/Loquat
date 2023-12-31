@@ -37,19 +37,19 @@ namespace loquat
 			, time{ time }
 			, medium{ medium }
 		{}
-		Ray(const Ray& ray)
+		Ray(const Ray<Dims, T>& ray)
 			: origin{ ray.origin }
 			, direction{ ray.direction }
 			, time{ ray.time }
 			, medium{ ray.medium }
 		{}
-		Ray(Ray&& ray)
+		Ray(Ray<Dims, T>&& ray)
 			: origin{ std::move(ray.origin) }
 			, direction{ std::move(ray.direction) }
 			, time{ std::move(ray.time) }
 			, medium{ std::move(ray.medium) }
 		{}
-		Ray& operator=(const Ray& ray)
+		Ray<Dims, T>& operator=(const Ray<Dims, T>& ray)
 		{
 			this->origin = ray.origin;
 			this->direction = ray.direction;
@@ -57,7 +57,7 @@ namespace loquat
 			this->medium = ray.medium;
 			return *this;
 		}
-		Ray& operator=(Ray&& ray)
+		Ray<Dims, T>& operator=(Ray<Dims, T>&& ray)
 		{
 			this->origin = std::move(ray.origin);
 			this->direction = std::move(ray.direction);
@@ -65,5 +65,35 @@ namespace loquat
 			this->medium = std::move(ray.medium);
 			return *this;
 		}
+
+		template<typename A>
+			requires std::convertible_to<A, T>
+		constexpr Ray<Dims, T>& operator+=(A scalar)
+		{
+			this->origin += static_cast<T>(scalar);
+			return *this;
+		}
+		template<typename A>
+			requires std::convertible_to<A, T>
+		constexpr Ray<Dims, T>& operator-=(A scalar)
+		{
+			this->origin -= static_cast<T>(scalar);
+			return *this;
+		}
+		template<typename A>
+			requires std::convertible_to<A, T>
+		constexpr Ray<Dims, T>& operator*=(A scalar)
+		{
+			this->direction *= static_cast<T>(scalar);
+			return *this;
+		}
+		template<typename A>
+			requires std::convertible_to<A, T>
+		constexpr Ray<Dims, T>& operator/=(A scalar)
+		{
+			this->direction /= static_cast<T>(scalar);
+			return *this;
+		}
+
 	};
 }
