@@ -13,7 +13,6 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/main/loquat.h
   ${HEADER_PATH}/main/vulkan_instance.h
   ${HEADER_PATH}/memory/memory_utils.h
-  ${HEADER_PATH}/pbr/ray.h
   ${HEADER_PATH}/pbr/base/bxdf.h
   ${HEADER_PATH}/pbr/base/camera.h
   ${HEADER_PATH}/pbr/base/filter.h
@@ -29,7 +28,8 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/base/texture.h
   ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/float.h
-  ${HEADER_PATH}/pbr/math/qualifier.h
+  ${HEADER_PATH}/pbr/math/point.h
+  ${HEADER_PATH}/pbr/math/ray.h
   ${HEADER_PATH}/pbr/math/vec.h
   ${HEADER_PATH}/pbr/math/vec1.h
   ${HEADER_PATH}/pbr/math/vec2.h

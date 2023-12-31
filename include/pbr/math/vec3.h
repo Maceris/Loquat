@@ -1,14 +1,9 @@
 #pragma once
 
-#if !defined(_VECTOR_PARENT_INCLUDE_)
-#include "debug/logger.h"
-#include "pbr/math/Qualifier.h"
-#endif
-
 namespace loquat
 {
-	template <typename T, Qualifier Q>
-	struct vec<3, T, Q>
+	template <typename T>
+	struct Vec<3, T>
 	{
 		union
 		{
@@ -53,37 +48,31 @@ namespace loquat
 			}
 		}
 
-		constexpr vec()
+		constexpr Vec()
 			: x{ 0 }
 			, y{ 0 }
 			, z{ 0 }
 		{}
-		constexpr vec(vec const& v)
-			: x{ v.x }
-			, y{ v.y }
-			, z{ v.z }
-		{}
-		template <Qualifier R>
-		constexpr vec(vec<3, T, R> const& v)
+		constexpr Vec(Vec<3, T> const& v)
 			: x{ v.x }
 			, y{ v.y }
 			, z{ v.z }
 		{}
 
-		constexpr explicit vec(T scalar)
+		constexpr explicit Vec(T scalar)
 			: x{ scalar }
 			, y{ scalar }
 			, z{ scalar }
 		{}
-		constexpr vec(T x, T y, T z)
+		constexpr Vec(T x, T y, T z)
 			: x{ x }
 			, y{ y }
 			, z{ z }
 		{}
 
-		template<typename A, Qualifier Q>
+		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr explicit vec(vec<1, A, Q> const& v)
+		constexpr explicit Vec(Vec<1, A> const& v)
 			: x{ v.x }
 			, y{ v.x }
 			, z{ v.x }
@@ -91,7 +80,7 @@ namespace loquat
 
 		template <typename A, typename B, typename C>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>&& std::convertible_to<C, T>
-		constexpr vec(A x, B y, C z)
+		constexpr Vec(A x, B y, C z)
 			: x{ static_cast<T>(x) }
 			, y{ static_cast<T>(y) }
 			, z{ static_cast<T>(z) }
@@ -99,7 +88,7 @@ namespace loquat
 
 		template <typename A, typename B, typename C>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>&& std::convertible_to<C, T>
-		constexpr vec(vec<1, A, Q> const& v, B y, C z)
+		constexpr Vec(Vec<1, A> const& v, B y, C z)
 			: x{ static_cast<T>(v.x) }
 			, y{ static_cast<T>(y) }
 			, z{ static_cast<T>(z) }
@@ -107,7 +96,7 @@ namespace loquat
 
 		template <typename A, typename B, typename C>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>&& std::convertible_to<C, T>
-		constexpr vec(A x, vec<1, B, Q> const& v, C z)
+		constexpr Vec(A x, Vec<1, B> const& v, C z)
 			: x{ static_cast<T>(x) }
 			, y{ static_cast<T>(v.x) }
 			, z{ static_cast<T>(z) }
@@ -115,7 +104,7 @@ namespace loquat
 
 		template <typename A, typename B, typename C>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>&& std::convertible_to<C, T>
-		constexpr vec(vec<1, A, Q> const& v1, vec<1, B, Q> const& v2, C z)
+		constexpr Vec(Vec<1, A> const& v1, Vec<1, B> const& v2, C z)
 			: x{ static_cast<T>(v1.x) }
 			, y{ static_cast<T>(v2.x) }
 			, z{ static_cast<T>(z) }
@@ -123,7 +112,7 @@ namespace loquat
 
 		template <typename A, typename B, typename C>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>&& std::convertible_to<C, T>
-		constexpr vec(A x, B y, vec<1, C, Q> const& v)
+		constexpr Vec(A x, B y, Vec<1, C> const& v)
 			: x{ static_cast<T>(x) }
 			, y{ static_cast<T>(y) }
 			, z{ static_cast<T>(v.x) }
@@ -131,7 +120,7 @@ namespace loquat
 
 		template <typename A, typename B, typename C>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>&& std::convertible_to<C, T>
-		constexpr vec(vec<1, A, Q> const& v1, B y, vec<1, C, Q> const& v2)
+		constexpr Vec(Vec<1, A> const& v1, B y, Vec<1, C> const& v2)
 			: x{ static_cast<T>(v1.x) }
 			, y{ static_cast<T>(y) }
 			, z{ static_cast<T>(v2.x) }
@@ -139,7 +128,7 @@ namespace loquat
 
 		template <typename A, typename B, typename C>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>&& std::convertible_to<C, T>
-		constexpr vec(A x, vec<1, B, Q> const& v1, vec<1, C, Q> const& v2)
+		constexpr Vec(A x, Vec<1, B> const& v1, Vec<1, C> const& v2)
 			: x{ static_cast<T>(x) }
 			, y{ static_cast<T>(v1.x) }
 			, z{ static_cast<T>(v2.x) }
@@ -147,8 +136,8 @@ namespace loquat
 
 		template <typename A, typename B, typename C>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>&& std::convertible_to<C, T>
-		constexpr vec(vec<1, A, Q> const& v1, vec<1, B, Q> const& v2, 
-			vec<1, C, Q> const& v3)
+		constexpr Vec(Vec<1, A> const& v1, Vec<1, B> const& v2, 
+			Vec<1, C> const& v3)
 			: x{ static_cast<T>(v1.x) }
 			, y{ static_cast<T>(v2.x) }
 			, z{ static_cast<T>(v3.x) }
@@ -157,7 +146,7 @@ namespace loquat
 
 		template <typename A, typename B>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>
-		constexpr vec(vec<2, A, Q> const& xy, B z)
+		constexpr Vec(Vec<2, A> const& xy, B z)
 			: x{ static_cast<T>(xy.x) }
 			, y{ static_cast<T>(xy.y) }
 			, z{ static_cast<T>(z) }
@@ -165,7 +154,7 @@ namespace loquat
 
 		template <typename A, typename B>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>
-		constexpr vec(vec<2, A, Q> const& xy, vec<1, B, Q> const& z)
+		constexpr Vec(Vec<2, A> const& xy, Vec<1, B> const& z)
 			: x{ static_cast<T>(xy.x) }
 			, y{ static_cast<T>(xy.y) }
 			, z{ static_cast<T>(z.x) }
@@ -173,7 +162,7 @@ namespace loquat
 
 		template <typename A, typename B>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>
-		constexpr vec(A x, vec<2, B, Q> const& yz)
+		constexpr Vec(A x, Vec<2, B> const& yz)
 			: x{ static_cast<T>(x) }
 			, y{ static_cast<T>(yz.x) }
 			, z{ static_cast<T>(yz.y) }
@@ -181,21 +170,21 @@ namespace loquat
 
 		template <typename A, typename B>
 			requires std::convertible_to<A, T>&& std::convertible_to<B, T>
-		constexpr vec(vec<1, A, Q> const& x, vec<2, B, Q> const& yz)
+		constexpr Vec(Vec<1, A> const& x, Vec<2, B> const& yz)
 			: x{ static_cast<T>(x.x) }
 			, y{ static_cast<T>(yz.x) }
 			, z{ static_cast<T>(yz.y) }
 		{}
 
-		template <typename A, Qualifier R>
+		template <typename A>
 			requires std::convertible_to<A, T>
-		constexpr explicit vec(vec<3, A, R> const& v)
+		constexpr explicit Vec(Vec<3, A> const& v)
 			: x{ static_cast<T>(v.x) }
 			, y{ static_cast<T>(v.y) }
 			, z{ static_cast<T>(v.z) }
 		{}
 
-		constexpr vec<3, T, Q>& operator=(vec<3, T, Q> const& v)
+		constexpr Vec<3, T>& operator=(Vec<3, T> const& v)
 		{
 			this->x = v.x;
 			this->y = v.y;
@@ -205,7 +194,7 @@ namespace loquat
 
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator=(Vec<3, A> const& v)
 		{
 			this->x = static_cast<T>(v.x);
 			this->y = static_cast<T>(v.y);
@@ -214,7 +203,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator+=(A scalar)
+		constexpr Vec<3, T>& operator+=(A scalar)
 		{
 			this->x += static_cast<T>(scalar);
 			this->y += static_cast<T>(scalar);
@@ -223,7 +212,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator+=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator+=(Vec<1, A> const& v)
 		{
 			this->x += static_cast<T>(v.x);
 			this->y += static_cast<T>(v.x);
@@ -232,7 +221,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator+=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator+=(Vec<3, A> const& v)
 		{
 			this->x += static_cast<T>(v.x);
 			this->y += static_cast<T>(v.y);
@@ -241,7 +230,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator-=(A scalar)
+		constexpr Vec<3, T>& operator-=(A scalar)
 		{
 			this->x -= static_cast<T>(scalar);
 			this->y -= static_cast<T>(scalar);
@@ -250,7 +239,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator-=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator-=(Vec<1, A> const& v)
 		{
 			this->x -= static_cast<T>(v.x);
 			this->y -= static_cast<T>(v.x);
@@ -259,7 +248,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator-=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator-=(Vec<3, A> const& v)
 		{
 			this->x -= static_cast<T>(v.x);
 			this->y -= static_cast<T>(v.y);
@@ -268,7 +257,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator*=(A scalar)
+		constexpr Vec<3, T>& operator*=(A scalar)
 		{
 			this->x *= static_cast<T>(scalar);
 			this->y *= static_cast<T>(scalar);
@@ -277,7 +266,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator*=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator*=(Vec<1, A> const& v)
 		{
 			this->x *= static_cast<T>(v.x);
 			this->y *= static_cast<T>(v.x);
@@ -286,7 +275,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator*=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator*=(Vec<3, A> const& v)
 		{
 			this->x *= static_cast<T>(v.x);
 			this->y *= static_cast<T>(v.y);
@@ -295,7 +284,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator/=(A scalar)
+		constexpr Vec<3, T>& operator/=(A scalar)
 		{
 			this->x /= static_cast<T>(scalar);
 			this->y /= static_cast<T>(scalar);
@@ -304,7 +293,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator/=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator/=(Vec<1, A> const& v)
 		{
 			this->x /= static_cast<T>(v.x);
 			this->y /= static_cast<T>(v.x);
@@ -313,7 +302,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator/=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator/=(Vec<3, A> const& v)
 		{
 			this->x /= static_cast<T>(v.x);
 			this->y /= static_cast<T>(v.y);
@@ -321,36 +310,36 @@ namespace loquat
 			return *this;
 		}
 
-		constexpr vec<3, T, Q>& operator++()
+		constexpr Vec<3, T>& operator++()
 		{
 			++this->x;
 			++this->y;
 			++this->z;
 			return *this;
 		}
-		constexpr vec<3, T, Q>& operator--()
+		constexpr Vec<3, T>& operator--()
 		{
 			--this->x;
 			--this->y;
 			--this->z;
 			return *this;
 		}
-		constexpr vec<3, T, Q> operator++(int)
+		constexpr Vec<3, T> operator++(int)
 		{
-			vec<3, T, Q> result(*this);
+			Vec<3, T> result(*this);
 			++*this;
 			return result;
 		}
-		constexpr vec<3, T, Q> operator--(int)
+		constexpr Vec<3, T> operator--(int)
 		{
-			vec<3, T, Q> result(*this);
+			Vec<3, T> result(*this);
 			--*this;
 			return result;
 		}
 
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator%=(A scalar)
+		constexpr Vec<3, T>& operator%=(A scalar)
 		{
 			this->x %= static_cast<T>(scalar);
 			this->y %= static_cast<T>(scalar);
@@ -359,7 +348,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator%=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator%=(Vec<1, A> const& v)
 		{
 			this->x %= static_cast<T>(v.x);
 			this->y %= static_cast<T>(v.x);
@@ -368,7 +357,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator%=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator%=(Vec<3, A> const& v)
 		{
 			this->x %= static_cast<T>(v.x);
 			this->y %= static_cast<T>(v.y);
@@ -377,7 +366,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator&=(A scalar)
+		constexpr Vec<3, T>& operator&=(A scalar)
 		{
 			this->x &= static_cast<T>(scalar);
 			this->y &= static_cast<T>(scalar);
@@ -386,7 +375,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator&=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator&=(Vec<1, A> const& v)
 		{
 			this->x &= static_cast<T>(v.x);
 			this->y &= static_cast<T>(v.x);
@@ -395,7 +384,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator&=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator&=(Vec<3, A> const& v)
 		{
 			this->x &= static_cast<T>(v.x);
 			this->y &= static_cast<T>(v.y);
@@ -404,7 +393,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator|=(A scalar)
+		constexpr Vec<3, T>& operator|=(A scalar)
 		{
 			this->x |= static_cast<T>(scalar);
 			this->y |= static_cast<T>(scalar);
@@ -413,7 +402,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator|=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator|=(Vec<1, A> const& v)
 		{
 			this->x |= static_cast<T>(v.x);
 			this->y |= static_cast<T>(v.x);
@@ -422,7 +411,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator|=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator|=(Vec<3, A> const& v)
 		{
 			this->x |= static_cast<T>(v.x);
 			this->y |= static_cast<T>(v.y);
@@ -431,7 +420,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator^=(A scalar)
+		constexpr Vec<3, T>& operator^=(A scalar)
 		{
 			this->x ^= static_cast<T>(scalar);
 			this->y ^= static_cast<T>(scalar);
@@ -440,7 +429,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator^=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator^=(Vec<1, A> const& v)
 		{
 			this->x ^= static_cast<T>(v.x);
 			this->y ^= static_cast<T>(v.x);
@@ -449,7 +438,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator^=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator^=(Vec<3, A> const& v)
 		{
 			this->x ^= static_cast<T>(v.x);
 			this->y ^= static_cast<T>(v.y);
@@ -458,7 +447,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator<<=(A scalar)
+		constexpr Vec<3, T>& operator<<=(A scalar)
 		{
 			this->x <<= static_cast<T>(scalar);
 			this->y <<= static_cast<T>(scalar);
@@ -467,7 +456,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator<<=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator<<=(Vec<1, A> const& v)
 		{
 			this->x <<= static_cast<T>(v.x);
 			this->y <<= static_cast<T>(v.x);
@@ -476,7 +465,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator<<=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator<<=(Vec<3, A> const& v)
 		{
 			this->x <<= static_cast<T>(v.x);
 			this->y <<= static_cast<T>(v.y);
@@ -485,7 +474,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator>>=(A scalar)
+		constexpr Vec<3, T>& operator>>=(A scalar)
 		{
 			this->x >>= static_cast<T>(scalar);
 			this->y >>= static_cast<T>(scalar);
@@ -494,7 +483,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator>>=(vec<1, A, Q> const& v)
+		constexpr Vec<3, T>& operator>>=(Vec<1, A> const& v)
 		{
 			this->x >>= static_cast<T>(v.x);
 			this->y >>= static_cast<T>(v.x);
@@ -503,7 +492,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, T>
-		constexpr vec<3, T, Q>& operator>>=(vec<3, A, Q> const& v)
+		constexpr Vec<3, T>& operator>>=(Vec<3, A> const& v)
 		{
 			this->x >>= static_cast<T>(v.x);
 			this->y >>= static_cast<T>(v.y);
@@ -512,577 +501,575 @@ namespace loquat
 		}
 	};
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator+(vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator+(Vec<3, T> const& v)
 	{
 		return v;
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator-(vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator-(Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(-v.x, -v.y, -v.z);
+		return Vec<3, T>(-v.x, -v.y, -v.z);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator+(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator+(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v.x + scalar,
 			v.y + scalar,
 			v.z + scalar
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator+(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator+(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x + v2.x,
 			v1.y + v2.x,
 			v1.z + v2.x
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator+(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator+(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			scalar + v.x,
 			scalar + v.y,
 			scalar + v.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator+(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator+(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x + v2.x,
 			v1.x + v2.y,
 			v1.x + v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator+(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator+(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x + v2.x,
 			v1.y + v2.y,
 			v1.z + v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator-(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator-(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v.x - scalar,
 			v.y - scalar,
 			v.z - scalar
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator-(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator-(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x - v2.x,
 			v1.y - v2.x,
 			v1.z - v2.x
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator-(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator-(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			scalar - v.x,
 			scalar - v.y,
 			scalar - v.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator-(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator-(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x - v2.x,
 			v1.x - v2.y,
 			v1.x - v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator-(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator-(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x - v2.x,
 			v1.y - v2.y,
 			v1.z - v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator*(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator*(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v.x * scalar,
 			v.y * scalar,
 			v.z * scalar
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator*(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator*(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x * v2.x,
 			v1.y * v2.x,
 			v1.z * v2.x
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator*(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator*(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			scalar * v.x,
 			scalar * v.y,
 			scalar * v.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator*(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator*(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x * v2.x,
 			v1.x * v2.y,
 			v1.x * v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator*(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator*(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x * v2.x,
 			v1.y * v2.y,
 			v1.z * v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator/(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator/(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v.x / scalar,
 			v.y / scalar,
 			v.z / scalar
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator/(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator/(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x / v2.x,
 			v1.y / v2.x,
 			v1.z / v2.x
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator/(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator/(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			scalar / v.x,
 			scalar / v.y,
 			scalar / v.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator/(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator/(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x / v2.x,
 			v1.x / v2.y,
 			v1.x / v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator/(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator/(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x / v2.x,
 			v1.y / v2.y,
 			v1.z / v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator%(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator%(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v.x % scalar,
 			v.y % scalar,
 			v.z % scalar
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator%(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator%(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x % v2.x,
 			v1.y % v2.x,
 			v1.z % v2.x
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator%(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator%(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			scalar % v.x,
 			scalar % v.y,
 			scalar % v.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator%(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator%(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x % v2.x,
 			v1.x % v2.y,
 			v1.x % v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator%(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator%(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x % v2.x,
 			v1.y % v2.y,
 			v1.z % v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator&(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator&(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v.x & scalar,
 			v.y & scalar,
 			v.z & scalar
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator&(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator&(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x & v2.x,
 			v1.y & v2.x,
 			v1.z & v2.x
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator&(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator&(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			scalar & v.x,
 			scalar & v.y,
 			scalar & v.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator&(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator&(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x & v2.x,
 			v1.x & v2.y,
 			v1.x & v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator&(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator&(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x & v2.x,
 			v1.y & v2.y,
 			v1.z & v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator|(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator|(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v.x | scalar,
 			v.y | scalar,
 			v.z | scalar
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator|(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator|(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x | v2.x,
 			v1.y | v2.x,
 			v1.z | v2.x
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator|(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator|(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			scalar | v.x,
 			scalar | v.y,
 			scalar | v.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator|(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator|(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x | v2.x,
 			v1.x | v2.y,
 			v1.x | v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator|(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator|(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x | v2.x,
 			v1.y | v2.y,
 			v1.z | v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator^(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator^(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v.x ^ scalar,
 			v.y ^ scalar,
 			v.z ^ scalar
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator^(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator^(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x ^ v2.x,
 			v1.y ^ v2.x,
 			v1.z ^ v2.x
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator^(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator^(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			scalar ^ v.x,
 			scalar ^ v.y,
 			scalar ^ v.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator^(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator^(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x ^ v2.x,
 			v1.x ^ v2.y,
 			v1.x ^ v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator^(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator^(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			v1.x ^ v2.x,
 			v1.y ^ v2.y,
 			v1.z ^ v2.z
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator<<(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator<<(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(v.x << scalar),
 			static_cast<T>(v.y << scalar),
 			static_cast<T>(v.z << scalar)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator<<(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator<<(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(v1.x << v2.x),
 			static_cast<T>(v1.y << v2.x),
 			static_cast<T>(v1.z << v2.x)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator<<(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator<<(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(scalar << v.x),
 			static_cast<T>(scalar << v.y),
 			static_cast<T>(scalar << v.z)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator<<(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator<<(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(v1.x << v2.x),
 			static_cast<T>(v1.x << v2.y),
 			static_cast<T>(v1.x << v2.z)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator<<(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator<<(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(v1.x << v2.x),
 			static_cast<T>(v1.y << v2.y),
 			static_cast<T>(v1.z << v2.z)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator>>(vec<3, T, Q> const& v, T scalar)
+	template<typename T>
+	constexpr Vec<3, T> operator>>(Vec<3, T> const& v, T scalar)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(v.x >> scalar),
 			static_cast<T>(v.y >> scalar),
 			static_cast<T>(v.z >> scalar)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator>>(vec<3, T, Q> const& v1,
-		vec<1, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator>>(Vec<3, T> const& v1,
+		Vec<1, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(v1.x >> v2.x),
 			static_cast<T>(v1.y >> v2.x),
 			static_cast<T>(v1.z >> v2.x)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator>>(T scalar, vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator>>(T scalar, Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(scalar >> v.x),
 			static_cast<T>(scalar >> v.y),
 			static_cast<T>(scalar >> v.z)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator>>(vec<1, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator>>(Vec<1, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(v1.x >> v2.x),
 			static_cast<T>(v1.x >> v2.y),
 			static_cast<T>(v1.x >> v2.z)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator>>(vec<3, T, Q> const& v1,
-		vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr Vec<3, T> operator>>(Vec<3, T> const& v1,
+		Vec<3, T> const& v2)
 	{
-		return vec<3, T, Q>(
+		return Vec<3, T>(
 			static_cast<T>(v1.x >> v2.x),
 			static_cast<T>(v1.y >> v2.y),
 			static_cast<T>(v1.z >> v2.z)
 		);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr vec<3, T, Q> operator~(vec<3, T, Q> const& v)
+	template<typename T>
+	constexpr Vec<3, T> operator~(Vec<3, T> const& v)
 	{
-		return vec<3, T, Q>(~v.x, ~v.y, ~v.z);
+		return Vec<3, T>(~v.x, ~v.y, ~v.z);
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr bool operator==(vec<3, T, Q> const& v1, vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr bool operator==(Vec<3, T> const& v1, Vec<3, T> const& v2)
 	{
 		return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
 	}
 
-	template<typename T, Qualifier Q>
-	constexpr bool operator!=(vec<3, T, Q> const& v1, vec<3, T, Q> const& v2)
+	template<typename T>
+	constexpr bool operator!=(Vec<3, T> const& v1, Vec<3, T> const& v2)
 	{
 		return !(v1 == v2);
 	}
 
-	template<Qualifier Q>
-	constexpr vec<3, bool, Q> operator&&(vec<3, bool, Q> const& v1,
-		vec<3, bool, Q> const& v2)
+	constexpr Vec<3, bool> operator&&(Vec<3, bool> const& v1,
+		Vec<3, bool> const& v2)
 	{
-		return vec<3, bool, Q>(v1.x && v2.x, v1.y && v2.y, v1.z && v2.z);
+		return Vec<3, bool>(v1.x && v2.x, v1.y && v2.y, v1.z && v2.z);
 	}
 
-	template<Qualifier Q>
-	constexpr vec<3, bool, Q> operator||(vec<3, bool, Q> const& v1,
-		vec<3, bool, Q> const& v2)
+	constexpr Vec<3, bool> operator||(Vec<3, bool> const& v1,
+		Vec<3, bool> const& v2)
 	{
-		return vec<3, bool, Q>(v1.x || v2.x, v1.y || v2.y, v1.z || v2.z);
+		return Vec<3, bool>(v1.x || v2.x, v1.y || v2.y, v1.z || v2.z);
 	}
 }

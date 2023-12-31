@@ -1,38 +1,29 @@
 #pragma once
 
-#include <concepts>
-
-#include "debug/logger.h"
-#include "pbr/math/float.h"
-#include "pbr/math/qualifier.h"
-
 namespace loquat
 {
-	template <unsigned int Dims, typename T, 
-		Qualifier Q = Qualifier::default_precision>
-	struct vec;
+	template <unsigned int Dims, typename T>
+	struct Vec;
 
-	template <typename T, Qualifier Q = Qualifier::default_precision>
-	using vec1 = vec<1, T, Q>;
+	template <typename T>
+	using Vec1 = Vec<1, T>;
 
-	template <typename T, Qualifier Q = Qualifier::default_precision>
-	using vec2 = vec<2, T, Q>;
+	template <typename T>
+	using Vec2 = Vec<2, T>;
 
-	template <typename T, Qualifier Q = Qualifier::default_precision>
-	using vec3 = vec<3, T, Q>;
+	template <typename T>
+	using Vec3 = Vec<3, T>;
 
-	using vec1f = vec1<Float>;
-	using vec1i = vec1<int>;
+	using Vec1f = Vec1<Float>;
+	using Vec1i = Vec1<int>;
 
-	using vec2f = vec2<Float>;
-	using vec2i = vec2<int>;
+	using Vec2f = Vec2<Float>;
+	using Vec2i = Vec2<int>;
 	
-	using vec3f = vec3<Float>;
-	using vec3i = vec3<int>;
+	using Vec3f = Vec3<Float>;
+	using Vec3i = Vec3<int>;
 }
 
-#define _VECTOR_PARENT_INCLUDE_
 #include "pbr/math/vec1.h"
 #include "pbr/math/vec2.h"
 #include "pbr/math/vec3.h"
-#undef _VECTOR_PARENT_INCLUDE_

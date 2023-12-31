@@ -1,22 +1,18 @@
 #pragma once
 
-#include "pbr/math/float.h"
-#include "pbr/math/qualifier.h"
-#include "pbr/math/vec.h"
-
 namespace loquat
 {
-	template <unsigned int Dims, typename T, Qualifier Q = Qualifier::default_precision>
+	template <unsigned int Dims, typename T>
 	struct AABB;
 
-	template <typename T, Qualifier Q = Qualifier::default_precision>
-	using AABB1 = AABB<1, T, Q>;
+	template <typename T>
+	using AABB1 = AABB<1, T>;
 
-	template <typename T, Qualifier Q = Qualifier::default_precision>
-	using AABB2 = AABB<2, T, Q>;
+	template <typename T>
+	using AABB2 = AABB<2, T>;
 
-	template <typename T, Qualifier Q = Qualifier::default_precision>
-	using AABB3 = AABB<3, T, Q>;
+	template <typename T>
+	using AABB3 = AABB<3, T>;
 
 	using AABB1f = AABB1<Float>;
 	using AABB1i = AABB1<int>;
@@ -28,14 +24,14 @@ namespace loquat
 	using AABB3i = AABB3<int>;
 
 
-	template <unsigned int Dims, typename T, Qualifier Q>
+	template <unsigned int Dims, typename T>
 	struct AABB
 	{
 	public:
-		using VecType = vec<Dims, T, Q>;
+		using PointType = Point<Dims, T>;
 
-		VecType min;
-		VecType max;
+		PointType min;
+		PointType max;
 
 		constexpr AABB() noexcept
 			: min{ 0 }
@@ -63,11 +59,11 @@ namespace loquat
 			return *this;
 		}
 
-		constexpr AABB(const VecType& min, const VecType& max) noexcept
+		constexpr AABB(const PointType& min, const PointType& max) noexcept
 			: min{ min }
 			, max{ max }
 		{}
-		constexpr AABB(VecType&& min, VecType&& max) noexcept
+		constexpr AABB(PointType&& min, PointType&& max) noexcept
 			: min{ std::move(min) }
 			, max{ std::move(max) }
 		{}
