@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
+struct SwapChain;
 struct Window;
 struct WindowSurface;
 
@@ -12,7 +13,7 @@ struct WindowState
 {
 	Window* window = nullptr;
 	WindowSurface* surface = nullptr;
-	VkSwapchainKHR swap_chain = nullptr;
+	SwapChain* swap_chain = nullptr;
 
 	WindowState() = default;
 	WindowState(const WindowState&) = delete;

@@ -36,6 +36,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/vec3.h
   # ${HEADER_PATH}/pipeline
   # ${HEADER_PATH}/shader
+  ${HEADER_PATH}/window/swap_chain.h
   ${HEADER_PATH}/window/window.h
   ${HEADER_PATH}/window/window_state.h
   ${HEADER_PATH}/window/window_surface.h
@@ -47,6 +48,7 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/main/global_state.cpp
   ${SOURCE_PATH}/main/loquat.cpp
   ${SOURCE_PATH}/main/vulkan_instance.cpp
+  ${SOURCE_PATH}/window/swap_chain.cpp
   ${SOURCE_PATH}/window/window.cpp
   ${SOURCE_PATH}/window/window_state.cpp
   ${SOURCE_PATH}/window/window_surface.cpp

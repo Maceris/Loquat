@@ -5,6 +5,7 @@
 #include "main/global_state.h"
 #include "main/loquat.h"
 #include "main/vulkan_instance.h"
+#include "window/swap_chain.h"
 #include "window/window.h"
 
 GlobalState* g_global_state = new GlobalState();
@@ -35,6 +36,7 @@ namespace loquat
 		create_vulkan_instance();
 		create_vulkan_window();
 		g_global_state->device = new Device();
+		g_global_state->window_state->swap_chain = new SwapChain();
 
 		while (!g_global_state->window_state->window->should_close())
 		{

@@ -2,21 +2,15 @@
 
 #include "debug/logger.h"
 #include "main/global_state.h"
+#include "memory/memory_utils.h"
 #include "window/window.h"
 #include "window/window_surface.h"
 
 WindowState::~WindowState()
 {
-	if (surface)
-	{
-		delete surface;
-		surface = nullptr;
-	}
-	if (window)
-	{
-		delete window;
-		window = nullptr;
-	}
+	SAFE_DELETE(swap_chain);
+	SAFE_DELETE(surface);
+	SAFE_DELETE(window);
 }
 
 void create_vulkan_window()

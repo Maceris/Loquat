@@ -5,6 +5,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "window/swap_chain.h"
+
 /// <summary>
 /// A set of all the queue families we care about.
 /// </summary>
@@ -21,20 +23,12 @@ struct QueueFamilyIndices
 };
 
 /// <summary>
-/// Information about swap chain support.
-/// </summary>
-struct SwapChainSupport
-{
-	VkSurfaceCapabilitiesKHR capabilities;
-	std::vector<VkSurfaceFormatKHR> formats;
-	std::vector<VkPresentModeKHR> present_modes;
-};
-
-/// <summary>
 /// Stores information about a device and what we need to interact with it.
 /// </summary>
 struct Device
 {
+	friend struct SwapChain;
+public:
 	VkPhysicalDevice physical_device = VK_NULL_HANDLE;
 	VkDevice logical_device = VK_NULL_HANDLE;
 	VkQueue graphics_queue = nullptr;

@@ -7,12 +7,13 @@ void unload_debug_messenger();
 
 GlobalState::~GlobalState()
 {
+	SAFE_DELETE(window_state);
+
 	SAFE_DELETE(device);
 	if (debug_messenger)
 	{
 		unload_debug_messenger();
 	}
-	SAFE_DELETE(window_state);
 	
 	if (instance)
 	{

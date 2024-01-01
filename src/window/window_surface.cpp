@@ -31,7 +31,11 @@ WindowSurface::~WindowSurface()
 void WindowSurface::select_present_mode(
 	const std::vector<VkPresentModeKHR>& available_present_modes) noexcept
 {
-	LOG_WARNING("We don't have any available present modes");
+	if (available_present_modes.empty())
+	{
+		LOG_WARNING("We don't have any available present modes");
+	}
+	
 	for (const auto& availablePresentMode : available_present_modes)
 	{
 		//NOTE(ches) reduces latency, but maybe at the expense of some power

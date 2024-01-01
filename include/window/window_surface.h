@@ -12,6 +12,7 @@ struct Window;
 struct WindowSurface
 {
 	friend struct Device;
+	friend struct SwapChain;
 public:
 	WindowSurface(Window* window);
 	WindowSurface(const WindowSurface&) = delete;
@@ -24,7 +25,7 @@ private:
 	VkSurfaceKHR vulkan_surface = nullptr;
 	VkSurfaceFormatKHR* surface_format = nullptr;
 	VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
-
+	
 	/// <summary>
 	/// Select the best present mode from a list, and store it in this struct.
 	/// </summary>
