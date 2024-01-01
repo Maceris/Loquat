@@ -8,10 +8,9 @@
 #include "window/swap_chain.h"
 #include "window/window.h"
 
-GlobalState* g_global_state = new GlobalState();
-
 namespace loquat
 {
+	GlobalState* g_global_state = new GlobalState();
 	int main();
 }
 
