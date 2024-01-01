@@ -39,7 +39,6 @@ struct Device
 	VkDevice logical_device = VK_NULL_HANDLE;
 	VkQueue graphics_queue = nullptr;
 	VkQueue present_queue = nullptr;
-	VkSurfaceKHR surface;
 
 	Device();
 	Device(const Device&) = delete;
@@ -58,6 +57,12 @@ private:
 	/// <returns></returns>
 	[[nodiscard]] SwapChainSupport
 		check_swap_chain_support(const VkPhysicalDevice device) const noexcept;
+
+	/// <summary>
+	/// Set the window surface up with present modes and surface format based
+	/// on the selected device.
+	/// </summary>
+	void configure_surface() const noexcept;
 
 	/// <summary>
 	/// Set up the device queues.

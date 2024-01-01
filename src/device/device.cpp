@@ -21,6 +21,7 @@ Device::Device()
 	select_physical_device();
 	select_logical_device();
 	create_queues();
+	configure_surface();
 }
 
 Device::~Device()
@@ -48,7 +49,8 @@ Device::~Device()
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, 
 		&format_count, nullptr);
 
-	if (format_count != 0) {
+	if (format_count != 0)
+	{
 		details.formats.resize(format_count);
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface,
 			&format_count, details.formats.data());
@@ -58,13 +60,24 @@ Device::~Device()
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, 
 		&present_mode_count, nullptr);
 
-	if (present_mode_count != 0) {
+	if (present_mode_count != 0)
+	{
 		details.present_modes.resize(present_mode_count);
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface,
 			&present_mode_count, details.present_modes.data());
 	}
 
 	return details;
+}
+
+void Device::configure_surface() const noexcept
+{
+	SwapChainSupport swap_chain_support = 
+		check_swap_chain_support(physical_device);
+	WindowSurface* surface = g_global_state->window_state->surface;
+
+	surface->select_present_mode(swap_chain_support.present_modes);
+	surface->select_surface_format(swap_chain_support.formats);
 }
 
 void Device::create_queues() noexcept
@@ -93,15 +106,18 @@ Device::find_queue_families(const VkPhysicalDevice device) const noexcept
 		g_global_state->window_state->surface->vulkan_surface;
 
 	int i = 0;
-	for (const auto& queue_family : queue_families) {
-		if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+	for (const auto& queue_family : queue_families)
+	{
+		if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
 			indices.graphics_family = i;
 		}
 		VkBool32 present_support = false;
 		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface,
 			&present_support);
 
-		if (present_support) {
+		if (present_support)
+		{
 			indices.present_family = i;
 		}
 
@@ -203,7 +219,8 @@ void Device::select_logical_device() noexcept
 	};
 
 	float queuePriority = 1.0f;
-	for (uint32_t queueFamily : uniqueQueueFamilies) {
+	for (uint32_t queueFamily : uniqueQueueFamilies)
+	{
 		VkDeviceQueueCreateInfo queueCreateInfo{};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -225,17 +242,20 @@ void Device::select_logical_device() noexcept
 		static_cast<uint32_t>(REQUIRED_EXTENSIONS.size());
 	create_info.ppEnabledExtensionNames = REQUIRED_EXTENSIONS.data();
 
-	if (ENABLE_VALIDATION_LAYERS) {
+	if (ENABLE_VALIDATION_LAYERS)
+	{
 		create_info.enabledLayerCount =
 			static_cast<uint32_t>(VALIDATION_LAYERS.size());
 		create_info.ppEnabledLayerNames = VALIDATION_LAYERS.data();
 	}
-	else {
+	else
+	{
 		create_info.enabledLayerCount = 0;
 	}
 
 	if (vkCreateDevice(physical_device, &create_info, nullptr,
-		&logical_device) != VK_SUCCESS) {
+		&logical_device) != VK_SUCCESS)
+	{
 		LOG_FATAL("Could not create a logical device");
 	}
 }
@@ -255,7 +275,8 @@ bool Device::supports_required_extensions(const VkPhysicalDevice device)
 	std::set<std::string> required_extensions(REQUIRED_EXTENSIONS.begin(), 
 		REQUIRED_EXTENSIONS.end());
 
-	for (const auto& extension : available_extensions) {
+	for (const auto& extension : available_extensions)
+	{
 		required_extensions.erase(extension.extensionName);
 	}
 
