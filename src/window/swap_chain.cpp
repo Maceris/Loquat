@@ -13,6 +13,27 @@ namespace loquat
 {
 	SwapChain::SwapChain()
 	{
+		initialize_swap_chain();
+		initialize_image_views();
+	}
+
+	SwapChain::~SwapChain()
+	{
+		const VkDevice& device = g_global_state->device->logical_device;
+		for (auto view : image_views)
+		{
+			vkDestroyImageView(device, view, nullptr);
+		}
+		/*
+		  NOTE(ches) Images are freed when the swap chain are destroyed,
+		  and the vector will be cleaned up when this object is freed.
+		 */
+		vkDestroySwapchainKHR(g_global_state->device->logical_device,
+			vulkan_swap_chain, nullptr);
+	}
+
+	void SwapChain::initialize_swap_chain() noexcept
+	{
 		const WindowSurface& surface = *g_global_state->window_state->surface;
 		const Device& device = *g_global_state->device;
 		const SwapChainSupport& support =
@@ -67,12 +88,46 @@ namespace loquat
 		{
 			LOG_FATAL("Failed to create swap chain");
 		}
+
+		vkGetSwapchainImagesKHR(device.logical_device, vulkan_swap_chain,
+			&image_count, nullptr);
+		images.resize(image_count);
+		vkGetSwapchainImagesKHR(device.logical_device, vulkan_swap_chain,
+			&image_count, images.data());
+
+		image_format = surface.surface_format->format;
+		this->extent = extent;
 	}
 
-	SwapChain::~SwapChain()
+	void SwapChain::initialize_image_views() noexcept
 	{
-		vkDestroySwapchainKHR(g_global_state->device->logical_device,
-			vulkan_swap_chain, nullptr);
+		image_views.resize(images.size());
+
+		const VkDevice& device = g_global_state->device->logical_device;
+
+		for (size_t i = 0; i < images.size(); i++)
+		{
+			VkImageViewCreateInfo create_info{};
+			create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			create_info.image = images[i];
+			create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			create_info.format = image_format;
+			create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+			create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			create_info.subresourceRange.baseMipLevel = 0;
+			create_info.subresourceRange.levelCount = 1;
+			create_info.subresourceRange.baseArrayLayer = 0;
+			create_info.subresourceRange.layerCount = 1;
+
+			if (vkCreateImageView(device, &create_info, nullptr, 
+				&image_views[i]) != VK_SUCCESS)
+			{
+				LOG_FATAL("Failed to create image views for the swap chain");
+			}
+		}
 	}
 
 	[[nodiscard]] VkExtent2D
