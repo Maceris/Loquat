@@ -4,21 +4,20 @@ class Medium;
 
 namespace loquat
 {
-	template <unsigned int Dims, typename T>
+	template <typename PointType, typename DirType, typename BaseType>
+		requires is_point<PointType> && is_vec<DirType>
 	struct Ray;
 
-	template <typename T>
-	using Ray2 = Ray<2, T>;
+	using Ray2i = Ray<Point2i, Vec2i, int>;
+	using Ray2f = Ray<Point2f, Vec2f, Float>;
+	
+	using Ray3i = Ray<Point3i, Vec3i, int>;
+	using Ray3f = Ray<Point3f, Vec3f, Float>;
 
-	template <typename T>
-	using Ray3 = Ray<3, T>;
-
-	template <unsigned int Dims, typename T>
+	template <typename PointType, typename DirType, typename BaseType>
+		requires is_point<PointType> && is_vec<DirType>
 	struct Ray
 	{
-		using PointType = Point<Dims, T>;
-		using DirType = Vec<Dims, T>;
-
 		PointType origin;
 		DirType direction;
 		Float time;
@@ -37,19 +36,20 @@ namespace loquat
 			, time{ time }
 			, medium{ medium }
 		{}
-		Ray(const Ray<Dims, T>& ray)
+		Ray(const Ray<PointType, DirType, BaseType>& ray)
 			: origin{ ray.origin }
 			, direction{ ray.direction }
 			, time{ ray.time }
 			, medium{ ray.medium }
 		{}
-		Ray(Ray<Dims, T>&& ray)
+		Ray(Ray<PointType, DirType, BaseType>&& ray)
 			: origin{ std::move(ray.origin) }
 			, direction{ std::move(ray.direction) }
 			, time{ std::move(ray.time) }
 			, medium{ std::move(ray.medium) }
 		{}
-		Ray<Dims, T>& operator=(const Ray<Dims, T>& ray)
+		Ray<PointType, DirType, BaseType>& operator=(
+			const Ray<PointType, DirType, BaseType>& ray)
 		{
 			this->origin = ray.origin;
 			this->direction = ray.direction;
@@ -57,7 +57,8 @@ namespace loquat
 			this->medium = ray.medium;
 			return *this;
 		}
-		Ray<Dims, T>& operator=(Ray<Dims, T>&& ray)
+		Ray<PointType, DirType, BaseType>& operator=(
+			Ray<PointType, DirType, BaseType>&& ray)
 		{
 			this->origin = std::move(ray.origin);
 			this->direction = std::move(ray.direction);
@@ -67,33 +68,32 @@ namespace loquat
 		}
 
 		template<typename A>
-			requires std::convertible_to<A, T>
-		constexpr Ray<Dims, T>& operator+=(A scalar)
+			requires std::convertible_to<A, BaseType>
+		constexpr Ray<PointType, DirType, BaseType>& operator+=(A scalar)
 		{
-			this->origin += static_cast<T>(scalar);
+			this->origin += static_cast<BaseType>(scalar);
 			return *this;
 		}
 		template<typename A>
-			requires std::convertible_to<A, T>
-		constexpr Ray<Dims, T>& operator-=(A scalar)
+			requires std::convertible_to<A, BaseType>
+		constexpr Ray<PointType, DirType, BaseType>& operator-=(A scalar)
 		{
-			this->origin -= static_cast<T>(scalar);
+			this->origin -= static_cast<BaseType>(scalar);
 			return *this;
 		}
 		template<typename A>
-			requires std::convertible_to<A, T>
-		constexpr Ray<Dims, T>& operator*=(A scalar)
+			requires std::convertible_to<A, BaseType>
+		constexpr Ray<PointType, DirType, BaseType>& operator*=(A scalar)
 		{
-			this->direction *= static_cast<T>(scalar);
+			this->direction *= static_cast<BaseType>(scalar);
 			return *this;
 		}
 		template<typename A>
-			requires std::convertible_to<A, T>
-		constexpr Ray<Dims, T>& operator/=(A scalar)
+			requires std::convertible_to<A, BaseType>
+		constexpr Ray<PointType, DirType, BaseType>& operator/=(A scalar)
 		{
-			this->direction /= static_cast<T>(scalar);
+			this->direction /= static_cast<BaseType>(scalar);
 			return *this;
 		}
-
 	};
 }

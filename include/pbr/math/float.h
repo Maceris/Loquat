@@ -7,29 +7,41 @@
 
 namespace loquat
 {
-    #if defined(DOUBLE_PRECISION_FLOAT)
+#if defined(DOUBLE_PRECISION_FLOAT)
     /// <summary>
     /// Floating point number.
     /// </summary>
     using Float = double;
-    #else
+#else
     /// <summary>
     /// Floating point number.
     /// </summary>
     using Float = float;
-    #endif
+#endif
 
-    #if defined(DOUBLE_PRECISION_FLOAT)
+#if defined(DOUBLE_PRECISION_FLOAT)
     /// <summary>
     /// An unsigned integer used to access bits for a floating point number.
     /// </summary>
     using FloatBits = uint64_t;
-    #else
+#else
     /// <summary>
     /// An unsigned integer used to access bits for a floating point number.
     /// </summary>
     using FloatBits = uint32_t;
-    #endif
+#endif
+
+#if defined(DOUBLE_PRECISION_FLOAT)
+    /// <summary>
+    /// The floating point type to use for GLM.
+    /// </summary>
+    using FloatGLM = glm::f64;
+#else
+    /// <summary>
+    /// The floating point type to use for GLM.
+    /// </summary>
+    using FloatGLM = glm::f32;
+#endif
 
     static_assert(sizeof(Float) == sizeof(FloatBits), "Floats are an unexpected size on this device");
 

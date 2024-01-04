@@ -34,10 +34,14 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/point.h
   ${HEADER_PATH}/pbr/math/ray.h
   ${HEADER_PATH}/pbr/math/vec.h
-  ${HEADER_PATH}/pbr/math/vec1.h
-  ${HEADER_PATH}/pbr/math/vec2.h
-  ${HEADER_PATH}/pbr/math/vec3.h
   # ${HEADER_PATH}/pipeline
+  ${HEADER_PATH}/resource/default_resource_loader.h
+  ${HEADER_PATH}/resource/resource.h
+  ${HEADER_PATH}/resource/resource_cache.h
+  ${HEADER_PATH}/resource/resource_file.h
+  ${HEADER_PATH}/resource/resource_file_folder.h
+  ${HEADER_PATH}/resource/resource_handle.h
+  ${HEADER_PATH}/resource/resource_loader.h
   # ${HEADER_PATH}/shader
   ${HEADER_PATH}/window/swap_chain.h
   ${HEADER_PATH}/window/window.h
@@ -51,6 +55,12 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/main/global_state.cpp
   ${SOURCE_PATH}/main/loquat.cpp
   ${SOURCE_PATH}/main/vulkan_instance.cpp
+  ${SOURCE_PATH}/resource/default_resource_loader.cpp
+  ${SOURCE_PATH}/resource/resource.cpp
+  ${SOURCE_PATH}/resource/resource_cache.cpp
+  ${SOURCE_PATH}/resource/resource_file_folder.cpp
+  ${SOURCE_PATH}/resource/resource_handle.cpp
+  ${SOURCE_PATH}/resource/resource_loader.cpp
   ${SOURCE_PATH}/window/swap_chain.cpp
   ${SOURCE_PATH}/window/window.cpp
   ${SOURCE_PATH}/window/window_state.cpp
@@ -136,7 +146,7 @@ TARGET_COMPILE_FEATURES(loquat PRIVATE c_std_99)
 FIND_PACKAGE(Vulkan REQUIRED COMPONENTS glslc)
 FIND_PROGRAM(glslc_executable NAMES glslc HINTS Vulkan::glslc)
 
-TARGET_LINK_LIBRARIES(loquat glfw Vulkan::Vulkan)
+TARGET_LINK_LIBRARIES(loquat glfw Vulkan::Vulkan glm)
 
 TARGET_INCLUDE_DIRECTORIES (loquat PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>

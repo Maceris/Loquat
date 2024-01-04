@@ -302,6 +302,7 @@ MARK_AS_ADVANCED (LOQUAT_BUILD_ARCHITECTURE LOQUAT_BUILD_COMPILER)
 
 # 3rd Party Libraries
 ADD_SUBDIRECTORY(third-party/glfw/)
+ADD_SUBDIRECTORY(third-party/glm/)
 
 # Main Loquat code
 ADD_SUBDIRECTORY(src/)

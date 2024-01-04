@@ -2,34 +2,24 @@
 
 namespace loquat
 {
-	template <unsigned int Dims, typename T>
+	template <typename PointType>
+		requires is_point<PointType>
 	struct AABB;
 
-	template <typename T>
-	using AABB1 = AABB<1, T>;
+	using AABB1f = AABB<Point1f>;
+	using AABB1i = AABB<Point1i>;
 
-	template <typename T>
-	using AABB2 = AABB<2, T>;
+	using AABB2f = AABB<Point2f>;
+	using AABB2i = AABB<Point2i>;
 
-	template <typename T>
-	using AABB3 = AABB<3, T>;
+	using AABB3f = AABB<Point3f>;
+	using AABB3i = AABB<Point3i>;
 
-	using AABB1f = AABB1<Float>;
-	using AABB1i = AABB1<int>;
-
-	using AABB2f = AABB2<Float>;
-	using AABB2i = AABB2<int>;
-
-	using AABB3f = AABB3<Float>;
-	using AABB3i = AABB3<int>;
-
-
-	template <unsigned int Dims, typename T>
+	template <typename PointType>
+		requires is_point<PointType>
 	struct AABB
 	{
 	public:
-		using PointType = Point<Dims, T>;
-
 		PointType min;
 		PointType max;
 
