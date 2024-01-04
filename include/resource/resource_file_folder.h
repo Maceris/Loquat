@@ -24,8 +24,9 @@ namespace loquat
 		/// <summary>
 		/// Create a new resource file that reads from a folder.
 		/// </summary>
-		/// <param name="resource_folder_name">The name of the folder to read from,
-		/// including path.</param>
+		/// <param name="resource_folder_name">The name of the folder to read
+		/// from, including path. Assumes it does not end in a separator, 
+		/// and will apend one.</param>
 		ResourceFileFolder(const std::string resource_folder_name);
 
 		/// <summary>

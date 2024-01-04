@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 
 #include "device/device.h"
+#include "main/loquat.h"
 #include "window/window_state.h"
 
 namespace loquat

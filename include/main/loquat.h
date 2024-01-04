@@ -15,3 +15,6 @@
 #include "pbr/math/point.h"
 #include "pbr/math/aabb.h"
 #include "pbr/math/ray.h"
+
+#include "main/global_state.h"
+#include "resource/resource_cache.h"

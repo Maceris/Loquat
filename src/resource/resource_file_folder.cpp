@@ -14,7 +14,7 @@ namespace loquat
 
 	ResourceFileFolder::ResourceFileFolder(
 		const std::string resource_folder_name)
-		: resource_folder_name{ resource_folder_name }
+		: resource_folder_name{ resource_folder_name + '/' }
 	{
 		LOG_INFO("Opening the resource folder " + resource_folder_name);
 	}

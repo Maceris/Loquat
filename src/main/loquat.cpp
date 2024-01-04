@@ -1,16 +1,19 @@
+#include <filesystem>
+
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
 #include "debug/logger.h"
-#include "main/global_state.h"
 #include "main/loquat.h"
 #include "main/vulkan_instance.h"
+#include "resource/resource_file_folder.h"
 #include "window/swap_chain.h"
 #include "window/window.h"
 
 namespace loquat
 {
 	GlobalState* g_global_state = new GlobalState();
+	ResourceCache* g_resource_cache;
 	int main();
 }
 
@@ -30,6 +33,19 @@ namespace loquat
 		if (!glfwVulkanSupported())
 		{
 			LOG_FATAL("Vulkan is not supported on this system!");
+		}
+
+		std::filesystem::path resource_path{ 
+			std::filesystem::current_path().append("resources") };
+		std::filesystem::path full_resource_path =
+			std::filesystem::canonical(resource_path);
+		ResourceFileFolder* resource_folder =
+			new ResourceFileFolder(full_resource_path.string());
+		g_resource_cache = new ResourceCache(50, resource_folder);
+
+		if (!g_resource_cache->init())
+		{
+			LOG_FATAL("Failed to initialize the resource cache. Is there enough memory?");
 		}
 
 		create_vulkan_instance();

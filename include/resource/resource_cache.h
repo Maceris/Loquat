@@ -1,7 +1,5 @@
 #pragma once
 
-#include "main/loquat.h"
-
 #include <list>
 #include <map>
 #include <string>
@@ -202,4 +200,6 @@ namespace loquat
 
 	[[nodiscard]] extern bool 
 		wildcard_match(const char* pattern, const char* string) noexcept;
+
+	extern ResourceCache* g_resource_cache;
 }
