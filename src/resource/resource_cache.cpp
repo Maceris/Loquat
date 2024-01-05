@@ -8,7 +8,7 @@
 
 namespace loquat
 {
-	bool ResourceCache::make_room(size_t size)
+	bool ResourceCache::make_room(size_t size) noexcept
 	{
 		if (size > cache_size)
 		{
@@ -26,7 +26,7 @@ namespace loquat
 		return true;
 	}
 
-	char* ResourceCache::allocate(size_t size)
+	char* ResourceCache::allocate(size_t size) noexcept
 	{
 		if (!make_room(size))
 		{
@@ -41,13 +41,13 @@ namespace loquat
 		return memory;
 	}
 
-	void ResourceCache::free(std::shared_ptr<ResourceHandle> resource)
+	void ResourceCache::free(std::shared_ptr<ResourceHandle> resource) noexcept
 	{
 		lru_list.remove(resource);
 		resources.erase(resource->resource.name);
 	}
 
-	std::shared_ptr<ResourceHandle> ResourceCache::load(Resource* resource)
+	std::shared_ptr<ResourceHandle> ResourceCache::load(Resource* resource) noexcept
 	{
 		std::shared_ptr<ResourceLoader> loader;
 		std::shared_ptr<ResourceHandle> handle;
@@ -138,7 +138,7 @@ namespace loquat
 		return handle;
 	}
 
-	std::shared_ptr<ResourceHandle> ResourceCache::find(Resource* resource)
+	std::shared_ptr<ResourceHandle> ResourceCache::find(Resource* resource) noexcept
 	{
 		auto result = resources.find(resource->name);
 		if (result == resources.end())
@@ -148,13 +148,13 @@ namespace loquat
 		return result->second;
 	}
 
-	void ResourceCache::update(std::shared_ptr<ResourceHandle> handle)
+	void ResourceCache::update(std::shared_ptr<ResourceHandle> handle) noexcept
 	{
 		lru_list.remove(handle);
 		lru_list.push_front(handle);
 	}
 
-	void ResourceCache::free_one_resource()
+	void ResourceCache::free_one_resource() noexcept
 	{
 		auto target = lru_list.end();
 		--target;
@@ -165,12 +165,12 @@ namespace loquat
 		resources.erase(handle->resource.name);
 	}
 
-	void ResourceCache::memory_has_been_freed(size_t size)
+	void ResourceCache::memory_has_been_freed(size_t size) noexcept
 	{
 		allocated -= size;
 	}
 
-	ResourceCache::ResourceCache(const size_t size_in_MB, ResourceFile* file)
+	ResourceCache::ResourceCache(const size_t size_in_MB, ResourceFile* file) noexcept
 		: cache_size{ size_in_MB * 1024 * 1024 }
 		, allocated{ 0 }
 		, file{ file }
@@ -185,7 +185,7 @@ namespace loquat
 		SAFE_DELETE(file);
 	}
 
-	bool ResourceCache::init()
+	bool ResourceCache::init() noexcept
 	{
 		if (file->open())
 		{
@@ -196,12 +196,13 @@ namespace loquat
 		return false;
 	}
 
-	void ResourceCache::register_loader(std::shared_ptr<ResourceLoader> loader)
+	void ResourceCache::register_loader(std::shared_ptr<ResourceLoader> loader) noexcept
 	{
 		resource_loaders.push_front(loader);
 	}
 
-	std::shared_ptr<ResourceHandle> ResourceCache::get_handle(Resource* resource)
+	[[nodiscard]]
+	std::shared_ptr<ResourceHandle> ResourceCache::get_handle(Resource* resource) noexcept
 	{
 		std::shared_ptr<ResourceHandle> handle = find(resource);
 		if (!handle)
@@ -217,7 +218,7 @@ namespace loquat
 	}
 
 	int ResourceCache::preload(const std::string pattern,
-		ProgressCallback callback)
+		ProgressCallback callback) noexcept
 	{
 		if (file == nullptr)
 		{
@@ -244,7 +245,8 @@ namespace loquat
 		return loaded;
 	}
 
-	std::vector<std::string> ResourceCache::match(const std::string pattern)
+	[[nodiscard]]
+	std::vector<std::string> ResourceCache::match(const std::string& pattern) noexcept
 	{
 		std::vector<std::string> matching_names;
 		if (file == nullptr)
@@ -265,7 +267,7 @@ namespace loquat
 		return matching_names;
 	}
 
-	void ResourceCache::flush()
+	void ResourceCache::flush() noexcept
 	{
 		while (!lru_list.empty())
 		{

@@ -65,7 +65,7 @@ namespace loquat
 		/// <param name="size">The number of bytes we want to make room for.
 		/// </param>
 		/// <returns>Whether we have the specified amount of room.</returns>
-		bool make_room(size_t size);
+		bool make_room(size_t size) noexcept;
 
 		/// <summary>
 		/// Allocate raw memory of the specified size. If we did not have room
@@ -73,7 +73,7 @@ namespace loquat
 		/// </summary>
 		/// <param name="size">The number of bytes to allocate.</param>
 		/// <returns>The allocated memory, or null in the worst case.</returns>
-		char* allocate(size_t size);
+		char* allocate(size_t size) noexcept;
 
 		/// <summary>
 		/// Looks up a resource by handle and remove it from the cache.
@@ -82,7 +82,7 @@ namespace loquat
 		/// pointed to by the handle is destroyed.
 		/// </summary>
 		/// <param name="resource">The resource to free.</param>
-		void free(std::shared_ptr<ResourceHandle> resource);
+		void free(std::shared_ptr<ResourceHandle> resource) noexcept;
 
 		/// <summary>
 		/// Loads a resource and returns the handle to it. If the resource cannot
@@ -91,7 +91,7 @@ namespace loquat
 		/// <param name="resource">The resource we want to load.</param>
 		/// <returns>The handle for the loaded resource, empty on failure.
 		/// </returns>
-		std::shared_ptr<ResourceHandle> load(Resource* resource);
+		std::shared_ptr<ResourceHandle> load(Resource* resource) noexcept;
 
 		/// <summary>
 		/// Looks up the resource handle for a resource. If no resource handle is
@@ -99,14 +99,14 @@ namespace loquat
 		/// </summary>
 		/// <param name="resource">The resource to search for.</param>
 		/// <returns>A pointer to the appropriate handle.</returns>
-		std::shared_ptr<ResourceHandle> find(Resource* resource);
+		std::shared_ptr<ResourceHandle> find(Resource* resource) noexcept;
 
 		/// <summary>
 		/// Moves a handle to the front of the LRU list, to maintain the desired
 		/// sorting.
 		/// </summary>
 		/// <param name="handle">The handle to update in the LRU tracking.</param>
-		void update(std::shared_ptr<ResourceHandle> handle);
+		void update(std::shared_ptr<ResourceHandle> handle) noexcept;
 
 		/// <summary>
 		/// Free the least recently used resource.
@@ -114,14 +114,14 @@ namespace loquat
 		/// The cache will only count the memory as freed once the resource
 		/// pointed to by the handle is destroyed.
 		/// </summary>
-		void free_one_resource();
+		void free_one_resource() noexcept;
 
 		/// <summary>
 		/// Called whenever memory associated with a resource has actually been
 		/// freed, so that the cache can track allocation appropriately.
 		/// </summary>
 		/// <param name="size"></param>
-		void memory_has_been_freed(size_t size);
+		void memory_has_been_freed(size_t size) noexcept;
 
 	public:
 		/// <summary>
@@ -130,7 +130,7 @@ namespace loquat
 		/// <param name="size_in_MB">The amount of memory allocated to the 
 		/// cache, in megabytes.</param>
 		/// <param name="file">The file we are loading resources from.</param>
-		ResourceCache(const size_t size_in_MB, ResourceFile* file);
+		ResourceCache(const size_t size_in_MB, ResourceFile* file) noexcept;
 
 		/// <summary>
 		/// Clean up.
@@ -143,7 +143,7 @@ namespace loquat
 		/// instance, we will return false.
 		/// </summary>
 		/// <returns>Whether we initialized successfully.</returns>
-		bool init();
+		bool init() noexcept;
 
 		/// <summary>
 		/// Register a resource loader, placing it at the front of the list of 
@@ -154,7 +154,7 @@ namespace loquat
 		/// extension.
 		/// </summary>
 		/// <param name="loader">The loader to register.</param>
-		void register_loader(std::shared_ptr<ResourceLoader> loader);
+		void register_loader(std::shared_ptr<ResourceLoader> loader) noexcept;
 
 		/// <summary>
 		/// If a resource is already in the cache, return it. Otherwise, we load
@@ -165,7 +165,8 @@ namespace loquat
 		/// </summary>
 		/// <param name="resource">The resource to fetch.</param>
 		/// <returns>A handle to the resource.</returns>
-		std::shared_ptr<ResourceHandle> get_handle(Resource* resource);
+		[[nodiscard]]
+		std::shared_ptr<ResourceHandle> get_handle(Resource* resource) noexcept;
 
 		/// <summary>
 		/// Pre-load a set of resources matching the specified wildcard pattern.
@@ -180,7 +181,7 @@ namespace loquat
 		/// <param name="callback">A callback to be updated regarding progress.
 		/// May be null if progress does not need to be tracked.</param>
 		/// <returns>The number of resources that were loaded.</returns>
-		int preload(const std::string pattern, ProgressCallback callback);
+		int preload(const std::string pattern, ProgressCallback callback) noexcept;
 
 		/// <summary>
 		/// Searches through the cache for assets that match the specified 
@@ -189,13 +190,14 @@ namespace loquat
 		/// <param name="pattern">The wildcard pattern to look for.</param>
 		/// <returns>A list of resource names that match the given pattern.
 		/// </returns>
-		std::vector<std::string> match(const std::string pattern);
+		[[nodiscard]]
+		std::vector<std::string> match(const std::string& pattern) noexcept;
 
 		/// <summary>
 		/// Free every handle in the cache. Useful for loading a new level or 
 		/// debugging.
 		/// </summary>
-		void flush();
+		void flush() noexcept;
 	};
 
 	[[nodiscard]] extern bool 

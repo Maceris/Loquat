@@ -5,38 +5,43 @@
 
 namespace loquat
 {
-	const std::string ResourceHandle::get_name()
+	[[nodiscard]]
+	const std::string ResourceHandle::get_name() const noexcept
 	{
 		return resource.name;
 	}
 
-	size_t ResourceHandle::get_size()
+	[[nodiscard]]
+	size_t ResourceHandle::get_size() const noexcept
 	{
 		return size;
 	}
 
-	const char* ResourceHandle::get_buffer()
+	[[nodiscard]]
+	const char* ResourceHandle::get_buffer() const noexcept
 	{
 		return buffer;
 	}
 
-	char* ResourceHandle::get_writeable_buffer()
+	[[nodiscard]]
+	char* ResourceHandle::get_writeable_buffer() const noexcept
 	{
 		return buffer;
 	}
 
-	std::shared_ptr<ResourceExtraData> ResourceHandle::get_extra()
+	[[nodiscard]]
+	std::shared_ptr<ResourceExtraData> ResourceHandle::get_extra() const noexcept
 	{
 		return extra;
 	}
 
-	void ResourceHandle::set_extra(std::shared_ptr<ResourceExtraData> extra)
+	void ResourceHandle::set_extra(std::shared_ptr<ResourceExtraData> extra) noexcept
 	{
 		this->extra = extra;
 	}
 
 	ResourceHandle::ResourceHandle(Resource& resource, char* buffer,
-		size_t size, ResourceCache* resource_cache)
+		size_t size, ResourceCache* resource_cache) noexcept
 		: resource{ resource }
 		, buffer{ buffer }
 		, size{ size }

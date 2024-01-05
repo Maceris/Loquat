@@ -44,7 +44,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/resource/resource_file_folder.h
   ${HEADER_PATH}/resource/resource_handle.h
   ${HEADER_PATH}/resource/resource_loader.h
-  # ${HEADER_PATH}/shader
+  ${HEADER_PATH}/shader/shader.h
   ${HEADER_PATH}/window/swap_chain.h
   ${HEADER_PATH}/window/window.h
   ${HEADER_PATH}/window/window_state.h
@@ -63,6 +63,7 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/resource/resource_file_folder.cpp
   ${SOURCE_PATH}/resource/resource_handle.cpp
   ${SOURCE_PATH}/resource/resource_loader.cpp
+  ${SOURCE_PATH}/shader/shader.cpp
   ${SOURCE_PATH}/window/swap_chain.cpp
   ${SOURCE_PATH}/window/window.cpp
   ${SOURCE_PATH}/window/window_state.cpp
