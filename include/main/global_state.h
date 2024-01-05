@@ -4,6 +4,7 @@
 
 #include "device/device.h"
 #include "main/loquat.h"
+#include "pipeline/pipeline.h"
 #include "window/window_state.h"
 
 namespace loquat
@@ -16,6 +17,7 @@ namespace loquat
 		VkInstance instance = nullptr;
 		WindowState* window_state = nullptr;
 		Device* device = nullptr;
+		Pipeline* pipeline = nullptr;
 
 		/// <summary>
 		/// The debug messenger, which is generally only set in debug builds.

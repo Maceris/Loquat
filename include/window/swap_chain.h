@@ -32,11 +32,10 @@ namespace loquat
 		VkSwapchainKHR vulkan_swap_chain;
 		std::vector<VkImage> images;
 		std::vector<VkImageView> image_views;
+		VkExtent2D extent;
+		VkFormat image_format;
 
 	private:
-		VkFormat image_format;
-		VkExtent2D extent;
-
 		/// <summary>
 		/// Set up the swap chain.
 		/// </summary>

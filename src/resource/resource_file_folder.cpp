@@ -62,7 +62,7 @@ namespace loquat
 		const auto size = fs::file_size(full_path);
 
 		std::ifstream file_bytes(full_path, std::ios_base::binary);
-		file_bytes.get(buffer, size);
+		file_bytes.read(buffer, size);
 
 		return size;
 	}

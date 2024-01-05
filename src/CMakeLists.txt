@@ -36,7 +36,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/point.h
   ${HEADER_PATH}/pbr/math/ray.h
   ${HEADER_PATH}/pbr/math/vec.h
-  # ${HEADER_PATH}/pipeline
+  ${HEADER_PATH}/pipeline/pipeline.h
   ${HEADER_PATH}/resource/default_resource_loader.h
   ${HEADER_PATH}/resource/resource.h
   ${HEADER_PATH}/resource/resource_cache.h
@@ -57,6 +57,7 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/main/global_state.cpp
   ${SOURCE_PATH}/main/loquat.cpp
   ${SOURCE_PATH}/main/vulkan_instance.cpp
+  ${SOURCE_PATH}/pipeline/pipeline.cpp
   ${SOURCE_PATH}/resource/default_resource_loader.cpp
   ${SOURCE_PATH}/resource/resource.cpp
   ${SOURCE_PATH}/resource/resource_cache.cpp

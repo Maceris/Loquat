@@ -53,6 +53,14 @@ namespace loquat
 		g_global_state->device = new Device();
 		g_global_state->window_state->swap_chain = new SwapChain();
 
+
+		auto shader_stages = std::initializer_list<ShaderStage>{
+			ShaderStage{ ShaderType::vertex, "shaders/simple.vert.spv" },
+				ShaderStage{ ShaderType::fragment, "shaders/simple.frag.spv" }
+		};
+		g_global_state->pipeline = new Pipeline(
+			std::make_unique<Shader>(shader_stages));
+
 		while (!g_global_state->window_state->window->should_close())
 		{
 			glfwPollEvents();

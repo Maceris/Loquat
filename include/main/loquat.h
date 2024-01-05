@@ -3,6 +3,7 @@
 #include <concepts>
 #include <cstdint>
 #include <cstddef>
+#include <memory>
 
 #include "debug/logger.h"
 

@@ -2,6 +2,8 @@
 
 #include <format>
 
+#include "main/global_state.h"
+
 namespace loquat
 {
 	ShaderModule::ShaderModule(const std::string& name)
