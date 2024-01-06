@@ -12,6 +12,7 @@ namespace loquat
 		, height{ DEFAULT_HEIGHT }
 	{
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 		glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT,
 			"Loquat", NULL, NULL);
 	}
