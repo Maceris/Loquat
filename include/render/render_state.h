@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 #include <vulkan/vulkan.h>
 
 namespace loquat
@@ -19,5 +21,6 @@ namespace loquat
 		VkSemaphore image_available_semaphore = nullptr;
 		VkSemaphore render_finished_semaphore = nullptr;
 		VkFence frame_in_flight_fence = nullptr;
+		std::atomic_bool rendering_active = true;
 	};
 }

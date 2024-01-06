@@ -4,11 +4,16 @@
 
 namespace loquat::render
 {
-
 	void draw_frame() noexcept
 	{
-		const auto& device = g_global_state->device->logical_device;
 		const RenderState* render_state = g_global_state->render_state;
+		
+		if (!render_state->rendering_active)
+		{
+			return;
+		}
+
+		const auto& device = g_global_state->device->logical_device;
 		const SwapChain* swap_chain = g_global_state->window_state->swap_chain;
 
 		vkWaitForFences(device, 1, &render_state->frame_in_flight_fence,
@@ -65,6 +70,16 @@ namespace loquat::render
 
 		vkQueuePresentKHR(g_global_state->device->graphics_queue, 
 			&present_info);
+	}
+
+	void stop_rendering() noexcept
+	{
+		g_global_state->render_state->rendering_active = false;
+	}
+
+	void resume_rendering() noexcept
+	{
+		g_global_state->render_state->rendering_active = true;
 	}
 
 }
