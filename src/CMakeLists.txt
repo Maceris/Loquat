@@ -11,7 +11,7 @@ SET(RESOURCE_BINARY_DIR ${CONFIGURATION_BINARY_DIR}/resources)
 SET(SHADER_BINARY_DIR ${RESOURCE_BINARY_DIR}/shaders)
 
 SET(PUBLIC_HEADERS
-  # ${HEADER_PATH}/command
+  ${HEADER_PATH}/command/command_buffer.h
   ${HEADER_PATH}/debug/logger.h
   ${HEADER_PATH}/device/device.h
   ${HEADER_PATH}/main/global_state.h
@@ -37,6 +37,8 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/ray.h
   ${HEADER_PATH}/pbr/math/vec.h
   ${HEADER_PATH}/pipeline/pipeline.h
+  ${HEADER_PATH}/render/render.h
+  ${HEADER_PATH}/render/render_state.h
   ${HEADER_PATH}/resource/default_resource_loader.h
   ${HEADER_PATH}/resource/resource.h
   ${HEADER_PATH}/resource/resource_cache.h
@@ -52,12 +54,15 @@ SET(PUBLIC_HEADERS
 )
 
 SET(CORE_SRCS
+  ${SOURCE_PATH}/command/command_buffer.cpp
   ${SOURCE_PATH}/debug/logger.cpp
   ${SOURCE_PATH}/device/device.cpp
   ${SOURCE_PATH}/main/global_state.cpp
   ${SOURCE_PATH}/main/loquat.cpp
   ${SOURCE_PATH}/main/vulkan_instance.cpp
   ${SOURCE_PATH}/pipeline/pipeline.cpp
+  ${SOURCE_PATH}/render/render.cpp
+  ${SOURCE_PATH}/render/render_state.cpp
   ${SOURCE_PATH}/resource/default_resource_loader.cpp
   ${SOURCE_PATH}/resource/resource.cpp
   ${SOURCE_PATH}/resource/resource_cache.cpp

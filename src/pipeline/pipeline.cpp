@@ -143,12 +143,24 @@ namespace loquat
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &color_attachment_ref;
 
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = 
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = 
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 		VkRenderPassCreateInfo render_pass_info{};
 		render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		render_pass_info.attachmentCount = 1;
 		render_pass_info.pAttachments = &color_attachment;
 		render_pass_info.subpassCount = 1;
 		render_pass_info.pSubpasses = &subpass;
+		render_pass_info.dependencyCount = 1;
+		render_pass_info.pDependencies = &dependency;
 
 		if (vkCreateRenderPass(device, &render_pass_info, nullptr, 
 			&render_pass) != VK_SUCCESS)
@@ -226,5 +238,61 @@ namespace loquat
 		vkDestroyPipeline(device, graphics_pipeline, nullptr);
 		vkDestroyPipelineLayout(device, layout, nullptr);
 		vkDestroyRenderPass(device, render_pass, nullptr);
+	}
+
+	void Pipeline::record_command_buffer(const VkCommandBuffer buffer,
+		uint32_t image_index) const noexcept
+	{
+		VkCommandBufferBeginInfo begin_info{};
+		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		begin_info.flags = 0;
+		begin_info.pInheritanceInfo = nullptr;
+
+		if (vkBeginCommandBuffer(buffer, &begin_info) != VK_SUCCESS)
+		{
+			LOG_FATAL("Failed to begin recording a command buffer");
+		}
+
+		const auto& extent = g_global_state->window_state->swap_chain->extent;
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = render_pass;
+		renderPassInfo.framebuffer = frame_buffers[image_index];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = extent;
+
+		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(buffer, &renderPassInfo, 
+			VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			graphics_pipeline);
+
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(extent.width);
+		viewport.height = static_cast<float>(extent.height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		vkCmdSetViewport(buffer, 0, 1, &viewport);
+
+		VkRect2D scissor{};
+		scissor.offset = { 0, 0 };
+		scissor.extent = extent;
+		vkCmdSetScissor(buffer, 0, 1, &scissor);
+
+		vkCmdDraw(buffer, 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(g_global_state->command_buffer->buffer);
+
+		if (vkEndCommandBuffer(buffer) != VK_SUCCESS)
+		{
+			LOG_FATAL("Failed recording command buffer");
+		}
 	}
 }

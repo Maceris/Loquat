@@ -2,9 +2,11 @@
 
 #include <vulkan/vulkan.h>
 
+#include "command/command_buffer.h"
 #include "device/device.h"
 #include "main/loquat.h"
 #include "pipeline/pipeline.h"
+#include "render/render_state.h"
 #include "window/window_state.h"
 
 namespace loquat
@@ -18,6 +20,8 @@ namespace loquat
 		WindowState* window_state = nullptr;
 		Device* device = nullptr;
 		Pipeline* pipeline = nullptr;
+		CommandBuffer* command_buffer = nullptr;
+		RenderState* render_state = nullptr;
 
 		/// <summary>
 		/// The debug messenger, which is generally only set in debug builds.

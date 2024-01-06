@@ -6,6 +6,7 @@
 #include "debug/logger.h"
 #include "main/loquat.h"
 #include "main/vulkan_instance.h"
+#include "render/render.h"
 #include "resource/resource_file_folder.h"
 #include "window/swap_chain.h"
 #include "window/window.h"
@@ -53,7 +54,6 @@ namespace loquat
 		g_global_state->device = new Device();
 		g_global_state->window_state->swap_chain = new SwapChain();
 
-
 		auto shader_stages = std::initializer_list<ShaderStage>{
 			ShaderStage{ ShaderType::vertex, "shaders/simple.vert.spv" },
 				ShaderStage{ ShaderType::fragment, "shaders/simple.frag.spv" }
@@ -61,10 +61,16 @@ namespace loquat
 		g_global_state->pipeline = new Pipeline(
 			std::make_unique<Shader>(shader_stages));
 
+		g_global_state->command_buffer = new CommandBuffer();
+		g_global_state->render_state = new RenderState();
+
 		while (!g_global_state->window_state->window->should_close())
 		{
 			glfwPollEvents();
+			render::draw_frame();
 		}
+		
+		vkDeviceWaitIdle(g_global_state->device->logical_device);
 
 		delete g_global_state;
 		glfwTerminate();

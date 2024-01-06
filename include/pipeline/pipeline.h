@@ -17,10 +17,12 @@ namespace loquat
 		Pipeline(const Pipeline&) = delete;
 		Pipeline& operator=(const Pipeline&) = delete;
 
+		void record_command_buffer(const VkCommandBuffer buffer,
+			uint32_t image_index) const noexcept;
 	private:
 		std::unique_ptr<Shader> shader;
-		VkPipelineLayout layout = nullptr;
 		VkPipeline graphics_pipeline = nullptr;
+		VkPipelineLayout layout = nullptr;
 		VkRenderPass render_pass = nullptr;
 		std::vector<VkDynamicState> dynamic_states;
 		std::vector<VkFramebuffer> frame_buffers;
