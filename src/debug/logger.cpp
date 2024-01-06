@@ -39,7 +39,7 @@ public:
 		LOG_MANAGER_ERROR_IGNORE
 	};
 
-	using Tags = std::map<std::string, LogFlag>;
+	using Tags = std::map<std::string, LogFlag, std::less<>>;
 	using ErrorLoggerList = std::list<Logger::ErrorLogger*>;
 
 	/// <summary>
@@ -83,18 +83,18 @@ public:
 	/// <param name="function_name">The name of the function calling log.</param>
 	/// <param name="source_file">The source file log is called from.</param>
 	/// <param name="line_number">The line log is called from.</param>
-	void log(const std::string& tag, const std::string& message,
+	void log(std::string_view tag, std::string_view message,
 		const char* function_name, const char* source_file,
 		unsigned int line_number);
 
 	/// <summary>
-	/// Set the log flags for a tag. Passing a flag of 0 will remove any 
-	/// flags for that tag.
+	/// Set the log flags for a tag. Passing a flag of FLAG_WRITE_NOWHERE
+	/// will remove any flags for that tag.
 	/// </summary>
 	/// <param name="tag">The tag to set.</param>
 	/// <param name="flags">Flags specifying where that tag gets logged.
 	/// </param>
-	void set_display_flags(const std::string& tag, unsigned char flags);
+	void set_display_flags(std::string_view tag, unsigned char flags);
 
 	/// <summary>
 	/// Track a new error logger.
@@ -112,7 +112,7 @@ public:
 	/// <param name="source_file">The source file this was called from.</param>
 	/// <param name="line_number">The line number this was called from.</param>
 	/// <returns>The result of the user's choice on the dialog.</returns>
-LogManager::ErrorDialogResult error(const std::string& error_message,
+LogManager::ErrorDialogResult error(std::string_view error_message,
 	bool fatal, const char* function_name, const char* source_file,
 	unsigned int line_number);
 
@@ -123,14 +123,14 @@ private:
 	/// </summary>
 	/// <param name="final_buffer">The final log outputting.</param>
 	/// <param name="flags">The flags indicating where to log.</param>
-	void output_buffer_to_logs(const std::string& final_buffer,
+	void output_buffer_to_logs(std::string_view final_buffer,
 		unsigned char flags);
 
 	/// <summary>
 	/// Write to a log file.
 	/// </summary>
 	/// <param name="data">The data to write.</param>
-	void write_to_log_file(const std::string& data);
+	void write_to_log_file(std::string_view data);
 
 	/// <summary>
 	/// Format a message and return it back out in the first parameter.
@@ -144,7 +144,7 @@ private:
 	/// </param>
 	/// <returns>The resulting message.</returns>
 	std::string format_message(
-		const std::string& tag, const std::string& message,
+		std::string_view tag, std::string_view message,
 		const char* function_name, const char* source_file,
 		unsigned int line_number);
 };
@@ -173,7 +173,7 @@ LogManager::~LogManager()
 	error_loggers.clear();
 }
 
-void LogManager::log(const std::string& tag, const std::string& message,
+void LogManager::log(std::string_view tag, std::string_view message,
 	const char* function_name, const char* source_file,
 	unsigned int line_number)
 {
@@ -193,17 +193,17 @@ void LogManager::log(const std::string& tag, const std::string& message,
 	output_buffer_to_logs(buffer, flags);
 }
 
-void LogManager::set_display_flags(const std::string& tag, unsigned char flags)
+void LogManager::set_display_flags(std::string_view tag, unsigned char flags)
 {
 	std::scoped_lock lock{ tag_mutex };
 
-	if (flags == 0)
+	Tags::iterator result = tags.find(tag);
+	if (flags == FLAG_WRITE_NOWHERE)
 	{
-		tags.erase(tag);
+		tags.erase(result);
 	}
 	else
 	{
-		Tags::iterator result = tags.find(tag);
 		if (result != tags.end())
 		{
 			result->second = flags;
@@ -222,7 +222,7 @@ void LogManager::add_error_logger(Logger::ErrorLogger* logger)
 }
 
 LogManager::ErrorDialogResult LogManager::error(
-	const std::string& error_message, bool fatal, const char* function_name,
+	std::string_view error_message, bool fatal, const char* function_name,
 	const char* source_file, unsigned int line_number)
 {
 	std::string tag = fatal ? "FATAL" : "ERROR";
@@ -264,24 +264,24 @@ LogManager::ErrorDialogResult LogManager::error(
 #endif
 }
 
-void LogManager::output_buffer_to_logs(const std::string& final_buffer,
+void LogManager::output_buffer_to_logs(std::string_view final_buffer,
 	unsigned char flags)
 {
-	if ((flags & FLAG_WRITE_TO_DEBUGGER ) > 0)
+	if ((flags & FLAG_WRITE_TO_DEBUGGER ) != FLAG_WRITE_NOWHERE)
 	{
 #if defined(WIN32)
-		OutputDebugStringA(final_buffer.c_str());
+		OutputDebugStringA(final_buffer.data());
 #elif defined(UNIX)
-		std::clog << final_buffer.c_str() << std::endl;
+		std::clog << final_buffer << std::endl;
 #endif
 	}
-	if ((flags & FLAG_WRITE_TO_LOG_FILE) > 0)
+	if ((flags & FLAG_WRITE_TO_LOG_FILE) != FLAG_WRITE_NOWHERE)
 	{
-		write_to_log_file(final_buffer.c_str());
+		write_to_log_file(final_buffer);
 	}
 }
 
-void LogManager::write_to_log_file(const std::string& data)
+void LogManager::write_to_log_file(std::string_view data)
 {
 	FILE* log_file = nullptr;
 	// Opens for reading and appending. Creates the file if it doesn't exist.
@@ -291,12 +291,12 @@ void LogManager::write_to_log_file(const std::string& data)
 		// Can't open log file, so logging here would be kinda pointless
 		return;
 	}
-	fprintf_s(log_file, data.c_str());
+	fprintf_s(log_file, data.data());
 	fclose(log_file);
 }
 
 std::string LogManager::format_message(
-	const std::string& tag, const std::string& message,
+	std::string_view tag, std::string_view message,
 	const char* function_name, const char* source_file,
 	unsigned int line_number)
 {
@@ -307,7 +307,10 @@ std::string LogManager::format_message(
 	}
 	else
 	{
-		output = "[" + tag + "] " + message;
+		output = "[";
+		output += tag;
+		output += "] ";
+		output += message;
 	}
 
 	if (function_name != nullptr)
@@ -344,7 +347,7 @@ Logger::ErrorLogger::ErrorLogger()
 	log_manager->add_error_logger(this);
 }
 
-void Logger::ErrorLogger::log_error(const std::string& error_message,
+void Logger::ErrorLogger::log_error(std::string_view error_message,
 	bool fatal, const char* function_name, const char* source_file,
 	unsigned int line_number)
 {
@@ -381,7 +384,7 @@ namespace Logger
 		}
 	}
 
-	void log(const std::string& tag, const std::string& error_message,
+	void log(std::string_view tag, std::string_view error_message,
 		const char* function_name, const char* source_file,
 		unsigned int line_number)
 	{
@@ -390,7 +393,7 @@ namespace Logger
 			line_number);
 	}
 
-	void set_display_flags(const std::string& tag, unsigned char flags)
+	void set_display_flags(std::string_view tag, unsigned char flags)
 	{
 		LOG_ASSERT(log_manager);
 		log_manager->set_display_flags(tag, flags);

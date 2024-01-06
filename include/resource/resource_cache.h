@@ -191,7 +191,7 @@ namespace loquat
 		/// <returns>A list of resource names that match the given pattern.
 		/// </returns>
 		[[nodiscard]]
-		std::vector<std::string> match(const std::string& pattern) noexcept;
+		std::vector<std::string> match(std::string_view pattern) noexcept;
 
 		/// <summary>
 		/// Free every handle in the cache. Useful for loading a new level or 

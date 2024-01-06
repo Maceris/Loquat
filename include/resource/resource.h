@@ -36,6 +36,6 @@ namespace loquat
 		/// </summary>
 		/// <param name="resource_name">The name of the resource, typically
 		/// including the path to the resource.</param>
-		Resource(const std::string& resource_name);
+		Resource(std::string_view resource_name);
 	};
 }

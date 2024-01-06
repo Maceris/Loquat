@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 using LogFlag = unsigned char;
 
@@ -48,7 +49,7 @@ namespace Logger
 		/// </param>
 		/// <param name="line_number">The line number this is called from.
 		/// </param>
-		void log_error(const std::string& error_message, bool fatal,
+		void log_error(std::string_view error_message, bool fatal,
 			const char* function_name, const char* source_file,
 			unsigned int line_number);
 	};
@@ -74,7 +75,7 @@ namespace Logger
 	/// </param>
 	/// <param name="line_number">The line number this is called from.
 	/// </param>
-	void log(const std::string& tag, const std::string& error_message,
+	void log(std::string_view tag, std::string_view error_message,
 		const char* function_name, const char* source_file,
 		unsigned int line_number);
 
@@ -84,7 +85,7 @@ namespace Logger
 	/// </summary>
 	/// <param name="tag">The tag to configure.</param>
 	/// <param name="flags">Flags for this tag.</param>
-	void set_display_flags(const std::string& tag, unsigned char flags);
+	void set_display_flags(std::string_view tag, unsigned char flags);
 }
 
 /*

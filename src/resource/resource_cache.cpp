@@ -246,7 +246,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
-	std::vector<std::string> ResourceCache::match(const std::string& pattern) noexcept
+	std::vector<std::string> ResourceCache::match(std::string_view pattern) noexcept
 	{
 		std::vector<std::string> matching_names;
 		if (file == nullptr)
@@ -259,7 +259,7 @@ namespace loquat
 		{
 			std::string name = file->get_resource_name(i);
 			std::transform(name.begin(), name.end(), name.begin(), std::tolower);
-			if (wildcard_match(pattern.c_str(), name.c_str()))
+			if (wildcard_match(pattern.data(), name.c_str()))
 			{
 				matching_names.push_back(name);
 			}
