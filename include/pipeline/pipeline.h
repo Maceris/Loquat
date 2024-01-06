@@ -23,5 +23,6 @@ namespace loquat
 		VkPipeline graphics_pipeline = nullptr;
 		VkRenderPass render_pass = nullptr;
 		std::vector<VkDynamicState> dynamic_states;
+		std::vector<VkFramebuffer> frame_buffers;
 	};
 }

@@ -184,11 +184,44 @@ namespace loquat
 		{
 			LOG_FATAL("Failed to create graphics pipeline");
 		}
+
+		const auto& image_views =
+			g_global_state->window_state->swap_chain->image_views;
+	
+
+		frame_buffers.resize(image_views.size());
+		for (size_t i = 0; i < image_views.size(); ++i)
+		{
+			VkImageView attachments[] = {
+				image_views[i]
+			};
+
+			VkFramebufferCreateInfo frame_buffer_info{};
+			frame_buffer_info.sType = 
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			frame_buffer_info.renderPass = render_pass;
+			frame_buffer_info.attachmentCount = 1;
+			frame_buffer_info.pAttachments = attachments;
+			frame_buffer_info.width = extent.width;
+			frame_buffer_info.height = extent.height;
+			frame_buffer_info.layers = 1;
+
+			if (vkCreateFramebuffer(device, &frame_buffer_info, nullptr, 
+				&frame_buffers[i]) != VK_SUCCESS)
+			{
+				LOG_FATAL("Failed to create frame buffer");
+			}
+		}
 	}
 
 	Pipeline::~Pipeline()
 	{
 		const auto& device = g_global_state->device->logical_device;
+
+		for (auto framebuffer : frame_buffers)
+		{
+			vkDestroyFramebuffer(device, framebuffer, nullptr);
+		}
 
 		vkDestroyPipeline(device, graphics_pipeline, nullptr);
 		vkDestroyPipelineLayout(device, layout, nullptr);
