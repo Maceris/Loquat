@@ -6,7 +6,7 @@
 
 namespace loquat
 {
-	ShaderModule::ShaderModule(const std::string& name)
+	ShaderModule::ShaderModule(std::string_view name)
 	{
 		Resource shader_resource{ name };
 		auto handle = g_resource_cache->get_handle(&shader_resource);

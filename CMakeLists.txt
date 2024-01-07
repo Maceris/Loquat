@@ -11,6 +11,11 @@ OPTION(BUILD_SHARED_LIBS
   ON
 )
 
+OPTION(LOQUAT_BUILD_GPU_RENDERER
+  "Include CUDA acceleration for software rendering"
+  ON
+)
+
 OPTION(LOQUAT_INSTALL
   "Disable this if you want to use Loquat as a submodule"
   ON

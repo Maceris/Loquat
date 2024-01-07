@@ -3,6 +3,7 @@
 #include <initializer_list>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -14,7 +15,7 @@ namespace loquat
 	/// </summary>
 	struct ShaderModule
 	{
-		ShaderModule(const std::string& name);
+		ShaderModule(std::string_view name);
 		ShaderModule(const ShaderModule&) = delete;
 		ShaderModule& operator=(const ShaderModule&) = delete;
 		ShaderModule(ShaderModule&&) = delete;
@@ -51,7 +52,7 @@ namespace loquat
 		const std::string location;
 
 		constexpr ShaderStage(const ShaderType type,
-			const std::string& location) noexcept
+			std::string_view location) noexcept
 			: type{ type }
 			, location{ location }
 		{}

@@ -20,6 +20,8 @@ namespace loquat
 	using Vec3f = Vec3<FloatGLM>;
 	using Vec3i = Vec3<int>;
 
+	using Normal3f = Vec3f;
+
 	/// <summary>
 	/// Checks if a type is one of our vec types.
 	/// </summary>
@@ -31,4 +33,18 @@ namespace loquat
 		|| std::same_as<T, Vec2i>
 		|| std::same_as<T, Vec3f>
 		|| std::same_as<T, Vec3i>;
+
+	template<typename T>
+		requires is_vec<T>
+	bool has_NaN(T vector) noexcept
+	{
+		for (glm::length_t i = 0; i < vector.length(); ++i)
+		{
+			if (isnan(vector[i]))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

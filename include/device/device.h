@@ -30,7 +30,7 @@ namespace loquat
 	struct Device
 	{
 		friend struct SwapChain;
-		friend class CommandBuffer;
+		friend struct CommandBuffer;
 	public:
 		VkPhysicalDevice physical_device = VK_NULL_HANDLE;
 		VkDevice logical_device = VK_NULL_HANDLE;

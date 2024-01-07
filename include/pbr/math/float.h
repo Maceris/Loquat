@@ -117,11 +117,13 @@ namespace loquat
     }
 
 
-    inline int exponent_float(float f) {
+    inline int exponent_float(float f)
+    {
         return (std::bit_cast<uint32_t>(f) >> 23) - 127;
     }
 
-    inline int exponent_double(double d) {
+    inline int exponent_double(double d)
+    {
         return (std::bit_cast<uint64_t>(d) >> 52) - 1023;
     }
 
@@ -137,11 +139,13 @@ namespace loquat
         }
     }
 
-    inline int significand_float(float f) {
+    inline int significand_float(float f)
+    {
         return std::bit_cast<uint32_t>(f) & ((1 << 23) - 1);
     }
 
-    inline uint64_t significand_double(double d) {
+    inline uint64_t significand_double(double d)
+    {
         return std::bit_cast<uint64_t>(d) & ((1LL << 52) - 1);
     }
 
@@ -157,11 +161,13 @@ namespace loquat
         }
     }
 
-    inline int sign_bit_float(float f) {
+    inline int sign_bit_float(float f)
+    {
         return (std::bit_cast<uint32_t>(f) >> 31) & 0x1;
     }
 
-    inline int sign_bit_double(double d) {
+    inline int sign_bit_double(double d)
+    {
         return (std::bit_cast<uint64_t>(d) >> 63) & 0x1;
     }
 
@@ -177,7 +183,8 @@ namespace loquat
         }
     }
 
-    inline Float next_float_up(Float v) {
+    inline Float next_float_up(Float v)
+    {
   
         if (is_inf(v) && v > 0.0f)
         {
@@ -202,7 +209,8 @@ namespace loquat
         return bits_to_float(bit_value);
     }
 
-    inline Float next_float_down(Float v) {
+    inline Float next_float_down(Float v)
+    {
         if (is_inf(v) && v < 0.0f)
         {
             return v;
@@ -225,56 +233,67 @@ namespace loquat
         return bits_to_float(bit_value);
     }
 
-    inline constexpr Float gamma(int n) {
+    inline constexpr Float gamma(int n)
+    {
         return (n * MACHINE_EPSILON) / (1 - n * MACHINE_EPSILON);
     }
 
-    inline Float add_ceil(Float a, Float b)
+    inline Float add_round_up(Float a, Float b)
     {
         return next_float_up(a + b);
     }
 
-    inline Float add_floor(Float a, Float b)
+    inline Float add_round_down(Float a, Float b)
     {
         return next_float_down(a + b);
     }
 
-    inline Float mul_ceil(Float a, Float b)
+    inline Float sub_round_up(Float a, Float b)
+    {
+        return next_float_up(a - b);
+    }
+
+    inline Float sub_round_down(Float a, Float b)
+    {
+        return next_float_down(a - b);
+    }
+
+    inline Float mul_round_up(Float a, Float b)
     {
         return next_float_up(a * b);
     }
 
-    inline Float mul_floor(Float a, Float b)
+    inline Float mul_round_down(Float a, Float b)
     {
         return next_float_down(a * b);
     }
 
-    inline Float div_ceil(Float a, Float b)
+    inline Float div_round_up(Float a, Float b)
     {
         return next_float_up(a / b);
     }
 
-    inline Float div_floor(Float a, Float b)
+    inline Float div_round_down(Float a, Float b)
     {
         return next_float_down(a / b);
     }
 
-    inline Float sqrt_ceil(Float a)
+    inline Float sqrt_round_up(Float a)
     {
         return next_float_up(std::sqrt(a));
     }
 
-    inline Float sqrt_floor(Float a)
+    inline Float sqrt_round_down(Float a)
     {
         return next_float_down(std::sqrt(a));
     }
 
-    inline Float FMA_ceil(Float a, Float b, Float c)
+    inline Float FMA_round_up(Float a, Float b, Float c)
     {
         return next_float_up(FMA(a, b, c));
     }
 
-    inline Float FMA_floor(Float a, Float b, Float c)
+    inline Float FMA_round_down(Float a, Float b, Float c)
     {
         return next_float_down(FMA(a, b, c));
     }

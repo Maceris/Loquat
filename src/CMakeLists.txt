@@ -33,9 +33,14 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/base/texture.h
   ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/float.h
+  ${HEADER_PATH}/pbr/math/interval.h
   ${HEADER_PATH}/pbr/math/point.h
   ${HEADER_PATH}/pbr/math/ray.h
   ${HEADER_PATH}/pbr/math/vec.h
+  ${HEADER_PATH}/pbr/struct/interaction.h
+  ${HEADER_PATH}/pbr/struct/parameter_dictionary.h
+  ${HEADER_PATH}/pbr/util/color_space.h
+  ${HEADER_PATH}/pbr/util/tagged_pointer.h
   ${HEADER_PATH}/pipeline/pipeline.h
   ${HEADER_PATH}/render/render.h
   ${HEADER_PATH}/render/render_state.h
