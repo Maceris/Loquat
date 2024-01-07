@@ -1,7 +1,6 @@
 #include "main/global_state.h"
 
 #include "main/vulkan_instance.h"
-#include "memory/memory_utils.h"
 
 namespace loquat
 {
@@ -9,11 +8,11 @@ namespace loquat
 
 	GlobalState::~GlobalState()
 	{
-		SAFE_DELETE(render_state);
-		SAFE_DELETE(command_buffer);
-		SAFE_DELETE(pipeline);
-		SAFE_DELETE(window_state);
-		SAFE_DELETE(device);
+		safe_delete(render_state);
+		safe_delete(command_buffer);
+		safe_delete(pipeline);
+		safe_delete(window_state);
+		safe_delete(device);
 		if (debug_messenger)
 		{
 			unload_debug_messenger();

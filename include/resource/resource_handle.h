@@ -43,8 +43,10 @@ namespace loquat
 		/// </summary>
 		ResourceCache* resource_cache;
 
+	public:
+
 		/// <summary>
-		/// Create a new resource handle.
+		/// Create a new resource handle. Should not be called directly.
 		/// </summary>
 		/// <param name="resource">The name of the resource.</param>
 		/// <param name="buffer">The data.</param>
@@ -54,7 +56,6 @@ namespace loquat
 		ResourceHandle(Resource& resource, char* buffer, size_t size,
 			ResourceCache* resource_cache) noexcept;
 
-	public:
 		/// <summary>
 		/// Clean up and notify the resource cache that memory has been freed.
 		/// </summary>

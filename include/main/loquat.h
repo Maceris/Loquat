@@ -5,12 +5,13 @@
 #include <cstddef>
 #include <memory>
 
+#include "memory/memory_utils.h"
+
 #include "debug/logger.h"
 
 // NOTE(ches) the math includes are in a somewhat specific order
 
 #include "glm/glm.hpp"
-
 
 #include "pbr/math/float.h"
 #include "pbr/math/vec.h"

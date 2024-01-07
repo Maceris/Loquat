@@ -168,7 +168,7 @@ LogManager::~LogManager()
 	for (auto it = error_loggers.begin(); it != error_loggers.end(); ++it)
 	{
 		Logger::ErrorLogger* logger = *it;
-		delete logger;
+		loquat::safe_delete(logger);
 	}
 	error_loggers.clear();
 }
@@ -371,7 +371,7 @@ namespace Logger
 	{
 		if (!log_manager)
 		{
-			log_manager = new LogManager;
+			log_manager = loquat::alloc<LogManager>();
 		}
 	}
 
@@ -379,7 +379,7 @@ namespace Logger
 	{
 		if (log_manager)
 		{
-			delete log_manager;
+			loquat::safe_delete(log_manager);
 			log_manager = nullptr;
 		}
 	}

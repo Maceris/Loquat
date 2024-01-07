@@ -4,7 +4,6 @@
 
 #include "debug/logger.h"
 #include "main/global_state.h"
-#include "memory/memory_utils.h"
 #include "window/window.h"
 
 namespace loquat
@@ -26,7 +25,7 @@ namespace loquat
 
 	WindowSurface::~WindowSurface()
 	{
-		SAFE_DELETE(surface_format);
+		safe_delete(surface_format);
 		vkDestroySurfaceKHR(g_global_state->instance, vulkan_surface, nullptr);
 	}
 
@@ -56,7 +55,7 @@ namespace loquat
 		LOG_ASSERT(available_formats.size() > 0
 			&& "We require available surface formats");
 
-		surface_format = new VkSurfaceFormatKHR();
+		surface_format = alloc<VkSurfaceFormatKHR>();
 		for (const auto& choice : available_formats)
 		{
 			if (choice.format == VK_FORMAT_B8G8R8A8_SRGB

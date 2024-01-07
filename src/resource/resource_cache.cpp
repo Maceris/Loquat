@@ -33,7 +33,7 @@ namespace loquat
 			return nullptr;
 		}
 
-		char* memory = new char[size];
+		char* memory = alloc_array<char>(size);
 		if (memory)
 		{
 			allocated += size;
@@ -87,7 +87,7 @@ namespace loquat
 		}
 
 		char* raw_buffer = loader->use_raw_file() ? allocate(allocation_size) 
-			: new char[allocation_size];
+			: alloc_array<char>(allocation_size);
 		memset(raw_buffer, 0, allocation_size);
 
 		if (raw_buffer == nullptr
@@ -102,7 +102,7 @@ namespace loquat
 		{
 			buffer = raw_buffer;
 			handle = std::shared_ptr<ResourceHandle>(
-				new ResourceHandle(*resource, buffer, raw_size, this));
+				alloc<ResourceHandle>(*resource, buffer, raw_size, this));
 		}
 		else
 		{
@@ -113,13 +113,13 @@ namespace loquat
 				return std::shared_ptr<ResourceHandle>();
 			}
 			handle = std::shared_ptr<ResourceHandle>(
-				new ResourceHandle(*resource, buffer, size, this));
+				alloc<ResourceHandle>(*resource, buffer, size, this));
 
 			bool success = loader->load_resource(raw_buffer, raw_size, handle);
 
 			if (loader->discard_raw_buffer_after_load())
 			{
-				SAFE_DELETE_ARRAY(raw_buffer);
+				safe_delete_array(raw_buffer);
 			}
 
 			if (!success)
@@ -182,7 +182,7 @@ namespace loquat
 		{
 			free_one_resource();
 		}
-		SAFE_DELETE(file);
+		safe_delete(file);
 	}
 
 	bool ResourceCache::init() noexcept
@@ -190,7 +190,7 @@ namespace loquat
 		if (file->open())
 		{
 			register_loader(std::shared_ptr<ResourceLoader>(
-				new DefaultResourceLoader()));
+				alloc<DefaultResourceLoader>()));
 			return true;
 		}
 		return false;

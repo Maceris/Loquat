@@ -3,6 +3,8 @@
 #include <string>
 #include <string_view>
 
+#include "memory/memory_utils.h"
+
 using LogFlag = unsigned char;
 
 /// <summary>
@@ -99,7 +101,7 @@ in all contexts, like after conditionals.
 #define LOG_FATAL(str) \
 	do \
 	{ \
-		static Logger::ErrorLogger* error_logger = new Logger::ErrorLogger; \
+		static Logger::ErrorLogger* error_logger = loquat::alloc<Logger::ErrorLogger>(); \
 		std::string s((str)); \
 		error_logger->log_error(s, true, __func__, __FILE__, __LINE__); \
 	} \
@@ -114,7 +116,7 @@ in all contexts, like after conditionals.
 	#define LOG_ERROR(str) \
 		do \
 		{ \
-			static Logger::ErrorLogger* error_logger = new Logger::ErrorLogger; \
+			static Logger::ErrorLogger* error_logger = loquat::alloc<Logger::ErrorLogger>(); \
 			std::string s((str)); \
 			error_logger->log_error(s, false, __func__, __FILE__, __LINE__); \
 		} \
@@ -164,7 +166,7 @@ in all contexts, like after conditionals.
 		{ \
 			if (!(expr)) \
 			{ \
-				static Logger::ErrorLogger* error_logger = new Logger::ErrorLogger; \
+				static Logger::ErrorLogger* error_logger = loquat::alloc<Logger::ErrorLogger>(); \
 				error_logger->log_error(#expr, false, __func__, __FILE__, __LINE__); \
 			} \
 		} \

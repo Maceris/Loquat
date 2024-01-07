@@ -92,8 +92,8 @@ namespace loquat
 			ray.medium = get_medium(ray.direction);
 			return ray;
 		}
-
 		
+		[[nodiscard]]
 		Medium get_medium(Vec3f direction) const noexcept
 		{
 			if (medium_interface)
@@ -107,6 +107,7 @@ namespace loquat
 			return medium;
 		}
 
+		[[nodiscard]]
 		Medium get_medium() const {
 			if (medium_interface)
 			{

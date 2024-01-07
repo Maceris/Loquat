@@ -13,7 +13,8 @@
 
 namespace loquat
 {
-	GlobalState* g_global_state = new GlobalState();
+	Allocator* g_allocator = new Allocator();
+	GlobalState* g_global_state = alloc<GlobalState>();
 	ResourceCache* g_resource_cache;
 	int main();
 }
@@ -41,8 +42,8 @@ namespace loquat
 		std::filesystem::path full_resource_path =
 			std::filesystem::canonical(resource_path);
 		ResourceFileFolder* resource_folder =
-			new ResourceFileFolder(full_resource_path.string());
-		g_resource_cache = new ResourceCache(50, resource_folder);
+			alloc<ResourceFileFolder>(full_resource_path.string());
+		g_resource_cache = alloc<ResourceCache>(50, resource_folder);
 
 		if (!g_resource_cache->init())
 		{
@@ -51,18 +52,18 @@ namespace loquat
 
 		create_vulkan_instance();
 		create_vulkan_window();
-		g_global_state->device = new Device();
-		g_global_state->window_state->swap_chain = new SwapChain();
+		g_global_state->device = alloc<Device>();
+		g_global_state->window_state->swap_chain = alloc<SwapChain>();
 
 		auto shader_stages = std::initializer_list<ShaderStage>{
 			ShaderStage{ ShaderType::vertex, "shaders/simple.vert.spv" },
 				ShaderStage{ ShaderType::fragment, "shaders/simple.frag.spv" }
 		};
-		g_global_state->pipeline = new Pipeline(
+		g_global_state->pipeline = alloc<Pipeline>(
 			std::make_unique<Shader>(shader_stages));
 
-		g_global_state->command_buffer = new CommandBuffer();
-		g_global_state->render_state = new RenderState();
+		g_global_state->command_buffer = alloc<CommandBuffer>();
+		g_global_state->render_state = alloc<RenderState>();
 
 		while (!g_global_state->window_state->window->should_close())
 		{
@@ -72,7 +73,7 @@ namespace loquat
 		
 		vkDeviceWaitIdle(g_global_state->device->logical_device);
 
-		delete g_global_state;
+		safe_delete(g_global_state);
 		glfwTerminate();
 		Logger::destroy();
 		return 0;

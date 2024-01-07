@@ -168,7 +168,7 @@ namespace loquat
 			uint64_t iptr = reinterpret_cast<uint64_t>(pointer);
 			LOG_ASSERT(iptr & POINTER_MASK == iptr
 				&& "Our pointer tagging is breaking the pointers");
-			constexpr unsigned int type = TypeIndex<T>();
+			constexpr unsigned int type = type_index<T>();
 			bits = iptr | (static_cast<uint64_t>(type) << POINTER_BITS);
 		}
 		TaggedPointer(std::nullptr_t np)
