@@ -5,12 +5,20 @@
 
 namespace loquat
 {
+	/// <summary>
+	/// The type of allocator we are using for memory management.
+	/// </summary>
 	using Allocator = std::pmr::polymorphic_allocator<std::byte>;
 
+	/// <summary>
+	/// The allocator for certain data structures, and potentially general use.
+	/// </summary>
 	extern Allocator* g_allocator;
 
 	/// <summary>
-	/// Whether we are using new/delete instead of a custom allocator
+	/// Whether we are using new/delete instead of just using a custom 
+	/// allocator for everything. We still use a custom allocator for some
+	/// data structures even if this is true.
 	/// </summary>
 	constexpr bool USE_DEFAULT_ALLOCATOR = false;
 
@@ -86,8 +94,8 @@ namespace loquat
 	}
 
 	/// <summary>
-	/// Allocate an array to store objects in. Just allocates the memory, does not
-	/// actually construct anything in it.
+	/// Allocate an array to store objects in. Just allocates the memory,
+	/// does not actually construct it.
 	/// </summary>
 	/// <typeparam name="T">The type of the array.</typeparam>
 	/// <param name="count">The number of elements in the array.</param>

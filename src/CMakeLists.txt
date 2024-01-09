@@ -2,9 +2,11 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
-SET(HEADER_PATH ../include)
-SET(SOURCE_PATH ../src)
-SET(RESOURCE_PATH ../resources)
+SET(HEADER_PATH ${LOQUAT_ROOT_DIRECTORY}/include)
+SET(SOURCE_PATH ${LOQUAT_ROOT_DIRECTORY}/src)
+SET(RESOURCE_PATH ${LOQUAT_ROOT_DIRECTORY}/resources)
+SET(IMGUI_PATH ${LOQUAT_ROOT_DIRECTORY}/third-party/imgui)
+
 SET(SHADER_SOURCE_DIR ${RESOURCE_PATH}/shaders)
 SET(CONFIGURATION_BINARY_DIR ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>)
 SET(RESOURCE_BINARY_DIR ${CONFIGURATION_BINARY_DIR}/resources)
@@ -81,14 +83,47 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/window/window_surface.cpp
 )
 
+SET(IMGUI_HEADERS
+  ${IMGUI_PATH}/imconfig.h
+  ${IMGUI_PATH}/imgui.h
+  ${IMGUI_PATH}/imgui_internal.h
+  ${IMGUI_PATH}/imstb_rectpack.h
+  ${IMGUI_PATH}/imstb_textedit.h
+  ${IMGUI_PATH}/imstb_truetype.h
+  ${IMGUI_PATH}/backends/imgui_impl_glfw.h
+  ${IMGUI_PATH}/backends/imgui_impl_vulkan.h
+  ${IMGUI_PATH}/backends/imgui_impl_win32.h
+  ${IMGUI_PATH}/misc/cpp/imgui_stdlib.h
+)
+
+INCLUDE_DIRECTORIES(BEFORE
+	${IMGUI_PATH}/
+	${IMGUI_PATH}/backends
+	${IMGUI_PATH}/misc/cpp
+)
+
+SET(IMGUI_SRCS
+  ${IMGUI_PATH}/imgui.cpp
+  ${IMGUI_PATH}/imgui_draw.cpp
+  ${IMGUI_PATH}/imgui_tables.cpp
+  ${IMGUI_PATH}/imgui_widgets.cpp
+  ${IMGUI_PATH}/backends/imgui_impl_glfw.cpp
+  ${IMGUI_PATH}/backends/imgui_impl_vulkan.cpp
+  ${IMGUI_PATH}/backends/imgui_impl_win32.cpp
+  ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
+)
+
 SOURCE_GROUP(TREE ${HEADER_PATH} PREFIX "include" FILES ${PUBLIC_HEADERS})
 SOURCE_GROUP(TREE ${SOURCE_PATH} PREFIX "src" FILES ${CORE_SRCS})
+SOURCE_GROUP(imgui PREFIX "imgui" FILES ${IMGUI_SRCS} ${IMGUI_HEADERS})
 
 SET(loquat_src
   ${CORE_SRCS}
+  ${IMGUI_SRCS}
   
   # Necessary to show the headers in the project when using the VC++ generator:
   ${PUBLIC_HEADERS}
+  ${IMGUI_HEADERS}
 )
 
 ADD_EXECUTABLE(loquat ${loquat_src})
