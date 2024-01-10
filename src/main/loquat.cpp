@@ -65,6 +65,8 @@ namespace loquat
 		g_global_state->command_buffer = alloc<CommandBuffer>();
 		g_global_state->render_state = alloc<RenderState>();
 
+		render::init_UI();
+
 		while (!g_global_state->window_state->window->should_close())
 		{
 			glfwPollEvents();
@@ -72,6 +74,7 @@ namespace loquat
 		}
 		
 		vkDeviceWaitIdle(g_global_state->device->logical_device);
+		render::teardown_UI();
 
 		safe_delete(g_global_state);
 		glfwTerminate();

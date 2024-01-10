@@ -1,9 +1,22 @@
 #include "render/render.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
+
 #include "main/loquat.h"
+#include "window/window.h"
+#include "window/window_state.h"
 
 namespace loquat::render
 {
+	void draw_UI() noexcept;
+
+	void imgui_result_callback(VkResult err)
+	{
+		LOG_ASSERT("Issue with ImGui");
+	}
+
 	void draw_frame() noexcept
 	{
 		const RenderState* render_state = g_global_state->render_state;
@@ -68,8 +81,42 @@ namespace loquat::render
 		present_info.pImageIndices = &image_index;
 		present_info.pResults = nullptr;
 
+		draw_UI();
+
 		vkQueuePresentKHR(g_global_state->device->graphics_queue, 
 			&present_info);
+	}
+
+	void init_UI() noexcept
+	{
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+		ImGui::StyleColorsDark();
+		
+		ImGui_ImplGlfw_InitForVulkan(
+			g_global_state->window_state->window->glfw_window, true);
+		ImGui_ImplVulkan_InitInfo init_info = {};
+		init_info.Instance = g_global_state->instance;
+		init_info.PhysicalDevice = g_global_state->device->physical_device;
+		init_info.Device = g_global_state->device->logical_device;
+		init_info.QueueFamily = 
+			g_global_state->device->indices.graphics_family.value();
+		init_info.Queue = g_global_state->device->graphics_queue;
+		init_info.PipelineCache = VK_NULL_HANDLE;
+		init_info.DescriptorPool = g_global_state->device->descriptor_pool;
+		init_info.Subpass = 0;
+		init_info.MinImageCount = 2;
+		init_info.ImageCount = MAX_FRAMES_IN_FLIGHT;
+		init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+		init_info.Allocator = nullptr;
+		init_info.CheckVkResultFn = imgui_result_callback;
+		ImGui_ImplVulkan_Init(&init_info, 
+			g_global_state->pipeline->render_pass);
 	}
 
 	void stop_rendering() noexcept
@@ -80,6 +127,18 @@ namespace loquat::render
 	void resume_rendering() noexcept
 	{
 		g_global_state->render_state->rendering_active = true;
+	}
+
+	void teardown_UI() noexcept
+	{
+		ImGui_ImplVulkan_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+	}
+
+	void draw_UI() noexcept
+	{
+		
 	}
 
 }

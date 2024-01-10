@@ -36,6 +36,8 @@ namespace loquat
 		VkDevice logical_device = VK_NULL_HANDLE;
 		VkQueue graphics_queue = nullptr;
 		VkQueue present_queue = nullptr;
+		QueueFamilyIndices indices;
+		VkDescriptorPool descriptor_pool = nullptr;
 
 		Device();
 		Device(const Device&) = delete;
@@ -45,7 +47,6 @@ namespace loquat
 		~Device();
 
 	private:
-		QueueFamilyIndices indices;
 
 		/// <summary>
 		/// Check what kind of swap chain support the device has.

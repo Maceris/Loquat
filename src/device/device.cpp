@@ -24,10 +24,33 @@ namespace loquat
 		select_logical_device();
 		create_queues();
 		configure_surface();
+
+		VkDescriptorPoolSize pool_sizes[] =
+		{
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 * MAX_FRAMES_IN_FLIGHT },
+		};
+
+		constexpr uint32_t pool_sizes_count =
+			static_cast<uint32_t>(sizeof(pool_sizes) / sizeof(*pool_sizes));
+
+		VkDescriptorPoolCreateInfo descriptor_pool_info{};
+		descriptor_pool_info.sType = 
+			VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		descriptor_pool_info.poolSizeCount = pool_sizes_count;
+		descriptor_pool_info.pPoolSizes = pool_sizes;
+		descriptor_pool_info.maxSets = MAX_FRAMES_IN_FLIGHT;
+
+		if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, 
+			nullptr, &descriptor_pool) != VK_SUCCESS)
+		{
+			LOG_FATAL("Failed to create descriptor pool");
+		}
 	}
 
 	Device::~Device()
 	{
+		vkDestroyDescriptorPool(logical_device, descriptor_pool, nullptr);
+
 		//NOTE(ches) queues are implicity destroyed when the logical device is
 		//NOTE(ches) physical device gets destroyed implicitly with the instance
 		if (logical_device != VK_NULL_HANDLE)

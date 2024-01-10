@@ -25,9 +25,8 @@ namespace loquat
 		[[nodiscard]] int get_width() const noexcept;
 		[[nodiscard]] bool should_close() const noexcept;
 
-	private:
 		GLFWwindow* glfw_window = nullptr;
-
+	private:
 		std::atomic<int> height;
 		std::atomic<int> width;
 	};
