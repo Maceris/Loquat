@@ -8,6 +8,12 @@ namespace loquat::render
 	void draw_frame() noexcept;
 
 	/// <summary>
+	/// Draw the UI on top of a frame, intended to be called from the pipeline
+	/// while it is generating commands for the buffer.
+	/// </summary>
+	void draw_UI() noexcept;
+
+	/// <summary>
 	/// Prepare things for the UI.
 	/// </summary>
 	void init_UI() noexcept;
@@ -16,6 +22,8 @@ namespace loquat::render
 	/// Stop rendering for now, such as when minimized.
 	/// </summary>
 	void stop_rendering() noexcept;
+
+	
 
 	/// <summary>
 	/// Resume rendering, such as when restoring from being minimized.

@@ -1,6 +1,7 @@
 #include "pipeline/pipeline.h"
 
 #include "main/global_state.h"
+#include "render/render.h"
 
 namespace loquat
 {
@@ -287,6 +288,8 @@ namespace loquat
 		vkCmdSetScissor(buffer, 0, 1, &scissor);
 
 		vkCmdDraw(buffer, 3, 1, 0, 0);
+
+		render::draw_UI();
 
 		vkCmdEndRenderPass(g_global_state->command_buffer->buffer);
 

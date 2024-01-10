@@ -104,6 +104,7 @@ INCLUDE_DIRECTORIES(BEFORE
 
 SET(IMGUI_SRCS
   ${IMGUI_PATH}/imgui.cpp
+  ${IMGUI_PATH}/imgui_demo.cpp
   ${IMGUI_PATH}/imgui_draw.cpp
   ${IMGUI_PATH}/imgui_tables.cpp
   ${IMGUI_PATH}/imgui_widgets.cpp

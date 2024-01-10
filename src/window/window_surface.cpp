@@ -58,7 +58,7 @@ namespace loquat
 		surface_format = alloc<VkSurfaceFormatKHR>();
 		for (const auto& choice : available_formats)
 		{
-			if (choice.format == VK_FORMAT_B8G8R8A8_SRGB
+			if (choice.format == VK_FORMAT_B8G8R8A8_UNORM
 				&& choice.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			{
 				surface_format->colorSpace = choice.colorSpace;

@@ -24,10 +24,10 @@ namespace loquat
 			uint32_t image_index) const noexcept;
 		
 		VkRenderPass render_pass = nullptr;
+		VkPipeline graphics_pipeline = nullptr;
 
 	private:
 		std::unique_ptr<Shader> shader;
-		VkPipeline graphics_pipeline = nullptr;
 		VkPipelineLayout layout = nullptr;
 		std::vector<VkDynamicState> dynamic_states;
 		std::vector<VkFramebuffer> frame_buffers;

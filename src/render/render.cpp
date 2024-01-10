@@ -10,11 +10,28 @@
 
 namespace loquat::render
 {
-	void draw_UI() noexcept;
-
 	void imgui_result_callback(VkResult err)
 	{
 		LOG_ASSERT("Issue with ImGui");
+	}
+
+	void draw_UI() noexcept
+	{
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::ShowDemoWindow();
+
+		ImGui::Render();
+		ImDrawData* draw_data = ImGui::GetDrawData();
+		const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f
+			|| draw_data->DisplaySize.y <= 0.0f);
+		if (!is_minimized)
+		{
+			ImGui_ImplVulkan_RenderDrawData(draw_data,
+				g_global_state->command_buffer->buffer);
+		}
 	}
 
 	void draw_frame() noexcept
@@ -81,8 +98,6 @@ namespace loquat::render
 		present_info.pImageIndices = &image_index;
 		present_info.pResults = nullptr;
 
-		draw_UI();
-
 		vkQueuePresentKHR(g_global_state->device->graphics_queue, 
 			&present_info);
 	}
@@ -134,11 +149,6 @@ namespace loquat::render
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-	}
-
-	void draw_UI() noexcept
-	{
-		
 	}
 
 }

@@ -28,6 +28,8 @@ namespace loquat
 		VkDescriptorPoolSize pool_sizes[] =
 		{
 			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 * MAX_FRAMES_IN_FLIGHT },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 2 * MAX_FRAMES_IN_FLIGHT },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 2 * MAX_FRAMES_IN_FLIGHT },
 		};
 
 		constexpr uint32_t pool_sizes_count =
@@ -39,6 +41,8 @@ namespace loquat
 		descriptor_pool_info.poolSizeCount = pool_sizes_count;
 		descriptor_pool_info.pPoolSizes = pool_sizes;
 		descriptor_pool_info.maxSets = MAX_FRAMES_IN_FLIGHT;
+		descriptor_pool_info.flags = 
+			VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
 		if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, 
 			nullptr, &descriptor_pool) != VK_SUCCESS)
