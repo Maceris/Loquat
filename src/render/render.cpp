@@ -48,12 +48,27 @@ namespace loquat::render
 
 		vkWaitForFences(device, 1, &render_state->frame_in_flight_fence,
 			VK_TRUE, UINT64_MAX);
-		vkResetFences(device, 1, &render_state->frame_in_flight_fence);
 
 		uint32_t image_index;
-		vkAcquireNextImageKHR(device, swap_chain->vulkan_swap_chain, 
-			UINT64_MAX, render_state->image_available_semaphore, 
-			VK_NULL_HANDLE, &image_index);
+		VkResult result = vkAcquireNextImageKHR(device, 
+			swap_chain->vulkan_swap_chain, UINT64_MAX, 
+			render_state->image_available_semaphore, VK_NULL_HANDLE,
+			&image_index);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR
+			|| result == VK_SUBOPTIMAL_KHR
+			|| g_global_state->window_state->window->was_resized())
+		{
+			g_global_state->window_state->window->reset_resized();
+			recreate_swap_chain();
+			return;
+		}
+		else if (result != VK_SUCCESS)
+		{
+			LOG_FATAL("Failed to acquire swap chain image");
+		}
+
+		vkResetFences(device, 1, &render_state->frame_in_flight_fence);
 
 		const VkCommandBuffer buffer = g_global_state->command_buffer->buffer;
 		vkResetCommandBuffer(buffer, 0);

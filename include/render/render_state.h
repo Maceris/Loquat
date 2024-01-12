@@ -23,4 +23,7 @@ namespace loquat
 		VkFence frame_in_flight_fence = nullptr;
 		std::atomic_bool rendering_active = true;
 	};
+
+	void create_render_state() noexcept;
+	void destroy_render_state() noexcept;
 }

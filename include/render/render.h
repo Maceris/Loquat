@@ -23,8 +23,6 @@ namespace loquat::render
 	/// </summary>
 	void stop_rendering() noexcept;
 
-	
-
 	/// <summary>
 	/// Resume rendering, such as when restoring from being minimized.
 	/// </summary>

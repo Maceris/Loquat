@@ -53,17 +53,11 @@ namespace loquat
 		create_vulkan_instance();
 		create_vulkan_window();
 		g_global_state->device = alloc<Device>();
-		g_global_state->window_state->swap_chain = alloc<SwapChain>();
-
-		auto shader_stages = std::initializer_list<ShaderStage>{
-			ShaderStage{ ShaderType::vertex, "shaders/simple.vert.spv" },
-				ShaderStage{ ShaderType::fragment, "shaders/simple.frag.spv" }
-		};
-		g_global_state->pipeline = alloc<Pipeline>(
-			std::make_unique<Shader>(shader_stages));
+		create_swap_chain();
+		create_pipeline();
 
 		g_global_state->command_buffer = alloc<CommandBuffer>();
-		g_global_state->render_state = alloc<RenderState>();
+		create_render_state();
 
 		render::init_UI();
 

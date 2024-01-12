@@ -25,11 +25,23 @@ namespace loquat
 		
 		VkRenderPass render_pass = nullptr;
 		VkPipeline graphics_pipeline = nullptr;
+		std::vector<VkFramebuffer> frame_buffers;
 
 	private:
 		std::unique_ptr<Shader> shader;
 		VkPipelineLayout layout = nullptr;
 		std::vector<VkDynamicState> dynamic_states;
-		std::vector<VkFramebuffer> frame_buffers;
 	};
+
+	void create_pipeline() noexcept;
+
+	/// <summary>
+	/// Set up frame buffers for the pipeline.
+	/// </summary>
+	void create_frame_buffers() noexcept;
+
+	/// <summary>
+	/// Destroy the current frame buffers for the pipeline.
+	/// </summary>
+	void destroy_frame_buffers() noexcept;
 }

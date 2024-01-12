@@ -34,4 +34,14 @@ namespace loquat
 		vkDestroySemaphore(device, render_finished_semaphore, nullptr);
 		vkDestroyFence(device, frame_in_flight_fence, nullptr);
 	}
+
+	void create_render_state() noexcept
+	{
+		g_global_state->render_state = alloc<RenderState>();
+	}
+
+	void destroy_render_state() noexcept
+	{
+		safe_delete(g_global_state->render_state);
+	}
 }

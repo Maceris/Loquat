@@ -52,4 +52,15 @@ namespace loquat
 		[[nodiscard]] VkExtent2D
 			select_extent(const VkSurfaceCapabilitiesKHR& capabilities) const noexcept;
 	};
+
+	/// <summary>
+	/// Create a swap chain when we don't have one.
+	/// </summary>
+	void create_swap_chain() noexcept;
+
+	/// <summary>
+	/// Clean up the existing swap chain and create a new swap chain,
+	/// image views, and frame buffers.
+	/// </summary>
+	void recreate_swap_chain() noexcept;
 }

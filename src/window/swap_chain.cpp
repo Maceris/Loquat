@@ -160,4 +160,21 @@ namespace loquat
 			return actualExtent;
 		}
 	}
+
+	void create_swap_chain() noexcept
+	{
+		g_global_state->window_state->swap_chain = alloc<SwapChain>();
+	}
+
+	void recreate_swap_chain() noexcept
+	{
+		vkDeviceWaitIdle(g_global_state->device->logical_device);
+		destroy_frame_buffers();
+		safe_delete(g_global_state->window_state->swap_chain);
+		destroy_render_state();
+
+		create_swap_chain();
+		create_frame_buffers();
+		create_render_state();
+	}
 }

@@ -20,15 +20,25 @@ namespace loquat
 		}
 	}
 
+	void Window::callback_resized(GLFWwindow* glfw_window, int width, 
+		int height) noexcept
+	{
+		Window* window = g_global_state->window_state->window;
+		window->width = width;
+		window->height = height;
+		window->resized = true;
+	}
+
 	Window::Window()
 		: width{ DEFAULT_WIDTH }
 		, height{ DEFAULT_HEIGHT }
 	{
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 		glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT,
 			"Loquat", NULL, NULL);
 		glfwSetWindowIconifyCallback(glfw_window, callback_iconify);
+		glfwSetFramebufferSizeCallback(glfw_window, callback_resized);
 	}
 
 	Window::~Window()
@@ -46,8 +56,18 @@ namespace loquat
 		return width;
 	}
 
+	void Window::reset_resized() noexcept
+	{
+		resized = false;
+	}
+
 	[[nodiscard]] bool Window::should_close() const noexcept
 	{
 		return glfwWindowShouldClose(glfw_window);
+	}
+
+	[[nodiscard]] bool Window::was_resized() const noexcept
+	{
+		return resized;
 	}
 }
