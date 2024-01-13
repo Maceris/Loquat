@@ -260,7 +260,8 @@ namespace loquat
 
 		render::draw_UI();
 
-		vkCmdEndRenderPass(g_global_state->command_buffer->buffer);
+		vkCmdEndRenderPass(g_global_state->render_state->
+			current_command_buffer());
 
 		if (vkEndCommandBuffer(buffer) != VK_SUCCESS)
 		{

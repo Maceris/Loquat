@@ -13,7 +13,6 @@ SET(RESOURCE_BINARY_DIR ${CONFIGURATION_BINARY_DIR}/resources)
 SET(SHADER_BINARY_DIR ${RESOURCE_BINARY_DIR}/shaders)
 
 SET(PUBLIC_HEADERS
-  ${HEADER_PATH}/command/command_buffer.h
   ${HEADER_PATH}/debug/logger.h
   ${HEADER_PATH}/device/device.h
   ${HEADER_PATH}/main/global_state.h
@@ -61,7 +60,6 @@ SET(PUBLIC_HEADERS
 )
 
 SET(CORE_SRCS
-  ${SOURCE_PATH}/command/command_buffer.cpp
   ${SOURCE_PATH}/debug/logger.cpp
   ${SOURCE_PATH}/device/device.cpp
   ${SOURCE_PATH}/main/global_state.cpp

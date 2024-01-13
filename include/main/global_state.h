@@ -20,7 +20,6 @@ namespace loquat
 		WindowState* window_state = nullptr;
 		Device* device = nullptr;
 		Pipeline* pipeline = nullptr;
-		CommandBuffer* command_buffer = nullptr;
 		RenderState* render_state = nullptr;
 
 		/// <summary>

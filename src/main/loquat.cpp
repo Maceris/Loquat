@@ -56,7 +56,6 @@ namespace loquat
 		create_swap_chain();
 		create_pipeline();
 
-		g_global_state->command_buffer = alloc<CommandBuffer>();
 		create_render_state();
 
 		render::init_UI();

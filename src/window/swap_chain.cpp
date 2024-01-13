@@ -171,10 +171,10 @@ namespace loquat
 		vkDeviceWaitIdle(g_global_state->device->logical_device);
 		destroy_frame_buffers();
 		safe_delete(g_global_state->window_state->swap_chain);
-		destroy_render_state();
+
+		g_global_state->render_state->recreate_synchronization_objects();
 
 		create_swap_chain();
 		create_frame_buffers();
-		create_render_state();
 	}
 }

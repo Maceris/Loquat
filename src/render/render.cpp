@@ -30,13 +30,13 @@ namespace loquat::render
 		if (!is_minimized)
 		{
 			ImGui_ImplVulkan_RenderDrawData(draw_data,
-				g_global_state->command_buffer->buffer);
+				g_global_state->render_state->current_command_buffer());
 		}
 	}
 
 	void draw_frame() noexcept
 	{
-		const RenderState* render_state = g_global_state->render_state;
+		RenderState* render_state = g_global_state->render_state;
 		
 		if (!render_state->rendering_active)
 		{
@@ -45,15 +45,17 @@ namespace loquat::render
 
 		const auto& device = g_global_state->device->logical_device;
 		const SwapChain* swap_chain = g_global_state->window_state->swap_chain;
+		const uint32_t current_frame = render_state->current_frame;
 
-		vkWaitForFences(device, 1, &render_state->frame_in_flight_fence,
+		vkWaitForFences(device, 1,
+			&render_state->frame_in_flight_fences[current_frame],
 			VK_TRUE, UINT64_MAX);
 
 		uint32_t image_index;
 		VkResult result = vkAcquireNextImageKHR(device, 
 			swap_chain->vulkan_swap_chain, UINT64_MAX, 
-			render_state->image_available_semaphore, VK_NULL_HANDLE,
-			&image_index);
+			render_state->image_available_semaphores[current_frame], 
+			VK_NULL_HANDLE, &image_index);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR
 			|| result == VK_SUBOPTIMAL_KHR
@@ -68,9 +70,11 @@ namespace loquat::render
 			LOG_FATAL("Failed to acquire swap chain image");
 		}
 
-		vkResetFences(device, 1, &render_state->frame_in_flight_fence);
+		vkResetFences(device, 1, 
+			&render_state->frame_in_flight_fences[current_frame]);
 
-		const VkCommandBuffer buffer = g_global_state->command_buffer->buffer;
+		const VkCommandBuffer buffer = 
+			g_global_state->render_state->current_command_buffer();
 		vkResetCommandBuffer(buffer, 0);
 		g_global_state->pipeline->record_command_buffer(buffer, image_index);
 
@@ -78,7 +82,7 @@ namespace loquat::render
 		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 		VkSemaphore wait_semaphores[] = { 
-			render_state->image_available_semaphore
+			render_state->image_available_semaphores[current_frame]
 		};
 		VkPipelineStageFlags wait_stages[] = { 
 			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
@@ -90,12 +94,13 @@ namespace loquat::render
 		submit_info.pCommandBuffers = &buffer;
 
 		VkSemaphore signal_semaphores[] = { 
-			render_state->render_finished_semaphore
+			render_state->render_finished_semaphores[current_frame]
 		};
 		submit_info.signalSemaphoreCount = 1;
 		submit_info.pSignalSemaphores = signal_semaphores;
 		if (vkQueueSubmit(g_global_state->device->graphics_queue, 1, 
-			&submit_info, render_state->frame_in_flight_fence) != VK_SUCCESS)
+			&submit_info, render_state->frame_in_flight_fences[current_frame])
+			!= VK_SUCCESS)
 		{
 			LOG_FATAL("Failed to submit draw command buffer");
 		}
@@ -115,6 +120,9 @@ namespace loquat::render
 
 		vkQueuePresentKHR(g_global_state->device->graphics_queue, 
 			&present_info);
+
+		render_state->current_frame = 
+			(current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
 	void init_UI() noexcept
