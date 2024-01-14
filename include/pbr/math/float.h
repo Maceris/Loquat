@@ -64,6 +64,10 @@ namespace loquat
     static constexpr Float ONE_MINUS_EPSILON = ONE_MINUS_EPSILON_FLOAT;
     #endif
 
+    static constexpr Float NaN = std::numeric_limits<Float>::has_signaling_NaN
+        ? std::numeric_limits<Float>::signaling_NaN()
+        : std::numeric_limits<Float>::quiet_NaN();
+
     template <std::floating_point T>
     inline T is_NaN(T v)
     {

@@ -20,6 +20,8 @@
 #include "pbr/math/aabb.h"
 #include "pbr/base/medium.h"
 #include "pbr/math/ray.h"
+#include "pbr/math/matrix.h"
+#include "pbr/math/transform.h"
 
 #include "main/global_state.h"
 #include "resource/resource_cache.h"

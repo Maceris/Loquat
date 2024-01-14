@@ -10,6 +10,9 @@ namespace loquat
 
 	template <typename T>
 	using Vec3 = glm::vec<3, T, glm::defaultp>;
+	
+	template <typename T>
+	using Vec4 = glm::vec<4, T, glm::defaultp>;
 
 	using Vec1f = Vec1<FloatGLM>;
 	using Vec1i = Vec1<int>;
@@ -19,8 +22,20 @@ namespace loquat
 	
 	using Vec3f = Vec3<FloatGLM>;
 	using Vec3i = Vec3<int>;
+	
+	using Vec4f = Vec4<FloatGLM>;
+	using Vec4i = Vec4<int>;
 
-	using Normal3f = Vec3f;
+	template <typename T>
+	using Normal3 = Vec3<T>;
+	
+	using Normal3f = Normal3<FloatGLM>;
+	using Normal3i = Normal3<int>;
+
+	/// <summary>
+	/// A Vec4f full of NaN values.
+	/// </summary>
+	constexpr Vec4f Vec4_NaN = Vec4f{ NaN, NaN, NaN, NaN };
 
 	/// <summary>
 	/// Checks if a type is one of our vec types.
