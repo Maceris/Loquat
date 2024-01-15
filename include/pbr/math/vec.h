@@ -22,6 +22,8 @@ namespace loquat
 	
 	using Vec3f = Vec3<FloatGLM>;
 	using Vec3i = Vec3<int>;
+	class Interval;
+	using Vec3fi = Vec3<Interval>;
 	
 	using Vec4f = Vec4<FloatGLM>;
 	using Vec4i = Vec4<int>;
@@ -47,19 +49,31 @@ namespace loquat
 		|| std::same_as<T, Vec2f>
 		|| std::same_as<T, Vec2i>
 		|| std::same_as<T, Vec3f>
-		|| std::same_as<T, Vec3i>;
+		|| std::same_as<T, Vec3i>
+		|| std::same_as<T, Vec3fi>;
 
-	template<typename T>
-		requires is_vec<T>
-	bool has_NaN(T vector) noexcept
+	namespace vector
 	{
-		for (glm::length_t i = 0; i < vector.length(); ++i)
+		template<typename T>
+			requires is_vec<T>
+		bool has_NaN(T vector) noexcept
 		{
-			if (isnan(vector[i]))
+			for (glm::length_t i = 0; i < vector.length(); ++i)
 			{
-				return true;
+				if (isnan(vector[i]))
+				{
+					return true;
+				}
 			}
+			return false;
 		}
-		return false;
+
+		template <typename T>
+		inline T length_squared(Vec3<T> vector)
+		{
+			return math::square(vector.x) + math::square(vector.y) 
+				+ math::square(vector.z);
+		}
 	}
+	
 }

@@ -34,9 +34,12 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/base/texture.h
   ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/float.h
+  ${HEADER_PATH}/pbr/math/frame.h
   ${HEADER_PATH}/pbr/math/interval.h
+  ${HEADER_PATH}/pbr/math/math.h
   ${HEADER_PATH}/pbr/math/matrix.h
   ${HEADER_PATH}/pbr/math/point.h
+  ${HEADER_PATH}/pbr/math/quaternion.h
   ${HEADER_PATH}/pbr/math/ray.h
   ${HEADER_PATH}/pbr/math/transform.h
   ${HEADER_PATH}/pbr/math/vec.h

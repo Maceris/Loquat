@@ -12,6 +12,11 @@ namespace loquat
 	using SquareMatrix = glm::mat<Size, Size, Float, glm::defaultp>;
 
 	/// <summary>
+	/// A 3x3 matrix of Floats.
+	/// </summary>
+	using Mat3 = SquareMatrix<3>;
+
+	/// <summary>
 	/// A 4x4 matrix of Floats.
 	/// </summary>
 	using Mat4 = SquareMatrix<4>;

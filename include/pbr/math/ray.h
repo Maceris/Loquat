@@ -59,7 +59,7 @@ namespace loquat
 		[[nodiscard]]
 		bool has_NaN() const noexcept
 		{
-			return loquat::has_NaN(origin) || loquat::has_NaN(direction);
+			return vector::has_NaN(origin) || vector::has_NaN(direction);
 		}
 
 		template<typename A>
@@ -108,7 +108,7 @@ namespace loquat
 		{
 			offset = -offset;
 		}
-		Point3f new_origin = Point3f(point_interval) + offset;
+		Point3f new_origin = point_interval.to_vec() + offset;
 
 		for (int i = 0; i < 3; ++i)
 		{
@@ -136,7 +136,7 @@ namespace loquat
 	inline Ray3f spawn_ray_to(Point3fi from, Normal3f normal, Float time, 
 		Point3f to)
 	{
-		Vec3f direction = to - Point3f(from);
+		Vec3f direction = to - from.to_vec();
 		return spawn_ray(from, normal, time, direction);
 	}
 
@@ -145,9 +145,9 @@ namespace loquat
 		Point3fi to, Normal3f normal_to)
 	{
 		Point3f point_from = offset_ray_origin(from, normal_from, 
-			Point3f(to) - Point3f(from));
+			to.to_vec() - from.to_vec());
 		Point3f point_to = offset_ray_origin(to, normal_to, 
-			point_from - Point3f(to));
+			point_from - to.to_vec());
 		return Ray3f(point_from, point_to - point_from, time);
 	}
 
@@ -177,10 +177,10 @@ namespace loquat
 		bool has_NaN() const noexcept
 		{
 			return Ray3f::has_NaN() || (has_differentials &&
-				(loquat::has_NaN(x_offset_origin)
-					|| loquat::has_NaN(y_offset_origin)
-					|| loquat::has_NaN(x_offset_direction)
-					|| loquat::has_NaN(y_offset_direction)));
+				(vector::has_NaN(x_offset_origin)
+					|| vector::has_NaN(y_offset_origin)
+					|| vector::has_NaN(x_offset_direction)
+					|| vector::has_NaN(y_offset_direction)));
 		}
 		std::string to_string() const noexcept;
 

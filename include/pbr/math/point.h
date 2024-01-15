@@ -2,14 +2,23 @@
 
 namespace loquat {
 
-	using Point1f = Vec1f;
-	using Point1i = Vec1i;
+    template <typename T>
+    using Point1 = Vec1<T>;
 
-	using Point2f = Vec2f;
-	using Point2i = Vec2i;
+    template <typename T>
+    using Point2 = Vec2<T>;
 
-	using Point3f = Vec3f;
-	using Point3i = Vec3i;
+    template <typename T>
+    using Point3 = Vec3<T>;
+
+	using Point1f = Point1<Float>;
+	using Point1i = Point1<int>;
+
+	using Point2f = Point2<Float>;
+	using Point2i = Point2<int>;
+
+	using Point3f = Point3<Float>;
+	using Point3i = Point3<int>;
 
 	class Point3fi : public Vec3<Interval>
 	{
@@ -51,6 +60,12 @@ namespace loquat {
         bool is_exact() const noexcept 
         {
             return x.width() == 0 && y.width() == 0 && z.width() == 0;
+        }
+
+        [[nodiscard]]
+        Vec3f to_vec() const noexcept
+        {
+            return Vec3f{ x.midpoint(), y.midpoint(), z.midpoint() };
         }
 	};
 

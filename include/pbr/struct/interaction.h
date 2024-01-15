@@ -24,7 +24,7 @@ namespace loquat
 		[[nodiscard]]
 		Point3f p() const noexcept
 		{
-			return Point3f(point);
+			return point.to_vec();
 		}
 
 		[[nodiscard]]
