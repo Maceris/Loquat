@@ -71,8 +71,7 @@ namespace loquat
 		template <typename T>
 		inline T length_squared(Vec3<T> vector)
 		{
-			return math::square(vector.x) + math::square(vector.y) 
-				+ math::square(vector.z);
+			return square(vector.x) + square(vector.y) + square(vector.z);
 		}
 	}
 	

@@ -5,14 +5,15 @@
 #include <vector>
 
 #include "main/loquat.h"
-#include "pbr/struct/parameter_dictionary.h"
 #include "pbr/base/camera.h"
 #include "pbr/base/light.h"
 #include "pbr/base/primitive.h"
 #include "pbr/base/sampler.h"
 #include "pbr/base/shape.h"
-#include "pbr/math/ray.h"
+#include "pbr/base/spectrum.h"
+#include "pbr/math/math.h"
 #include "pbr/struct/interaction.h"
+#include "pbr/struct/parameter_dictionary.h"
 #include "pbr/util/color_space.h"
 
 namespace loquat
@@ -41,13 +42,14 @@ namespace loquat
 			Float t_max = FLOAT_INFINITY) const noexcept;
 
 		[[nodiscard]]
-		bool unoccluded(const Interaction& p0, const Interaction& p1) const
+		bool unoccluded(const Interaction& p0, const Interaction& p1) const noexcept
 		{
-			return !has_intersection(p0.spawn_ray_to(p1), 1 - ShadowEpsilon);
+			return !has_intersection(p0.spawn_ray_to(p1), 1 - SHADOW_EPSILON);
 		}
 
-		SampledSpectrum Tr(const Interaction& p0, const Interaction& p1,
-			const SampledWavelengths& lambda)const;
+		SampledSpectrum transmittance(const Interaction& p0,
+			const Interaction& p1, const SampledWavelengths& lambda) 
+			const noexcept;
 
 		virtual void render() = 0;
 		virtual std::string to_string() const noexcept = 0;
@@ -61,7 +63,16 @@ namespace loquat
 			: aggregate{ aggregate }
 			, lights{ lights }
 		{
-			//TODO(ches) fill this out.
+			AABB3f scene_bounds = aggregate ? aggregate.bounds() : AABB3f();
+			LOG_INFO(std::format("Scene bounds are {}", scene_bounds));
+			for (auto& light : lights)
+			{
+				light.preprocess(scene_bounds);
+				if (light.type() == LightType::Infinite)
+				{
+					infinite_lights.push_back(light);
+				}
+			}
 		}
 	};
 }
