@@ -16,7 +16,37 @@ namespace loquat
 	Allocator* g_allocator = new Allocator();
 	GlobalState* g_global_state = alloc<GlobalState>();
 	ResourceCache* g_resource_cache;
+
+	/// <summary>
+	/// The main method, called from any entrypoint.
+	/// </summary>
+	/// <returns></returns>
 	int main();
+
+	/// <summary>
+	/// Setup the program and rendering information.
+	/// </summary>
+	void initialize() noexcept;
+
+	/// <summary>
+	/// Load a scene from file.
+	/// </summary>
+	void load_scene() noexcept;
+
+	/// <summary>
+	/// Parse the scene from basic scene specifications and prepare to render.
+	/// </summary>
+	void setup_scene() noexcept;
+
+	/// <summary>
+	/// Actually render the scene.
+	/// </summary>
+	void render_scene() noexcept;
+
+	/// <summary>
+	/// Clean up the scene and rendering pipeline, prepare to end the program.
+	/// </summary>
+	void cleanup() noexcept;
 }
 
 int main(int argc, char* argv[])
@@ -28,6 +58,25 @@ namespace loquat
 {
 	int main()
 	{
+		initialize();
+
+		//TODO(ches) we probably want to have a dropdown or something to pick
+		load_scene();
+		setup_scene();
+
+		while (!g_global_state->window_state->window->should_close())
+		{
+			glfwPollEvents();
+			//TODO(ches) we probably want to have a button to render
+			render_scene();
+		}
+		
+		cleanup();
+		return 0;
+	}
+
+	void initialize() noexcept
+	{
 		Logger::init();
 		Logger::set_display_flags("Debug", FLAG_WRITE_TO_DEBUGGER);
 
@@ -37,7 +86,7 @@ namespace loquat
 			LOG_FATAL("Vulkan is not supported on this system!");
 		}
 
-		std::filesystem::path resource_path{ 
+		std::filesystem::path resource_path{
 			std::filesystem::current_path().append("resources") };
 		std::filesystem::path full_resource_path =
 			std::filesystem::canonical(resource_path);
@@ -59,19 +108,32 @@ namespace loquat
 		create_render_state();
 
 		render::init_UI();
+	}
 
-		while (!g_global_state->window_state->window->should_close())
-		{
-			glfwPollEvents();
-			render::draw_frame();
-		}
-		
+	void load_scene() noexcept
+	{
+		//TODO(ches) complete
+	}
+
+	void setup_scene() noexcept
+	{
+		//TODO(ches) complete
+	}
+
+	void render_scene() noexcept
+	{
+		//TODO(ches) complete
+		render::draw_frame();
+	}
+
+	void cleanup() noexcept
+	{
 		vkDeviceWaitIdle(g_global_state->device->logical_device);
 		render::teardown_UI();
 
 		safe_delete(g_global_state);
 		glfwTerminate();
 		Logger::destroy();
-		return 0;
 	}
+
 }
