@@ -64,7 +64,7 @@ namespace loquat
 		load_scene();
 		setup_scene();
 
-		while (!g_global_state->window_state->window->should_close())
+		while (!g_global_state->should_close())
 		{
 			glfwPollEvents();
 			//TODO(ches) we probably want to have a button to render

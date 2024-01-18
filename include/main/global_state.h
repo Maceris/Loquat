@@ -23,6 +23,11 @@ namespace loquat
 		RenderState* render_state = nullptr;
 
 		/// <summary>
+		/// Used to signal that we want to exit the application.
+		/// </summary>
+		std::atomic_bool close_requested = false;
+
+		/// <summary>
 		/// The debug messenger, which is generally only set in debug builds.
 		/// </summary>
 		VkDebugUtilsMessengerEXT debug_messenger = nullptr;
@@ -49,6 +54,12 @@ namespace loquat
 		{
 			return window_state != nullptr;
 		}
+
+		/// <summary>
+		/// Checks if the program or glfw indicates the program should close.
+		/// </summary>
+		/// <returns>If the application should exit.</returns>
+		[[nodiscard]] bool should_close() const noexcept;
 	};
 
 	extern GlobalState* g_global_state;

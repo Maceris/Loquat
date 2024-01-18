@@ -15,12 +15,50 @@ namespace loquat::render
 		LOG_ASSERT("Issue with ImGui");
 	}
 
+	constexpr ImVec4 RED = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
+
 	void draw_UI() noexcept
 	{
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		bool unsupported = false;
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu("Scene"))
+			{
+				bool scene_select = false;
+				if (ImGui::MenuItem("Load Scene", nullptr, &scene_select))
+				{
+					unsupported = true;
+				}
+
+				ImGui::EndMenu();
+			}
+			ImGui::PushStyleColor(ImGuiCol_Text, RED);
+			if (ImGui::MenuItem("Exit"))
+			{
+				g_global_state->close_requested = true;
+			}
+			ImGui::PopStyleColor();
+			ImGui::EndMainMenuBar();
+		}
+
+		if (unsupported)
+		{
+			ImGui::OpenPopup("Unsupported operation");
+		}
+		if (ImGui::BeginPopupModal("Unsupported operation", nullptr,
+			ImGuiWindowFlags_NoResize))
+		{
+			ImGui::Text("Operation not yet supported");
+			if (ImGui::Button("Sorry"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
 		ImGui::ShowDemoWindow();
 
 		ImGui::Render();

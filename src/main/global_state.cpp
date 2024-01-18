@@ -1,6 +1,7 @@
 #include "main/global_state.h"
 
 #include "main/vulkan_instance.h"
+#include "window/window.h"
 
 namespace loquat
 {
@@ -50,5 +51,10 @@ namespace loquat
 		VkAllocationCallbacks* allocator = nullptr;
 		call_extension_function("vkDestroyDebugUtilsMessengerEXT", nullptr,
 			g_global_state->instance, g_global_state->debug_messenger, allocator);
+	}
+
+	[[nodiscard]] bool GlobalState::should_close() const noexcept
+	{
+		return close_requested || window_state->window->should_close();
 	}
 }
