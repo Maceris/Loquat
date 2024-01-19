@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "debug/logger.h"
-#include "memory/memory_utils.h"
+#include "main/memory_utils.h"
 #include "resource/default_resource_loader.h"
 
 namespace loquat

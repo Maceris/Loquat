@@ -43,7 +43,8 @@ namespace loquat
 			Float t_max = FLOAT_INFINITY) const noexcept;
 
 		[[nodiscard]]
-		bool unoccluded(const Interaction& p0, const Interaction& p1) const noexcept
+		bool unoccluded(const Interaction& p0, const Interaction& p1)
+			const noexcept
 		{
 			return !has_intersection(p0.spawn_ray_to(p1), 1 - SHADOW_EPSILON);
 		}
@@ -102,7 +103,7 @@ namespace loquat
 	public:
 		RayIntegrator(Camera camera, Sampler sampler, Primitive aggregate,
 			std::vector<Light> lights)
-			: ImageTileIntegrator{camera, sampler, aggregate, lights}
+			: ImageTileIntegrator{ camera, sampler, aggregate, lights }
 		{}
 		
 		void evaulate_pixel_sample(Point2i pixel, int sample_index,

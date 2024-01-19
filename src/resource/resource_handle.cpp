@@ -1,6 +1,6 @@
 #include "resource/resource_handle.h"
 
-#include "memory/memory_utils.h"
+#include "main/memory_utils.h"
 #include "resource/resource_cache.h"
 
 namespace loquat
