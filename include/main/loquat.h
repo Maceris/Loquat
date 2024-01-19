@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <memory>
+#include <type_traits>
 
 #include "memory/memory_utils.h"
 

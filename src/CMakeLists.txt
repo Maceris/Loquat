@@ -21,6 +21,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/memory/memory_utils.h
   ${HEADER_PATH}/pbr/base/bxdf.h
   ${HEADER_PATH}/pbr/base/camera.h
+  ${HEADER_PATH}/pbr/base/film.h
   ${HEADER_PATH}/pbr/base/filter.h
   ${HEADER_PATH}/pbr/base/integrator.h
   ${HEADER_PATH}/pbr/base/light.h

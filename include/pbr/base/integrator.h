@@ -6,6 +6,7 @@
 
 #include "main/loquat.h"
 #include "pbr/base/camera.h"
+#include "pbr/base/film.h"
 #include "pbr/base/light.h"
 #include "pbr/base/primitive.h"
 #include "pbr/base/sampler.h"
@@ -75,4 +76,101 @@ namespace loquat
 			}
 		}
 	};
+
+	class ImageTileIntegrator : public Integrator
+	{
+	public:
+		ImageTileIntegrator(Camera camera, Sampler sampler,
+			Primitive aggregate, std::vector<Light> lights)
+			: Integrator{ aggregate, lights }
+			, camera{ camera }
+			, sampler_prototype{ sampler }
+		{}
+
+		void render();
+
+		virtual void evaulate_pixel_sample(Point2i pixel, int sample_index,
+			Sampler sampler, ScratchBuffer& scratch_buffer) = 0;
+
+	protected:
+		Camera camera;
+		Sampler sampler_prototype;
+	};
+
+	class RayIntegrator : public ImageTileIntegrator
+	{
+	public:
+		RayIntegrator(Camera camera, Sampler sampler, Primitive aggregate,
+			std::vector<Light> lights)
+			: ImageTileIntegrator{camera, sampler, aggregate, lights}
+		{}
+		
+		void evaulate_pixel_sample(Point2i pixel, int sample_index,
+			Sampler sampler, ScratchBuffer& scratch_buffer) final;
+
+		virtual SampledSpectrum light_incoming(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
+			const = 0;
+	};
+
+	class RandomWalkIntegrator : public RayIntegrator
+	{
+
+	};
+
+	class SimplePathIntegrator : public RayIntegrator
+	{
+
+	};
+
+	class PathIntegrator : public RayIntegrator
+	{
+
+	};
+
+	class SimpleVolumePathIntegrator : public RayIntegrator
+	{
+
+	};
+
+	class VolumePathIntegrator : public RayIntegrator
+	{
+
+	};
+
+	class AOIntegrator : public RayIntegrator
+	{
+
+	};
+
+	class LightPathIntegrator : public ImageTileIntegrator
+	{
+
+	};
+
+	struct Vertex;
+
+	class BDPTIntegrator : public RayIntegrator
+	{
+
+	};
+
+	class MLTSampler;
+
+	class MLTIntegrator : public Integrator
+	{
+
+	};
+
+	class SPPMIntegrator : public Integrator
+	{
+
+	};
+
+	class FunctionIntegrator : public Integrator
+	{
+
+	};
+
 }
