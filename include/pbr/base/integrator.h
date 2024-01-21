@@ -123,7 +123,34 @@ namespace loquat
 
 	class RandomWalkIntegrator : public RayIntegrator
 	{
+		RandomWalkIntegrator(int max_depth, Camera camera, Sampler sampler, 
+			Primitive aggregate, std::vector<Light> lights)
+			: RayIntegrator{ camera, sampler, aggregate,lights }
+			, max_depth{ max_depth }
+		{}
 
+		static std::unique_ptr<RandomWalkIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights);
+
+		std::string to_string();
+
+		SampledSpectrum light_incoming(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
+			const
+		{
+			return light_incoming_random_walk(ray, lambda, sampler,
+				scratch_buffer, 0);
+		}
+
+	private:
+
+		SampledSpectrum light_incoming_random_walk(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, int depth) const;
+
+		int max_depth;
 	};
 
 	class SimplePathIntegrator : public RayIntegrator
