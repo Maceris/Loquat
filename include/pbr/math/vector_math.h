@@ -6,8 +6,11 @@
 
 #pragma once
 
+#include <format>
+
 #include "main/loquat.h"
 #include "pbr/math/float.h"
+#include "pbr/math/vec.h"
 
 namespace loquat
 {
@@ -88,7 +91,9 @@ namespace loquat
 
 		std::string to_string() const noexcept
 		{
-			return std::format("[ Frame x: %s, y: %s, z: %s ]", x, y, z);
+			return std::format("[ Frame x: %s, y: %s, z: %s ]",
+				vector::to_string(x), vector::to_string(y), 
+				vector::to_string(z));
 		}
 
 		Vec3f x;
@@ -109,7 +114,7 @@ namespace loquat
 	[[nodiscard]]
 	inline T absolute_dot(Vec3<T> v1, Vec3<T> v2)
 	{
-		LOG_ASSERT(!has_NaN(v1) && !has_NaN(v1)
+		LOG_ASSERT(!vector::has_NaN(v1) && !vector::has_NaN(v1)
 			&& "Calculating dot products of vectors with NaNs");
 		return std::abs(glm::dot(v1, v2));
 	}

@@ -6,23 +6,19 @@
 
 #pragma once
 
+
 #include "main/loquat.h"
+#include "pbr/base/shape.h"
+#include "pbr/struct/interaction.h"
 
 namespace loquat
 {
-	class Triangle;
-	class Curve;
-	class Sphere;
-	class Cylinder;
-	class Disk;
 
-	struct ShapeSample;
-	struct ShapeIntersection;
-	struct ShapeSampleContext;
-
-	class Shape
+	struct ShapeIntersection
 	{
-
+		SurfaceInteraction interaction;
+		Float t_hit;
+		std::string to_string() const noexcept;
 	};
 
 }

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <format>
+
 namespace loquat
 {
 	template <typename PointType>
@@ -63,6 +65,12 @@ namespace loquat
 			: min{ std::move(min) }
 			, max{ std::move(max) }
 		{}
+
+		std::string to_string() const noexcept
+		{
+			return std::format("[ %s - %s ]", vector::to_string(min),
+				vector::to_string(max));
+		}
 
 	};
 }

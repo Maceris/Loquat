@@ -8,9 +8,12 @@
 
 #include <span>
 
+#include "main/loquat.h"
+#include "pbr/base/spectrum.h"
+#include "pbr/util/tagged_pointer.h"
+
 namespace loquat
 {
-
     enum class TransportMode
     {
         Radiance,
@@ -101,8 +104,6 @@ namespace loquat
     }
 
     std::string to_string(BxDFReflTransFlags flags);
-
-    
 
     struct BSDFSample {
         BSDFSample() = default;

@@ -15,11 +15,11 @@ namespace loquat
 	{
 	public:
 		[[nodiscard]]
-		inline Ray3f apply_inverse(const Ray3f& ray, 
+		inline Ray apply_inverse(const Ray& ray, 
 			Float* t_max = nullptr) const noexcept;
 
 		[[nodiscard]]
-		inline Ray3f apply_inverse(const RayDifferential& ray,
+		inline Ray apply_inverse(const RayDifferential& ray,
 			Float* t_max = nullptr) const noexcept;
 
 		template <typename T>
@@ -97,7 +97,7 @@ namespace loquat
 		Point3<T> operator()(Point3<T> point) const noexcept;
 
 		[[nodiscard]]
-		Ray3f operator()(const Ray3f& ray, Float* t_max = nullptr)
+		Ray operator()(const Ray& ray, Float* t_max = nullptr)
 			const noexcept;
 
 		[[nodiscard]]

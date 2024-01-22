@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <format>
 #include <optional>
 #include <string>
 #include <vector>
@@ -40,11 +41,11 @@ namespace loquat
 		);
 
 		[[nodiscard]]
-		bool has_intersection(const Ray3f& ray,
+		bool has_intersection(const Ray& ray,
 			Float t_max = FLOAT_INFINITY) const noexcept;
 		
 		[[nodiscard]]
-		std::optional<ShapeIntersection> intersect(const Ray3f& ray,
+		std::optional<ShapeIntersection> intersect(const Ray& ray,
 			Float t_max = FLOAT_INFINITY) const noexcept;
 
 		[[nodiscard]]
@@ -71,7 +72,8 @@ namespace loquat
 			, lights{ lights }
 		{
 			AABB3f scene_bounds = aggregate ? aggregate.bounds() : AABB3f();
-			LOG_INFO(std::format("Scene bounds are {}", scene_bounds));
+			LOG_INFO(std::format("Scene bounds are {}", 
+				scene_bounds.to_string()));
 			for (auto& light : lights)
 			{
 				light.preprocess(scene_bounds);
@@ -145,57 +147,11 @@ namespace loquat
 
 	private:
 
+		[[nodiscard]]
 		SampledSpectrum light_incoming_random_walk(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
-			ScratchBuffer& scratch_buffer, int depth) const
-		{
-			std::optional<ShapeIntersection> intersection = intersect(ray);
+			ScratchBuffer& scratch_buffer, int depth) const noexcept;
 
-			if (!intersection)
-			{
-				SampledSpectrum result{ 0.0f };
-				for (Light light : infinite_lights)
-				{
-					result += light.infinite_light_contribution(ray, lambda);
-				}
-				return result;
-			}
-
-			SurfaceInteraction& surface = intersection->interaction;
-
-			Vec3f outgoing_direction = -ray.direction;
-			SampledSpectrum emitted = surface.emitted_radiance(
-				outgoing_direction, lambda);
-
-			if (depth == max_depth)
-			{
-				return emitted;
-			}
-
-			BSDF bsdf = surface.get_BSDF(ray, lambda, camera, scratch_buffer,
-				sampler);
-
-			if (!bsdf)
-			{
-				return emitted;
-			}
-
-			Point2f u = sampler.get_2D();
-			Vec3f wp = sample_uniform_sphere(u);
-
-			SampledSpectrum fcos = bsdf.f(outgoing_direction, wp) * 
-				absolute_dot(wp, surface.shading.normal);
-
-			if (!fcos)
-			{
-				return emitted;
-			}
-
-			ray = surface.spawn_ray(wp);
-			return emitted + fcos * light_incoming_random_walk(ray, lambda, 
-				sampler, scratch_buffer, depth + 1) /
-				(1 / (4 * PI));
-		}
 		int max_depth;
 	};
 

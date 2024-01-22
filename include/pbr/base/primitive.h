@@ -32,11 +32,11 @@ namespace loquat
 		AABB3f bounds() const noexcept;
 
 		[[nodiscard]]
-		std::optional<ShapeIntersection> intersection(const Ray3f& r,
+		std::optional<ShapeIntersection> intersection(const Ray& r,
 			Float tMax = FLOAT_INFINITY) const noexcept;
 
 		[[nodiscard]]
-		bool has_intersection(const Ray3f& r, Float tMax = FLOAT_INFINITY)
+		bool has_intersection(const Ray& r, Float tMax = FLOAT_INFINITY)
 			const noexcept;
 	};
 }

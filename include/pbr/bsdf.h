@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "main/loquat.h"
 #include "pbr/bxdfs.h"
 #include "pbr/math/vec.h"
 #include "pbr/math/vector_math.h"
@@ -22,12 +23,12 @@ namespace loquat
 
 		Vec3f render_to_local(Vec3f vector) const noexcept
 		{
-			shading_frame.to_local(vector);
+			return shading_frame.to_local(vector);
 		}
 
 		Vec3f local_to_render(Vec3f vector) const noexcept
 		{
-			shading_frame.from_local(vector);
+			return shading_frame.from_local(vector);
 		}
 
 		SampledSpectrum f(Vec3f outgoing_render, Vec3f incoming_render,

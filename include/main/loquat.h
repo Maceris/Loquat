@@ -25,15 +25,19 @@
 #include "main/global_state.h"
 #include "resource/resource_cache.h"
 
-class Interaction;
-class MediumInteraction;
-class SurfaceInteraction;
-class Ray3f;
-class RayDifferential;
-class Transform;
+namespace loquat
+{
+	class Interaction;
+	class MediumInteraction;
+	class SurfaceInteraction;
+	class Ray;
+	class RayDifferential;
+	class Transform;
 
-class SampledWavelengths;
-class SampledWavelengths;
+	class SampledSpectrum;
+	class SampledWavelengths;
 
-class Image;
-class ParameterDictionary;
+	class Image;
+	class ParameterDictionary;
+	class TextureParameterDictionary;
+}

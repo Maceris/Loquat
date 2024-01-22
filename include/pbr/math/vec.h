@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <format>
+
 namespace loquat
 {
 	template <typename T>
@@ -78,6 +80,24 @@ namespace loquat
 		inline T length_squared(Vec3<T> vector)
 		{
 			return square(vector.x) + square(vector.y) + square(vector.z);
+		}
+
+		template <typename T>
+		std::string to_string(Vec1<T> vector)
+		{
+			return std::format("[ %s ]", vector.x);
+		}
+
+		template <typename T>
+		std::string to_string(Vec2<T> vector)
+		{
+			return std::format("[ %s, %s ]", vector.x, vector.y);
+		}
+
+		template <typename T>
+		std::string to_string(Vec3<T> vector)
+		{
+			return std::format("[ %s, %s, %s ]", vector.x, vector.y, vector.z);
 		}
 	}
 	

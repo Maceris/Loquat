@@ -6,9 +6,13 @@
 
 #pragma once
 
+#include "main/loquat.h"
 #include "pbr/bsdf.h"
+#include "pbr/base/camera.h"
+#include "pbr/base/light.h"
 #include "pbr/base/material.h"
 #include "pbr/base/medium.h"
+#include "pbr/base/sampler.h"
 #include "pbr/math/ray.h"
 
 namespace loquat
@@ -85,17 +89,17 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		Ray3f spawn_ray_to(Point3f destination) const noexcept
+		Ray spawn_ray_to(Point3f destination) const noexcept
 		{
-			Ray3f ray = loquat::spawn_ray_to(point, normal, time, destination);
+			Ray ray = loquat::spawn_ray_to(point, normal, time, destination);
 			ray.medium = get_medium(ray.direction);
 			return ray;
 		}
 		
 		[[nodiscard]]
-		Ray3f spawn_ray_to(const Interaction& target) const noexcept
+		Ray spawn_ray_to(const Interaction& target) const noexcept
 		{
-			Ray3f ray = loquat::spawn_ray_to(point, normal, time, 
+			Ray ray = loquat::spawn_ray_to(point, normal, time, 
 				target.point, target.normal);
 			ray.medium = get_medium(ray.direction);
 			return ray;
@@ -157,7 +161,7 @@ namespace loquat
 
 		int face_index = 0;
 		Material material;
-		Light areaLight;
+		Light area_light;
 		Vec3f dpdx;
 		Vec3f dpdy;
 		Float dudx = 0;

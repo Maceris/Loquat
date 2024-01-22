@@ -163,7 +163,7 @@ namespace loquat
 		/// <param name="lambda">The sampled wavelengths.</param>
 		/// <returns>Radiance from the infinite light.</returns>
 		[[nodiscard]]
-		inline SampledSpectrum infinite_light_contribution(const Ray3f& ray,
+		inline SampledSpectrum infinite_light_contribution(const Ray& ray,
 			const SampledWavelengths& lambda) const noexcept;
 
 		[[nodiscard]]
@@ -183,7 +183,7 @@ namespace loquat
 		/// </param>
 		/// <param name="pdf_direction">The direction PDF for the given ray.
 		/// </param>
-		void get_PDFs(const Ray3f& ray, Float* pdf_position, 
+		void get_PDFs(const Ray& ray, Float* pdf_position, 
 			Float* pdf_direction) const noexcept;
 
 		/// <summary>

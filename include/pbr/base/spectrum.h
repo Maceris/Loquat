@@ -19,7 +19,7 @@ namespace loquat
 		SampledSpectrum operator+(const SampledSpectrum& s) const noexcept
 		{
 			SampledSpectrum result = *this;
-			return result + s;
+			return result += s;
 		}
 		//TODO(ches) fill this out
 
@@ -48,13 +48,13 @@ namespace loquat
 			return *this;
 		}
 
-		SampledSpectrum& operator*(const SampledSpectrum& s) const noexcept
+		SampledSpectrum operator*(const SampledSpectrum& s) const noexcept
 		{
 			SampledSpectrum result = *this;
 			return result *= s;
 		}
 
-		SampledSpectrum& operator*(Float f) const noexcept
+		SampledSpectrum operator*(Float f) const noexcept
 		{
 			LOG_ASSERT(!is_NaN(f) && "Multiplying spectrum by NaN");
 			SampledSpectrum result = *this;
@@ -75,7 +75,7 @@ namespace loquat
 			return *this;
 		}
 
-		SampledSpectrum& operator/(Float f) const noexcept
+		SampledSpectrum operator/(Float f) const noexcept
 		{
 			LOG_ASSERT(f != 0 && "Dividing by zero");
 			LOG_ASSERT(!is_NaN(f) && "Dividing spectrum by NaN");
