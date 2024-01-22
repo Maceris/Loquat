@@ -2,7 +2,7 @@
 
 #include <format>
 
-#include "main/global_state.h"
+#include "main/loquat.h"
 
 namespace loquat
 {

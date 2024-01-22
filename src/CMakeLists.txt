@@ -19,6 +19,9 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/main/loquat.h
   ${HEADER_PATH}/main/memory_utils.h
   ${HEADER_PATH}/main/vulkan_instance.h
+  ${HEADER_PATH}/pbr/bsdf.h
+  ${HEADER_PATH}/pbr/bxdfs.h
+  ${HEADER_PATH}/pbr/base/bssrdf.h
   ${HEADER_PATH}/pbr/base/bxdf.h
   ${HEADER_PATH}/pbr/base/camera.h
   ${HEADER_PATH}/pbr/base/film.h
@@ -35,15 +38,17 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/base/texture.h
   ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/float.h
-  ${HEADER_PATH}/pbr/math/frame.h
   ${HEADER_PATH}/pbr/math/interval.h
   ${HEADER_PATH}/pbr/math/math.h
   ${HEADER_PATH}/pbr/math/matrix.h
   ${HEADER_PATH}/pbr/math/point.h
   ${HEADER_PATH}/pbr/math/quaternion.h
   ${HEADER_PATH}/pbr/math/ray.h
+  ${HEADER_PATH}/pbr/math/sampling.h
   ${HEADER_PATH}/pbr/math/transform.h
   ${HEADER_PATH}/pbr/math/vec.h
+  ${HEADER_PATH}/pbr/math/vector_math.h
+  ${HEADER_PATH}/pbr/struct/image.h
   ${HEADER_PATH}/pbr/struct/interaction.h
   ${HEADER_PATH}/pbr/struct/parameter_dictionary.h
   ${HEADER_PATH}/pbr/util/color_space.h

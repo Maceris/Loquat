@@ -9,6 +9,9 @@
 #include <string>
 
 #include "main/loquat.h"
+#include "pbr/math/vector_math.h"
+#include "pbr/struct/parameter_dictionary.h"
+#include "pbr/util/tagged_pointer.h"
 
 namespace loquat
 {
@@ -36,8 +39,34 @@ namespace loquat
 	class DebugMLTSampler;
 
 
-	class Sampler
+	class Sampler : public TaggedPointer<PMJ02BNSampler, IndependentSampler,
+		StratifiedSampler, HaltonSampler, PaddedSobolSampler, SobolSampler,
+		ZSobolSampler, MLTSampler, DebugMLTSampler>
 	{
+	public:
+		using TaggedPointer::TaggedPointer;
 
+		static Sampler create(const std::string_view name,
+			const ParameterDictionary& parameters, Point2i full_resolution,
+			Allocator allocator);
+
+		[[nodiscard]]
+		inline int samples_per_pixel() const noexcept;
+
+		inline void start_pixel_sample(Point2i point, int sample_index,
+			int dimension = 0) noexcept;
+
+		[[nodiscard]]
+		inline Float get_1D() noexcept;
+
+		[[nodiscard]]
+		inline Point2f get_2D() noexcept;
+	
+		[[nodiscard]]
+		inline Point2f get_pixel_2D() noexcept;
+
+		Sampler clone(Allocator allocator = {});
+
+		std::string to_string() const noexcept;
 	};
 }

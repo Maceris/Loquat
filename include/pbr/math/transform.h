@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include "main/loquat.h"
+#include "pbr/math/vector_math.h"
+
 namespace loquat
 {
 	struct Transform

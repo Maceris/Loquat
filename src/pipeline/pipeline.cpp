@@ -1,6 +1,6 @@
 #include "pipeline/pipeline.h"
 
-#include "main/global_state.h"
+#include "main/loquat.h"
 #include "render/render.h"
 
 namespace loquat

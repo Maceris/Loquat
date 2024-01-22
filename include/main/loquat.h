@@ -17,16 +17,23 @@
 #include "pbr/math/float.h"
 #include "pbr/math/math.h"
 #include "pbr/math/vec.h"
-#include "pbr/math/interval.h"
 #include "pbr/math/quaternion.h"
+#include "pbr/math/interval.h"
 #include "pbr/math/point.h"
 #include "pbr/math/aabb.h"
-#include "pbr/base/medium.h"
-#include "pbr/math/ray.h"
-#include "pbr/math/matrix.h"
-#include "pbr/math/frame.h"
-#include "pbr/struct/interaction.h"
-#include "pbr/math/transform.h"
 
 #include "main/global_state.h"
 #include "resource/resource_cache.h"
+
+class Interaction;
+class MediumInteraction;
+class SurfaceInteraction;
+class Ray3f;
+class RayDifferential;
+class Transform;
+
+class SampledWavelengths;
+class SampledWavelengths;
+
+class Image;
+class ParameterDictionary;

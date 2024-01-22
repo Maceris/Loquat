@@ -68,4 +68,9 @@ namespace loquat
     {
 
     };
+
+    class TextureParameterDictionary
+    {
+
+    };
 }

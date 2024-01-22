@@ -6,6 +6,13 @@
 
 #pragma once
 
+#include "main/loquat.h"
+
+#include "pbr/base/medium.h"
+#include "pbr/base/shape.h"
+#include "pbr/base/texture.h"
+#include "pbr/util/tagged_pointer.h"
+
 namespace loquat
 {
 	enum class LightType
@@ -80,11 +87,12 @@ namespace loquat
 		/// <summary>
 		/// Total emitted power.
 		/// </summary>
-		/// <param name="lambda">The wavelengths to calcullate power of.
+		/// <param name="lambda">The wavelengths to calculate power of.
 		/// </param>
 		/// <returns>The total output of the light.</returns>
 		[[nodiscard]]
-		SampledSpectrum phi(SampledWavelengths lambda) const noexcept;
+		SampledSpectrum total_emitted_power(SampledWavelengths lambda)
+			const noexcept;
 
 		/// <summary>
 		/// What kind of light this is.

@@ -58,5 +58,21 @@ namespace loquat
 	{
 		return value * value;
 	}
-	
+
+	[[nodiscard]]
+	inline float safe_square_root(float x)
+	{
+		LOG_ASSERT(x >= -1e-3f 
+			&& "Computing square root of very negative float");
+		return std::sqrt(std::max(0.0f, x));
+	}
+
+	[[nodiscard]]
+	inline float safe_square_root(double x)
+	{
+		LOG_ASSERT(x >= -1e-3f
+			&& "Computing square root of very negative double");
+		return std::sqrt(std::max(0.0, x));
+	}
+
 }

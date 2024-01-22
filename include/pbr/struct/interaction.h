@@ -6,8 +6,10 @@
 
 #pragma once
 
-#include "main/loquat.h"
+#include "pbr/bsdf.h"
+#include "pbr/base/material.h"
 #include "pbr/base/medium.h"
+#include "pbr/math/ray.h"
 
 namespace loquat
 {
@@ -135,7 +137,33 @@ namespace loquat
 
 	class SurfaceInteraction : Interaction
 	{
+	public:
+		SampledSpectrum emitted_radiance(Vec3f direction, 
+			const SampledWavelengths& lambda) const noexcept;
+		//TODO(ches) fill this out
+		using Interaction::spawn_ray;
 
+		BSDF get_BSDF(const RayDifferential& ray, SampledWavelengths& lambda,
+			Camera camera, ScratchBuffer& scratch_buffer, Sampler sampler);
+
+		Vec3f dpdu, dpdv;
+		Normal3f dndu, dndv;
+
+		struct {
+			Normal3f normal;
+			Vec3f dpdu, dpdv;
+			Normal3f dndu, dndv;
+		} shading;
+
+		int face_index = 0;
+		Material material;
+		Light areaLight;
+		Vec3f dpdx;
+		Vec3f dpdy;
+		Float dudx = 0;
+		Float dvdx = 0;
+		Float dudy = 0;
+		Float dvdy = 0;
 	};
 
 	class MediumInteraction : Interaction

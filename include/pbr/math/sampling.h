@@ -8,28 +8,14 @@
 
 #include "main/loquat.h"
 
+#include "pbr/math/vector_math.h"
+
 namespace loquat
 {
-	class Triangle;
-	class Curve;
-	class Sphere;
-	class Cylinder;
-	class Disk;
-
-	struct ShapeSample;
-	struct ShapeIntersection;
-	struct ShapeSampleContext;
-
-	class Shape
-	{
-
-	};
-
-	struct ShapeIntersection
-	{
-		SurfaceInteraction interaction;
-		Float t_hit;
-		std::string to_string() const noexcept;
-	};
-
+	inline Vec3f sample_uniform_sphere(Point2f sample_2D) {
+        Float z = 1 - 2 * sample_2D[0];
+        Float r = safe_square_root(1 - square(z));
+        Float phi = 2 * PI * sample_2D[1];
+        return { r * std::cos(phi), r * std::sin(phi), z };
+    }
 }

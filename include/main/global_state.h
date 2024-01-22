@@ -4,7 +4,6 @@
 
 #include "command/command_buffer.h"
 #include "device/device.h"
-#include "main/loquat.h"
 #include "pipeline/pipeline.h"
 #include "render/render_state.h"
 #include "window/window_state.h"
