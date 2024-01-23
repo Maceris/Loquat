@@ -118,4 +118,11 @@ namespace loquat
 			&& "Calculating dot products of vectors with NaNs");
 		return std::abs(glm::dot(v1, v2));
 	}
+
+	template <typename T>
+	[[nodiscard]]
+	inline Normal3<T> face_forward(Normal3<T> normal, Vec3<T> vector)
+	{
+		return glm::dot(normal, vector) < 0.0f ? -normal : normal;
+	}
 }

@@ -6,10 +6,41 @@
 
 #pragma once
 
+#include "main/loquat.h"
 #include "pbr/util/tagged_pointer.h"
 
 namespace loquat
 {
+	
+	struct PhaseFunctionSample
+	{
+		Float probability;
+		Vec3f incoming;
+		Float pdf;
+	};
+
+	class HGPhaseFunction;
+
+	class PhaseFunction : TaggedPointer<HGPhaseFunction>
+	{
+	public:
+		using TaggedPointer::TaggedPointer;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		[[nodiscard]]
+		inline Float phase(Vec3f outgoing, Vec3f incoming) const noexcept;
+
+		[[nodiscard]]
+		inline std::optional<PhaseFunctionSample> sample_phase(Vec3f outgoing,
+			Point2f sample_2D) const noexcept;
+
+		[[nodiscard]]
+		inline Float PDF(Vec3f outgoing, Vec3f incoming) const noexcept;
+	};
+
+
 	class HomogeneousMedium;
 	class GridMedium;
 	class RGBGridMedium;
@@ -29,6 +60,27 @@ namespace loquat
 	class MediumInterface
 	{
 	public:
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		MediumInterface() = default;
+
+		MediumInterface(Medium medium)
+			: inside{ medium }
+			, outside{ medium }
+		{}
+
+		MediumInterface(Medium inside, Medium outside)
+			: inside{ inside }
+			, outside{ outside }
+		{}
+
+		[[nodiscard]]
+		bool is_medium_transition() const noexcept
+		{
+			return inside != outside;
+		}
+
 		Medium inside;
 		Medium outside;
 	};

@@ -14,6 +14,7 @@
 #include "pbr/base/camera.h"
 #include "pbr/base/film.h"
 #include "pbr/base/light.h"
+#include "pbr/light_samplers.h"
 #include "pbr/base/primitive.h"
 #include "pbr/base/sampler.h"
 #include "pbr/base/spectrum.h"
@@ -55,6 +56,7 @@ namespace loquat
 			return !has_intersection(p0.spawn_ray_to(p1), 1 - SHADOW_EPSILON);
 		}
 
+		[[nodiscard]]
 		SampledSpectrum transmittance(const Interaction& p0,
 			const Interaction& p1, const SampledWavelengths& lambda) 
 			const noexcept;
@@ -116,6 +118,7 @@ namespace loquat
 		void evaulate_pixel_sample(Point2i pixel, int sample_index,
 			Sampler sampler, ScratchBuffer& scratch_buffer) final;
 
+		[[nodiscard]]
 		virtual SampledSpectrum light_incoming(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
@@ -130,12 +133,15 @@ namespace loquat
 			, max_depth{ max_depth }
 		{}
 
+		[[nodiscard]]
 		static std::unique_ptr<RandomWalkIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
 			Sampler sampler, Primitive aggregate, std::vector<Light> lights);
 
-		std::string to_string();
+		[[nodiscard]]
+		std::string to_string() const noexcept;
 
+		[[nodiscard]]
 		SampledSpectrum light_incoming(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
@@ -157,7 +163,31 @@ namespace loquat
 
 	class SimplePathIntegrator : public RayIntegrator
 	{
+	public:
+		SimplePathIntegrator(int max_depth, bool sample_lights,
+			bool sample_BSDF, Camera camera, Sampler sampler,
+			Primitive aggregate, std::vector<Light> lights) noexcept;
 
+		[[nodiscard]]
+		SampledSpectrum light_incoming(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
+			const noexcept;
+
+		[[nodiscard]]
+		static std::unique_ptr<SimplePathIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
+			noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		int max_depth;
+		bool sample_lights;
+		bool sample_BSDF;
+		UniformLightSampler light_sampler;
 	};
 
 	class PathIntegrator : public RayIntegrator

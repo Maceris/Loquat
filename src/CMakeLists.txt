@@ -21,6 +21,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/main/vulkan_instance.h
   ${HEADER_PATH}/pbr/bsdf.h
   ${HEADER_PATH}/pbr/bxdfs.h
+  ${HEADER_PATH}/pbr/light_samplers.h
   ${HEADER_PATH}/pbr/shapes.h
   ${HEADER_PATH}/pbr/base/bssrdf.h
   ${HEADER_PATH}/pbr/base/bxdf.h
@@ -78,6 +79,7 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/main/loquat.cpp
   ${SOURCE_PATH}/main/vulkan_instance.cpp
   ${SOURCE_PATH}/pbr/base/integrator.cpp
+  ${SOURCE_PATH}/pbr/struct/interaction.cpp
   ${SOURCE_PATH}/pipeline/pipeline.cpp
   ${SOURCE_PATH}/render/render.cpp
   ${SOURCE_PATH}/render/render_state.cpp
