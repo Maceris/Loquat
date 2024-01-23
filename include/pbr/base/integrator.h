@@ -192,7 +192,36 @@ namespace loquat
 
 	class PathIntegrator : public RayIntegrator
 	{
+	public:
+		PathIntegrator(int max_depth, Camera camera, Sampler sampler,
+			Primitive aggregate, std::vector<Light> lights,
+			std::string_view light_sample_strategy = "bvh",
+			bool regularize = false);
 
+		[[nodiscard]]
+		SampledSpectrum light_incoming(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
+			const noexcept;
+
+		[[nodiscard]]
+		static std::unique_ptr<PathIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
+			noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		[[nodiscard]]
+		SampledSpectrum light_direct(const SurfaceInteraction& interaction,
+			const BSDF* bsdf, SampledWavelengths& lambda, Sampler sampler)
+			const noexcept;
+
+		int max_depth;
+		LightSampler light_sampler;
+		bool regularize;
 	};
 
 	class SimpleVolumePathIntegrator : public RayIntegrator
