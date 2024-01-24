@@ -76,16 +76,22 @@ public:
 
 	/// <summary>
 	/// Builds up a log string and outputs it to various places depending on 
+	/// the log flags, for logs without a location.
+	/// </summary>
+	/// <param name="tag">The tag we are logging.</param>
+	/// <param name="message">The message to log.</param>
+	/// <param name="location">The location of the log line.</param>
+	void log(std::string_view tag, std::string_view message);
+
+	/// <summary>
+	/// Builds up a log string and outputs it to various places depending on 
 	/// the log flags.
 	/// </summary>
 	/// <param name="tag">The tag we are logging.</param>
 	/// <param name="message">The message to log.</param>
-	/// <param name="function_name">The name of the function calling log.</param>
-	/// <param name="source_file">The source file log is called from.</param>
-	/// <param name="line_number">The line log is called from.</param>
+	/// <param name="location">The location of the log line.</param>
 	void log(std::string_view tag, std::string_view message,
-		const char* function_name, const char* source_file,
-		unsigned int line_number);
+		std::source_location location);
 
 	/// <summary>
 	/// Set the log flags for a tag. Passing a flag of FLAG_WRITE_NOWHERE
@@ -107,14 +113,10 @@ public:
 	/// </summary>
 	/// <param name="error_message">The error message to show.</param>
 	/// <param name="fatal">Whether the error is fatal.</param>
-	/// <param name="function_name">The function where this was called from.
-	/// </param>
-	/// <param name="source_file">The source file this was called from.</param>
-	/// <param name="line_number">The line number this was called from.</param>
+	/// <param name="location">The location of the log line.</param>
 	/// <returns>The result of the user's choice on the dialog.</returns>
 LogManager::ErrorDialogResult error(std::string_view error_message,
-	bool fatal, const char* function_name, const char* source_file,
-	unsigned int line_number);
+	bool fatal, std::source_location location);
 
 private:
 	/// <summary>
@@ -173,9 +175,7 @@ LogManager::~LogManager()
 	error_loggers.clear();
 }
 
-void LogManager::log(std::string_view tag, std::string_view message,
-	const char* function_name, const char* source_file,
-	unsigned int line_number)
+void LogManager::log(std::string_view tag, std::string_view message)
 {
 	LogFlag flags;
 	{
@@ -189,7 +189,27 @@ void LogManager::log(std::string_view tag, std::string_view message,
 	}
 
 	std::string buffer =
-		format_message(tag, message, function_name, source_file, line_number);
+		format_message(tag, message, nullptr, nullptr, 0);
+	output_buffer_to_logs(buffer, flags);
+}
+
+void LogManager::log(std::string_view tag, std::string_view message,
+	std::source_location location)
+{
+	LogFlag flags;
+	{
+		std::scoped_lock lock{ tag_mutex };
+
+		Tags::iterator result = tags.find(tag);
+		if (result == tags.end()) {
+			return;
+		}
+		flags = result->second;
+	}
+
+	std::string buffer =
+		format_message(tag, message, location.function_name(),
+			location.file_name(), location.line());
 	output_buffer_to_logs(buffer, flags);
 }
 
@@ -222,14 +242,12 @@ void LogManager::add_error_logger(Logger::ErrorLogger* logger)
 }
 
 LogManager::ErrorDialogResult LogManager::error(
-	std::string_view error_message, bool fatal, const char* function_name,
-	const char* source_file, unsigned int line_number)
+	std::string_view error_message, bool fatal, std::source_location location)
 {
 	std::string tag = fatal ? "FATAL" : "ERROR";
 
-	std::string buffer =
-		format_message(tag, error_message, function_name, source_file,
-			line_number);
+	std::string buffer = format_message(tag, error_message,
+		location.function_name(), location.file_name(), location.line());
 	
 	{
 		std::scoped_lock lock{ tag_mutex };
@@ -341,22 +359,23 @@ std::string LogManager::format_message(
 
 #pragma region ErrorLogger definition
 
-Logger::ErrorLogger::ErrorLogger()
-	: enabled(true)
+namespace Logger
 {
-	log_manager->add_error_logger(this);
-}
-
-void Logger::ErrorLogger::log_error(std::string_view error_message,
-	bool fatal, const char* function_name, const char* source_file,
-	unsigned int line_number)
-{
-	if (enabled)
+	ErrorLogger::ErrorLogger()
+		: enabled(true)
 	{
-		if (log_manager->error(error_message, fatal, function_name, 
-			source_file, line_number))
+		log_manager->add_error_logger(this);
+	}
+
+	void ErrorLogger::log_error(std::string_view error_message,
+		bool fatal, std::source_location location)
+	{
+		if (enabled)
 		{
-			enabled = false;
+			if (log_manager->error(error_message, fatal, location))
+			{
+				enabled = false;
+			}
 		}
 	}
 }
@@ -384,13 +403,16 @@ namespace Logger
 		}
 	}
 
-	void log(std::string_view tag, std::string_view error_message,
-		const char* function_name, const char* source_file,
-		unsigned int line_number)
+	void log(std::string_view tag, std::string_view error_message)
 	{
 		LOG_ASSERT(log_manager);
-		log_manager->log(tag, error_message, function_name, source_file,
-			line_number);
+		log_manager->log(tag, error_message);
+	}
+	void log(std::string_view tag, std::string_view error_message,
+		std::source_location location)
+	{
+		LOG_ASSERT(log_manager);
+		log_manager->log(tag, error_message, location);
 	}
 
 	void set_display_flags(std::string_view tag, unsigned char flags)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <source_location>
 #include <string>
 #include <string_view>
 
@@ -45,15 +46,9 @@ namespace Logger
 		/// </summary>
 		/// <param name="error_message">The message to log.</param>
 		/// <param name="fatal">Whether the message is fatal.</param>
-		/// <param name="function_name">The name of the function that
-		/// this is called from.</param>
-		/// <param name="source_file">The source file this is called from.
-		/// </param>
-		/// <param name="line_number">The line number this is called from.
-		/// </param>
+		/// <param name="location">The location of the log line.</param>
 		void log_error(std::string_view error_message, bool fatal,
-			const char* function_name, const char* source_file,
-			unsigned int line_number);
+			std::source_location location);
 	};
 
 	/// <summary>
@@ -67,19 +62,20 @@ namespace Logger
 	void destroy();
 
 	/// <summary>
+	/// Record a log without any location.
+	/// </summary>
+	/// <param name="tag">The tag we are logging.</param>
+	/// <param name="message">The message to log.</param>
+	void log(std::string_view tag, std::string_view message);
+
+	/// <summary>
 	/// Record a log.
 	/// </summary>
 	/// <param name="tag">The tag we are logging.</param>
 	/// <param name="error_message">The message to log.</param>
-	/// <param name="function_name">The name of the function that
-	/// this is called from.</param>
-	/// <param name="source_file">The source file this is called from.
-	/// </param>
-	/// <param name="line_number">The line number this is called from.
-	/// </param>
+	/// <param name="location">The location of the log line.</param>
 	void log(std::string_view tag, std::string_view error_message,
-		const char* function_name, const char* source_file,
-		unsigned int line_number);
+		std::source_location location);
 
 	/// <summary>
 	/// Set up display flags for any particular flag, so tags can be used
@@ -103,7 +99,7 @@ in all contexts, like after conditionals.
 	{ \
 		static Logger::ErrorLogger* error_logger = loquat::alloc<Logger::ErrorLogger>(); \
 		std::string s((str)); \
-		error_logger->log_error(s, true, __func__, __FILE__, __LINE__); \
+		error_logger->log_error(s, true, std::source_location::current()); \
 	} \
 	while (0)\
 
@@ -118,7 +114,7 @@ in all contexts, like after conditionals.
 		{ \
 			static Logger::ErrorLogger* error_logger = loquat::alloc<Logger::ErrorLogger>(); \
 			std::string s((str)); \
-			error_logger->log_error(s, false, __func__, __FILE__, __LINE__); \
+			error_logger->log_error(s, false, std::source_location::current()); \
 		} \
 		while (0)\
 
@@ -129,7 +125,7 @@ in all contexts, like after conditionals.
 		do \
 		{ \
 			std::string s((str)); \
-			Logger::log("WARNING", s, __func__, __FILE__, __LINE__); \
+			Logger::log("WARNING", s, std::source_location::current()); \
 		}\
 		while (0)\
 
@@ -141,7 +137,7 @@ in all contexts, like after conditionals.
 		do \
 		{ \
 			std::string s((str)); \
-			Logger::log("INFO", s, NULL, NULL, 0); \
+			Logger::log("INFO", s); \
 		} \
 		while (0) \
 
@@ -153,7 +149,7 @@ in all contexts, like after conditionals.
 		do \
 		{ \
 			std::string s((str)); \
-			Logger::log(tag, s, NULL, NULL, 0); \
+			Logger::log(tag, s); \
 		} \
 		while (0) \
 
@@ -167,7 +163,7 @@ in all contexts, like after conditionals.
 			if (!(expr)) \
 			{ \
 				static Logger::ErrorLogger* error_logger = loquat::alloc<Logger::ErrorLogger>(); \
-				error_logger->log_error(#expr, false, __func__, __FILE__, __LINE__); \
+				error_logger->log_error(#expr, false, std::source_location::current()); \
 			} \
 		} \
 		while (0) \
