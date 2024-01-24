@@ -1,5 +1,8 @@
 #include "window/window.h"
 
+#include <format>
+
+#include "revision.h"
 #include "main/global_state.h"
 #include "render/render.h"
 
@@ -36,7 +39,7 @@ namespace loquat
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 		glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT,
-			"Loquat", NULL, NULL);
+			std::format("Loquat v{}", VERSION_STR).c_str(), NULL, NULL);
 		glfwSetWindowIconifyCallback(glfw_window, callback_iconify);
 		glfwSetFramebufferSizeCallback(glfw_window, callback_resized);
 	}
