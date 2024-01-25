@@ -226,7 +226,27 @@ namespace loquat
 
 	class SimpleVolumePathIntegrator : public RayIntegrator
 	{
+	public:
+		SimpleVolumePathIntegrator(int max_depth, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights);
 
+		[[nodiscard]]
+		SampledSpectrum light_incoming(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
+			const noexcept;
+
+		[[nodiscard]]
+		static std::unique_ptr<SimpleVolumePathIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
+			noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		int max_depth;
 	};
 
 	/// <summary>
