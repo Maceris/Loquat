@@ -255,7 +255,43 @@ namespace loquat
 	/// </summary>
 	class VolumePathIntegrator : public RayIntegrator
 	{
+		VolumePathIntegrator(int max_depth, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			std::string_view light_sample_strategy = "bvh",
+			bool regularize = false)
+			: RayIntegrator{ camera, sampler, aggregate, lights }
+			, max_depth{ max_depth }
+			, light_sampler{ LightSampler::create(
+				light_sample_strategy, lights, *g_allocator) }
+			, regularize{ regularize }
+		{}
 
+		[[nodiscard]]
+		SampledSpectrum light_incoming(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
+			const noexcept;
+
+		[[nodiscard]]
+		static std::unique_ptr<VolumePathIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
+			noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		[[nodiscard]]
+		SampledSpectrum sample_light_direct(
+			const SurfaceInteraction& interaction, const BSDF* bsdf,
+			SampledWavelengths& lambda, Sampler sampler,
+			SampledSpectrum beta, SampledSpectrum inverse_wu)
+			const noexcept;
+
+		int max_depth;
+		LightSampler light_sampler;
+		bool regularize;
 	};
 
 	class AOIntegrator : public RayIntegrator
