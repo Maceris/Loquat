@@ -21,7 +21,11 @@ namespace loquat
 	/// </summary>
 	constexpr Float WAVELENGTH_MAX = 830;
 
-	static constexpr int NUM_SPECTRUM_SAMPLES = 4;
+	/// <summary>
+	/// The number of samples used in the sampled spectrums. Must be >= 1, 
+	/// really should be less than a couple dozen.
+	/// </summary>
+	static constexpr int NUM_SPECTRUM_SAMPLES = 6;
 
 	class BlackbodySpectrum;
 	class ConstantSpectrum;
