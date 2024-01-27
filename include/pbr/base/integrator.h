@@ -255,6 +255,7 @@ namespace loquat
 	/// </summary>
 	class VolumePathIntegrator : public RayIntegrator
 	{
+	public:
 		VolumePathIntegrator(int max_depth, Camera camera,
 			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
 			std::string_view light_sample_strategy = "bvh",
@@ -296,7 +297,36 @@ namespace loquat
 
 	class AOIntegrator : public RayIntegrator
 	{
+	public:
+		AOIntegrator(bool cos_sample, Float max_distance, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			Spectrum illuminant);
 
+		[[nodiscard]]
+		SampledSpectrum light_incoming(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
+			const noexcept;
+
+		[[nodiscard]]
+		static std::unique_ptr<AOIntegrator> create(
+			const ParameterDictionary& parameters, Spectrum illuminant, 
+			Camera camera, Sampler sampler, Primitive aggregate,
+			std::vector<Light> lights)
+			noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		/// <summary>
+		/// Whether we use cosine-weighted sampling instead of uniform
+		/// hemisphere sampling for ambient occlusion sample rays.
+		/// </summary>
+		bool cos_sample;
+		int max_distance;
+		Spectrum illuminant;
+		Float illuminant_scale;
 	};
 
 	class LightPathIntegrator : public ImageTileIntegrator

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "pbr/struct/spectrum.h"
+
 namespace loquat
 {
 	class PixelSensor
