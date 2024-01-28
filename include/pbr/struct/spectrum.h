@@ -55,4 +55,29 @@ namespace loquat
 			const noexcept;
 	};
 
+	/// <summary>
+	/// Calculate the emitted radiance of a perfect blackbody at a specific
+	/// wavelength, given the color temperature.
+	/// </summary>
+	/// <param name="lambda">The wavelength we want radiance for.</param>
+	/// <param name="temperature">The color temperature of the blackbody.
+	/// </param>
+	/// <returns>The emitted radiance.</returns>
+	inline Float blackbody(Float lambda, Float temperature)
+	{
+		if (temperature <= 0)
+		{
+			return 0;
+		}
+		const Float c = 299792458.0f;
+		const Float h = 6.62606957e-34f;
+		const Float kb = 1.3806488e-23f;
+
+		const float l = lambda * 1.0e-9f;
+		const float emitted = (2 * h * c * c) 
+			/ (pow<5>(l) * (fast_e((h * c) / (1 * kb * temperature)) - 1));
+		LOG_ASSERT(!is_NaN(emitted) &&
+			"Emitted light is NaN");
+		return emitted;
+	}
 }

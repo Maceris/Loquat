@@ -51,6 +51,100 @@ namespace loquat
 	/// sqrt(2), in the floating point format we are using.
 	/// </summary>
 	constexpr Float SQRT2 = static_cast<Float>(std::numbers::sqrt2);
+	
+	template <typename Float, typename C>
+	inline constexpr Float evaluate_polynomial(Float t, C c)
+	{
+		return c;
+	}
+
+	template <typename Float, typename C, typename... Args>
+	inline constexpr Float evaluate_polynomial(Float t, C c,
+		Args... remaining)
+	{
+		return std::fma(t, evaluate_polynomial(t, remaining...), c);
+	}
+
+	/// <summary>
+	/// Calculate e^x based on https://stackoverflow.com/a/10792321.
+	/// </summary>
+	/// <param name="x">The exponent.</param>
+	/// <returns>e to the power of the provided x.</returns>
+	inline float fast_e(float x)
+	{
+		// Compute x' such that e^x = 2^x'
+		float xp = x * 1.442695041f;
+
+		// Find integer and fractional components of x'
+		const float fxp = std::floor(xp);
+		const float f = xp - fxp;
+		const int i = (int)fxp;
+
+		const float twoToF = evaluate_polynomial(f, 1.0f, 0.695556856f,
+			0.226173572f, 0.0781455737f);
+
+		const int exp = exponent(twoToF) + i;
+
+		if (exp < -126)
+		{
+			return 0;
+		}
+		if (exp > 127)
+		{
+			return FLOAT_INFINITY;
+		}
+
+		uint32_t bits = std::bit_cast<uint32_t>(twoToF);
+		bits &= 0b10000000011111111111111111111111u;
+		bits |= (exp + 127) << 23;
+		return std::bit_cast<float>(bits);
+	}
+
+	template <int n>
+	constexpr float pow(const float v)
+	{
+		if constexpr (n < 0)
+		{
+			return 1 / pow<-n>(v);
+		}
+		const float n2 = pow<n/2>(v);
+		return n2 * n2 * pow<n & 1>(v);
+	}
+
+	template <>
+	constexpr float pow<1>(const float v)
+	{
+		return v;
+	}
+
+	template <>
+	constexpr float pow<0>(const float v)
+	{
+		return 1;
+	}
+
+	template <int n>
+	constexpr float pow(const double v)
+	{
+		if constexpr (n < 0)
+		{
+			return 1 / pow<-n>(v);
+		}
+		const float n2 = pow<n / 2>(v);
+		return n2 * n2 * pow<n & 1>(v);
+	}
+
+	template <>
+	constexpr float pow<1>(const double v)
+	{
+		return v;
+	}
+
+	template <>
+	constexpr float pow<0>(const double v)
+	{
+		return 1;
+	}
 
 	template <typename T>
 		requires std::integral<T> || std::floating_point<T>
