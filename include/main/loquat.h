@@ -40,4 +40,18 @@ namespace loquat
 	class Image;
 	class ParameterDictionary;
 	class TextureParameterDictionary;
+
+	class RGB;
+	class RGBColorSpace;
+	class RGBSigmoidPolynomial;
+	class RGBIlluminantSpectrum;
+	class SampledSpectrum;
+	class SampledWavelengths;
+	class SpectrumWavelengths;
+	class XYZ;
+	enum class SpectrumType;
+
+
+	template <typename T>
+	struct SOA;
 }

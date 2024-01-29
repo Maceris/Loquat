@@ -8,10 +8,89 @@
 
 #include <array>
 
+#include "main/loquat.h"
+#include "pbr/util/tagged_pointer.h"
+
 namespace loquat
 {
-	static constexpr int SPECTRUM_SAMPLE_COUNT = 4;
+	/// <summary>
+	/// The number of samples used in the sampled spectrums. Must be >= 1, 
+	/// really should be less than a couple dozen.
+	/// </summary>
+	static constexpr int SPECTRUM_SAMPLE_COUNT = 6;
 
+	/// <summary>
+	/// The minimum wavelength we deal with, in nm.
+	/// </summary>
+	constexpr Float WAVELENGTH_MIN = 360;
+
+	/// <summary>
+	/// The maximum wavelength we deal with, in nm.
+	/// </summary>
+	constexpr Float WAVELENGTH_MAX = 830;
+
+	class BlackbodySpectrum;
+	class ConstantSpectrum;
+	class PiecewiseLinearSpectrum;
+	class DenselySampledSpectrum;
+	class RGBAlbedoSpectrum;
+	class RGBUnboundedSpectrum;
+	class RGBIlluminantSpectrum;
+
+	class Spectrum : public TaggedPointer<ConstantSpectrum,
+		DenselySampledSpectrum, PiecewiseLinearSpectrum, RGBAlbedoSpectrum,
+		RGBUnboundedSpectrum, RGBIlluminantSpectrum, BlackbodySpectrum>
+	{
+	public:
+		using TaggedPointer::TaggedPointer;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		Float operator()(Float lambda) const noexcept;
+
+		[[nodiscard]]
+		Float max_value() const noexcept;
+
+		[[nodiscard]]
+		SampledSpectrum sample(const SampledWavelengths& lambda)
+			const noexcept;
+	};
+
+	/// <summary>
+	/// Calculate the emitted radiance of a perfect blackbody at a specific
+	/// wavelength, given the color temperature.
+	/// </summary>
+	/// <param name="lambda">The wavelength we want radiance for.</param>
+	/// <param name="temperature">The color temperature of the blackbody.
+	/// </param>
+	/// <returns>The emitted radiance.</returns>
+	inline Float blackbody(Float lambda, Float temperature)
+	{
+		if (temperature <= 0)
+		{
+			return 0;
+		}
+		const Float c = 299792458.0f;
+		const Float h = 6.62606957e-34f;
+		const Float kb = 1.3806488e-23f;
+
+		const float l = lambda * 1.0e-9f;
+		const float emitted = (2 * h * c * c)
+			/ (pow<5>(l) * (fast_e((h * c) / (1 * kb * temperature)) - 1));
+		LOG_ASSERT(!is_NaN(emitted) &&
+			"Emitted light is NaN");
+		return emitted;
+	}
+
+	namespace Spectra
+	{
+		DenselySampledSpectrum dense_spectrum(Float T, Allocator allocator);
+	}
+
+	Float SpectrumToPhotometric(Spectrum s);
+
+	XYZ SpectrumToXYZ(Spectrum s);
 
 	class SampledSpectrum
 	{
@@ -21,22 +100,32 @@ namespace loquat
 			SampledSpectrum result = *this;
 			return result += s;
 		}
-		//TODO(ches) fill this out
 
-		SampledSpectrum() = default;
-
-		explicit SampledSpectrum(Float c) noexcept
-		{
-			values.fill(c);
-		}
-
-		SampledSpectrum& operator+=(const SampledSpectrum& s) noexcept
+		SampledSpectrum& operator -=(const SampledSpectrum& s) noexcept
 		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
-				values[i] += s.values[i];
+				values[i] -= s.values[i];
 			}
 			return *this;
+		}
+
+		SampledSpectrum operator-(const SampledSpectrum& s) const noexcept
+		{
+			SampledSpectrum result = *this;
+			return result -= s;
+		}
+
+		friend SampledSpectrum operator-(Float a, const SampledSpectrum& s)
+			noexcept
+		{
+			LOG_ASSERT(!is_NaN(a) && "Trying to subtract a NaN");
+			SampledSpectrum result;
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result.values[i] = a - s.values[i];
+			}
+			return result;
 		}
 
 		SampledSpectrum& operator*=(const SampledSpectrum& s) noexcept
@@ -54,48 +143,135 @@ namespace loquat
 			return result *= s;
 		}
 
-		SampledSpectrum operator*(Float f) const noexcept
+		SampledSpectrum operator*(Float a) const noexcept
 		{
-			LOG_ASSERT(!is_NaN(f) && "Multiplying spectrum by NaN");
+			LOG_ASSERT(!is_NaN(a) && "Trying to multiply by a NaN");
 			SampledSpectrum result = *this;
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
-				result.values[i] *= f;
+				result.values[i] *= a;
 			}
 			return result;
 		}
 
-		SampledSpectrum& operator*=(Float f) noexcept
+		SampledSpectrum& operator*=(Float a) noexcept
 		{
-			LOG_ASSERT(!is_NaN(f) && "Multiplying spectrum by NaN");
+			LOG_ASSERT(!is_NaN(a) && "Trying to multiply by a NaN");
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
-				values[i] *= f;
+				values[i] *= a;
 			}
 			return *this;
 		}
 
-		SampledSpectrum operator/(Float f) const noexcept
+		friend SampledSpectrum operator*(Float a, const SampledSpectrum& s)
+			noexcept
 		{
-			LOG_ASSERT(f != 0 && "Dividing by zero");
-			LOG_ASSERT(!is_NaN(f) && "Dividing spectrum by NaN");
-			SampledSpectrum result = *this;
+			return s * a;
+		}
+
+		SampledSpectrum& operator/=(const SampledSpectrum& s) noexcept
+		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
-				result.values[i] /= f;
+				LOG_ASSERT(s.values[i] != 0 && "Trying to divide by zero");
+				values[i] /= s.values[i];
+			}
+			return *this;
+		}
+
+		SampledSpectrum operator/(const SampledSpectrum& s) const noexcept
+		{
+			SampledSpectrum result = *this;
+			return result /= s;
+		}
+
+		SampledSpectrum& operator/=(Float a) noexcept
+		{
+			LOG_ASSERT(a != 0 && "Trying to divide by zero");
+			LOG_ASSERT(!is_NaN(a) && "Trying to divide by NaN");
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				values[i] /= a;
+			}
+			return *this;
+		}
+
+		SampledSpectrum operator/(Float a) const noexcept
+		{
+			SampledSpectrum result = *this;
+			return result /= a;
+		}
+
+		SampledSpectrum operator-() const noexcept
+		{
+			SampledSpectrum result;
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result.values[i] = -values[i];
 			}
 			return result;
 		}
 
-		SampledSpectrum& operator/=(Float f) noexcept
+		bool operator==(const SampledSpectrum& s) const noexcept
 		{
-			LOG_ASSERT(f != 0 && "Dividing by zero");
-			LOG_ASSERT(!is_NaN(f) && "Dividing spectrum by NaN");
+			return values == s.values;
+		}
+
+		bool operator!=(const SampledSpectrum& s) const noexcept
+		{
+			return values != s.values;
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		bool has_NaNs() const noexcept
+		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
-				values[i] /= f;
+				if (is_NaN(values[i]))
+				{
+					return true;
+				}
 			}
-			return *this;
+			return false;
+		}
+
+		XYZ to_XYZ(const SampledSpectrum& lambda) const noexcept;
+		RGB to_RGB(const SampledSpectrum& lambda,
+			const RGBColorSpace& color_space) const noexcept;
+		Float y(const SampledSpectrum& lambda) const noexcept;
+
+		SampledSpectrum() = default;
+
+		explicit SampledSpectrum(Float c)
+		{
+			values.fill(c);
+		}
+
+		SampledSpectrum(std::span<const Float> v)
+		{
+			LOG_ASSERT(v.size() == SPECTRUM_SAMPLE_COUNT
+				&& "Not the same number of sample counts");
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				values[i] = v[i];
+			}
+		}
+
+		Float operator[](int i) const noexcept
+		{
+			LOG_ASSERT(i >= 0 && i < SPECTRUM_SAMPLE_COUNT
+				&& "Index out of bounds");
+			return values[i];
+		}
+
+		Float& operator[](int i) noexcept
+		{
+			LOG_ASSERT(i >= 0 && i < SPECTRUM_SAMPLE_COUNT
+				&& "Index out of bounds");
+			return values[i];
 		}
 
 		explicit operator bool() const noexcept
@@ -110,7 +286,47 @@ namespace loquat
 			return false;
 		}
 
+		SampledSpectrum& operator+=(const SampledSpectrum& s) noexcept
+		{
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				values[i] += s.values[i];
+			}
+			return *this;
+		}
+
+		Float min_component_value() const noexcept
+		{
+			Float min = values[0];
+			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				min = std::min(min, values[i]);
+			}
+			return min;
+		}
+
+		Float max_component_value() const noexcept
+		{
+			Float max = values[0];
+			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				max = std::max(max, values[i]);
+			}
+			return max;
+		}
+
+		Float average() const noexcept
+		{
+			Float sum = values[0];
+			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				sum += values[i];
+			}
+			return sum / SPECTRUM_SAMPLE_COUNT;
+		}
+
 	private:
+		friend struct SOA<SampledSpectrum>;
 		std::array<Float, SPECTRUM_SAMPLE_COUNT> values;
 	};
 

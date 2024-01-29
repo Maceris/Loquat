@@ -6,42 +6,14 @@
 
 #pragma once
 
-#include "pbr/base/spectrum.h"
+#include "main/loquat.h"
+#include "pbr/struct/spectrum.h"
 
 namespace loquat
 {
-	class PixelSensor
+	template <>
+	struct SOA<SampledSpectrum>
 	{
-
 	};
 
-	class VisibleSurface
-	{
-
-	};
-
-	struct FilmBaseParameters
-	{
-
-	};
-
-	class FilmBase
-	{
-
-	};
-
-	class RGBFilm : public FilmBase
-	{
-
-	};
-
-	class GBufferFilm : public FilmBase
-	{
-
-	};
-
-	class SpectralFilm : public FilmBase
-	{
-
-	};
 }
