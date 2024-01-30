@@ -100,6 +100,11 @@ namespace loquat
 		return std::bit_cast<float>(bits);
 	}
 
+	inline Float lerp(Float x, Float a, Float b)
+	{
+		return (1 - x) * a + x * b;
+	}
+
 	template <int n>
 	constexpr float pow(const float v)
 	{

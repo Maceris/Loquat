@@ -7,6 +7,7 @@
 #pragma once
 
 #include <array>
+#include <span>
 
 #include "main/loquat.h"
 #include "pbr/util/tagged_pointer.h"
@@ -28,6 +29,20 @@ namespace loquat
 	/// The maximum wavelength we deal with, in nm.
 	/// </summary>
 	constexpr Float WAVELENGTH_MAX = 830;
+
+	inline Float sample_visible_wavelengths(Float sample_1D)
+	{
+		return 538 - 138.888889f 
+			* std::atanh(0.85691062f - 1.82750197f * sample_1D);
+	}
+
+	inline Float visible_wavelengths_PDF(Float wavelength) {
+		if (wavelength < 360 || wavelength > 830)
+		{
+			return 0;
+		}
+		return 0.0039398042f / square(std::cosh(0.0072f * (wavelength - 538)));
+	}
 
 	class BlackbodySpectrum;
 	class ConstantSpectrum;
@@ -243,14 +258,14 @@ namespace loquat
 			const RGBColorSpace& color_space) const noexcept;
 		Float y(const SampledSpectrum& lambda) const noexcept;
 
-		SampledSpectrum() = default;
+		SampledSpectrum() noexcept = default;
 
-		explicit SampledSpectrum(Float c)
+		explicit SampledSpectrum(Float c) noexcept
 		{
 			values.fill(c);
 		}
 
-		SampledSpectrum(std::span<const Float> v)
+		SampledSpectrum(std::span<const Float> v) noexcept
 		{
 			LOG_ASSERT(v.size() == SPECTRUM_SAMPLE_COUNT
 				&& "Not the same number of sample counts");
@@ -332,6 +347,113 @@ namespace loquat
 
 	class SampledWavelengths
 	{
+	public:
+		bool operator==(const SampledWavelengths& other) const noexcept
+		{
+			return wavelengths == other.wavelengths && pdf == other.pdf;
+		}
 
+		bool operator !=(const SampledWavelengths& other) const noexcept
+		{
+			return wavelengths != other.wavelengths || pdf != other.pdf;
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		static SampledWavelengths sample_uniform(Float u,
+			Float wavelength_min = WAVELENGTH_MIN,
+			Float wavelength_max = WAVELENGTH_MAX)
+		{
+			SampledWavelengths result;
+
+			result.wavelengths[0] = lerp(u, wavelength_min, wavelength_max);
+
+			const Float delta = (wavelength_max - wavelength_min)
+				/ SPECTRUM_SAMPLE_COUNT;
+			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result.wavelengths[i] = result.wavelengths[i - 1] + delta;
+				if (result.wavelengths[i] > wavelength_max)
+				{
+					//NOTE(ches) wrap wavelengths
+					result.wavelengths[i] = wavelength_min
+						+ (result.wavelengths[i] - wavelength_max);
+				}
+			}
+
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result.pdf[i] = 1 / (wavelength_max - wavelength_min);
+			}
+
+			return result;
+		}
+
+		Float operator[](int i) const noexcept
+		{
+			return wavelengths[i];
+		}
+		
+		Float& operator[](int i) noexcept
+		{
+			return wavelengths[i];
+		}
+
+		SampledSpectrum PDF() const noexcept
+		{
+			return SampledSpectrum(pdf);
+		}
+
+		void terminate_secondary() noexcept
+		{
+			if (secondary_terminated())
+			{
+				return;
+			}
+			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				pdf[i] = 0;
+			}
+			pdf[0] /= SPECTRUM_SAMPLE_COUNT;
+		}
+		
+		[[nodiscard]]
+		bool secondary_terminated() const noexcept
+		{
+			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				if (pdf[i] != 0)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		[[nodiscard]]
+		static SampledWavelengths sample_visible(Float sample_1D)
+		{
+			SampledWavelengths result;
+
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				Float probability = sample_1D + static_cast<Float>(i)
+					/ SPECTRUM_SAMPLE_COUNT;
+				if (probability > 1)
+				{
+					probability -= 1;
+				}
+				result.wavelengths[i] = 
+					sample_visible_wavelengths(probability);
+				result.pdf[i] = visible_wavelengths_PDF(result.wavelengths[i]);
+			}
+			return result;
+		}
+
+	private:
+		friend struct SOA<SampledSpectrum>;
+		std::array<Float, SPECTRUM_SAMPLE_COUNT> wavelengths;
+		std::array<Float, SPECTRUM_SAMPLE_COUNT> pdf;
 	};
 }

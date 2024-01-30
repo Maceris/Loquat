@@ -7,7 +7,7 @@
 #pragma once
 
 #include "main/loquat.h"
-#include "pbr/struct/spectrum.h"
+#include "pbr/base/spectrum.h"
 
 namespace loquat
 {

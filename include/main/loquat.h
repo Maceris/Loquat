@@ -34,9 +34,6 @@ namespace loquat
 	class RayDifferential;
 	class Transform;
 
-	class SampledSpectrum;
-	class SampledWavelengths;
-
 	class Image;
 	class ParameterDictionary;
 	class TextureParameterDictionary;
