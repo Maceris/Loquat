@@ -456,4 +456,32 @@ namespace loquat
 		std::array<Float, SPECTRUM_SAMPLE_COUNT> wavelengths;
 		std::array<Float, SPECTRUM_SAMPLE_COUNT> pdf;
 	};
+
+	class ConstantSpectrum
+	{
+	public:
+		ConstantSpectrum(Float constant)
+			: constant{ constant }
+		{}
+
+		Float operator()(Float wavelength) const noexcept
+		{
+			return constant;
+		}
+
+		[[nodiscard]]
+		SampledSpectrum sample(const SampledWavelengths&) const noexcept;
+
+		[[nodiscard]]
+		Float max_value() const noexcept
+		{
+			return constant;
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		Float constant;
+	};
 }
