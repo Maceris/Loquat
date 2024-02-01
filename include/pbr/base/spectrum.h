@@ -7,7 +7,9 @@
 #pragma once
 
 #include <array>
+#include <ranges>
 #include <span>
+#include <vector>
 
 #include "main/loquat.h"
 #include "pbr/util/tagged_pointer.h"
@@ -483,5 +485,143 @@ namespace loquat
 
 	private:
 		Float constant;
+	};
+
+	class DenselySampledSpectrum
+	{
+	public:
+		DenselySampledSpectrum(
+			int wavelength_min = static_cast<int>(std::floor(WAVELENGTH_MIN)),
+			int wavelength_max = static_cast<int>(std::floor(WAVELENGTH_MAX)),
+			Allocator allocator = {})
+			noexcept
+			: wavelength_min{ wavelength_min }
+			, wavelength_max{ wavelength_max }
+			, values( wavelength_max - wavelength_min + 1, allocator)
+		{}
+
+		DenselySampledSpectrum(Spectrum spectrum, Allocator allocator)
+			noexcept
+			: DenselySampledSpectrum{ spectrum, 
+			static_cast<int>(std::floor(WAVELENGTH_MIN)), 
+			static_cast<int>(std::floor(WAVELENGTH_MAX)),
+			allocator }
+		{}
+
+		DenselySampledSpectrum(const DenselySampledSpectrum& spectrum, 
+			Allocator allocator) noexcept
+			: wavelength_min{ wavelength_min }
+			, wavelength_max{ wavelength_max }
+			, values{ spectrum.values.begin(), spectrum.values.end(), 
+				allocator}
+		{}
+
+		[[nodiscard]]
+		SampledSpectrum sample(const SampledWavelengths& wavelengths)
+			const noexcept
+		{
+			SampledSpectrum result;
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				int offset = std::lround(wavelengths[i]) - wavelength_min;
+				if (offset < 0 || offset >= values.size())
+				{
+					result[i] = 0;
+				}
+				else
+				{
+					result[i] = values[offset];
+				}
+			}
+			return result;
+		}
+
+		void scale(Float scale) noexcept
+		{
+			for (Float& v : values)
+			{
+				v *= scale;
+			}
+		}
+
+		Float max_value() const noexcept
+		{
+			return *std::ranges::max_element(values.begin(), values.end());
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		DenselySampledSpectrum(Spectrum spectrum,
+			int wavelength_min = WAVELENGTH_MIN,
+			int wavelength_max = WAVELENGTH_MAX, Allocator allocator = {})
+			noexcept
+			: wavelength_min{ wavelength_min }
+			, wavelength_max{ wavelength_max }
+			, values( wavelength_max - wavelength_min + 1, allocator )
+		{
+			LOG_ASSERT(wavelength_max >= wavelength_min
+				&& "Wavelengths reversed");
+			if (spectrum)
+			{
+				for (int wavelength = wavelength_min;
+					wavelength <= wavelength_max; ++wavelength)
+				{
+					values[wavelength - wavelength_min] = spectrum(wavelength);
+				}
+			}
+		}
+
+		template <std::invocable<Float> F>
+		static DenselySampledSpectrum sample_function(F function,
+			int wavelength_min = WAVELENGTH_MIN,
+			int wavelength_max = WAVELENGTH_MAX, Allocator allocator = {})
+			noexcept
+		{
+			DenselySampledSpectrum result{ wavelength_min, wavelength_max,
+				allocator };
+			for (int wavelength = wavelength_min;
+				wavelength <= wavelength_max; ++wavelength)
+			{
+				result.values[wavelength - wavelength_min] = 
+					function(wavelength);
+			}
+			return result;
+		}
+
+		Float operator()(Float wavelength) const noexcept
+		{
+			LOG_ASSERT(wavelength > 0);
+			int offset = std::lround(wavelength) - wavelength_min;
+			if (offset < 0 || offset >= values.size())
+			{
+				return 0;
+			}
+			return values[offset];
+		}
+
+		bool operator==(const DenselySampledSpectrum& other) const noexcept
+		{
+			if (wavelength_min != other.wavelength_min
+				|| wavelength_max != other.wavelength_max
+				|| values.size() != other.values.size())
+			{
+				return false;
+			}
+			for (size_t i = 0; i < values.size(); ++i)
+			{
+				if (values[i] != other.values[i])
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+	private:
+		friend struct std::hash<loquat::DenselySampledSpectrum>;
+		int wavelength_min;
+		int wavelength_max;
+		std::vector<Float, AllocatorBase<Float>> values;
 	};
 }

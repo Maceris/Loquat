@@ -7,10 +7,19 @@
 
 namespace loquat
 {
+
+	/// <summary>
+	/// The base type of allocator we are using. Used as a shorthand when we
+	/// need to use the base allocator for different types.
+	/// </summary>
+	/// <typeparam name="T">The type of memory being allocated.</typeparam>
+	template <typename T>
+	using AllocatorBase = std::pmr::polymorphic_allocator<T>;
+
 	/// <summary>
 	/// The type of allocator we are using for memory management.
 	/// </summary>
-	using Allocator = std::pmr::polymorphic_allocator<std::byte>;
+	using Allocator = AllocatorBase<std::byte>;
 
 	/// <summary>
 	/// The allocator for certain data structures, and potentially general use.
