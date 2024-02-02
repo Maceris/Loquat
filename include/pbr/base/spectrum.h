@@ -624,4 +624,49 @@ namespace loquat
 		int wavelength_max;
 		std::vector<Float, AllocatorBase<Float>> values;
 	};
+
+	class PiecewiseLinearSpectrum
+	{
+	public:
+		PiecewiseLinearSpectrum() = default;
+
+		void scale(Float scale)
+		{
+			for (Float& value : values)
+			{
+				value *= scale;
+			}
+		}
+
+		Float max_value() const noexcept;
+
+		SampledSpectrum sample(const SampledWavelengths& wavelengths) const noexcept
+		{
+			SampledSpectrum result;
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result[i] = (*this)(wavelengths[i]);
+			}
+			return result;
+		}
+
+		Float operator()(Float wavelength) const noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		PiecewiseLinearSpectrum(std::span<const Float> wavelengths,
+			std::span<const Float> values, Allocator allcator = {}) noexcept;
+
+		static std::optional<Spectrum> read(const std::string_view filename,
+			Allocator allocator) noexcept;
+
+		static PiecewiseLinearSpectrum* from_interleaved(
+			std::span<const Float> samples, bool normalize,
+			Allocator allocator);
+
+	private:
+		std::vector<Float, AllocatorBase<Float>> wavelengths;
+		std::vector<Float, AllocatorBase<Float>> values;
+	};
 }
