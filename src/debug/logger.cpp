@@ -303,13 +303,13 @@ void LogManager::write_to_log_file(std::string_view data)
 {
 	FILE* log_file = nullptr;
 	// Opens for reading and appending. Creates the file if it doesn't exist.
-	fopen_s(&log_file, ERROR_LOG_FILENAME, "a+");
+	log_file = fopen(ERROR_LOG_FILENAME, "a+");
 	if (!log_file)
 	{
 		// Can't open log file, so logging here would be kinda pointless
 		return;
 	}
-	fprintf_s(log_file, data.data());
+	fprintf(log_file, data.data());
 	fclose(log_file);
 }
 

@@ -5,6 +5,16 @@
 #include <new>
 #include <list>
 
+#ifdef __cpp_lib_hardware_interference_size
+    using std::hardware_constructive_interference_size;
+    using std::hardware_destructive_interference_size;
+#else
+    // 64 bytes on x86-64 │ L1_CACHE_BYTES │ L1_CACHE_SHIFT │ __cacheline_aligned
+    constexpr std::size_t hardware_constructive_interference_size = 64;
+    constexpr std::size_t hardware_destructive_interference_size = 64;
+#endif
+
+
 namespace loquat
 {
 
@@ -192,7 +202,7 @@ namespace loquat
 		struct Invalid {};
 	};
 
-	class alignas(std::hardware_destructive_interference_size) ScratchBuffer
+	class alignas(hardware_destructive_interference_size) ScratchBuffer
 	{
 	public:
 		ScratchBuffer(size_t size = 256) noexcept
@@ -295,7 +305,7 @@ namespace loquat
 		}
 
 		static constexpr size_t align 
-			= std::hardware_destructive_interference_size;
+			= hardware_destructive_interference_size;
 		char* pointer = nullptr;
 		size_t allocation_size = 0;
 		size_t offset = 0;

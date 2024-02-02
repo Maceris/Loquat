@@ -18,7 +18,7 @@ namespace loquat
 
 #if _DEBUG
     constexpr bool ENABLE_VALIDATION_LAYERS = true;
-#elif
+#else
     constexpr bool ENABLE_VALIDATION_LAYERS = false;
 #endif
 
