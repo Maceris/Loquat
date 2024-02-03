@@ -669,4 +669,46 @@ namespace loquat
 		std::vector<Float, AllocatorBase<Float>> wavelengths;
 		std::vector<Float, AllocatorBase<Float>> values;
 	};
+
+	class BlackbodySpectrum
+	{
+	public:
+		BlackbodySpectrum(Float temperature) noexcept
+			: temperature{ temperature }
+		{
+			const Float max_wavelength = 2.8977721e-3f / temperature;
+			normalization_factor = 1 
+				/ blackbody(max_wavelength * 1e9f, temperature);
+		}
+
+		Float operator()(Float wavelength) const noexcept
+		{
+			return blackbody(wavelength, temperature) * normalization_factor;
+		}
+
+		[[nodiscard]]
+		SampledSpectrum sample(const SampledWavelengths& wavelengths)
+			const noexcept
+		{
+			SampledSpectrum result;
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result[i] = blackbody(wavelengths[i], temperature) 
+					* normalization_factor;
+			}
+			return result;
+		}
+
+		Float max_value() const noexcept
+		{
+			return 1.0f;
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		Float temperature;
+		Float normalization_factor;
+	};
 }
