@@ -17,6 +17,7 @@
 #include "pbr/math/float.h"
 #include "pbr/math/math.h"
 #include "pbr/math/vec.h"
+#include "pbr/math/matrix.h"
 #include "pbr/math/quaternion.h"
 #include "pbr/math/interval.h"
 #include "pbr/math/point.h"
