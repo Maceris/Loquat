@@ -54,6 +54,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/struct/interaction.h
   ${HEADER_PATH}/pbr/struct/parameter_dictionary.h
   ${HEADER_PATH}/pbr/struct/soa.h
+  ${HEADER_PATH}/pbr/util/color.h
   ${HEADER_PATH}/pbr/util/color_space.h
   ${HEADER_PATH}/pbr/util/tagged_pointer.h
   ${HEADER_PATH}/pipeline/pipeline.h

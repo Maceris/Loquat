@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "main/loquat.h"
+#include "pbr/util/color.h"
 #include "pbr/util/tagged_pointer.h"
 
 namespace loquat
@@ -710,5 +711,13 @@ namespace loquat
 	private:
 		Float temperature;
 		Float normalization_factor;
+	};
+
+	class RGBAlbedoSpectrum
+	{
+	public:
+
+	private:
+		RGBSigmoidPolynomial rsp;
 	};
 }

@@ -51,6 +51,13 @@ namespace loquat
 	/// sqrt(2), in the floating point format we are using.
 	/// </summary>
 	constexpr Float SQRT2 = static_cast<Float>(std::numbers::sqrt2);
+
+	/// <summary>
+	/// A concept for checking if a type is either an integral or a
+	/// floating point value.
+	/// </summary>
+	template <typename T>
+	concept number = std::integral<T> || std::floating_point<T>;
 	
 	template <typename Float, typename C>
 	inline constexpr Float evaluate_polynomial(Float t, C c)
@@ -172,6 +179,23 @@ namespace loquat
 		LOG_ASSERT(x >= -1e-3f
 			&& "Computing square root of very negative double");
 		return std::sqrt(std::max(0.0, x));
+	}
+
+	template <number T, number U, number V>
+	inline constexpr T clamp(T value, U low, V high) noexcept
+	{
+		if (value < low)
+		{
+			return static_cast<T>(low);
+		}
+		else if (value > high)
+		{
+			return static_cast<T>(high);
+		}
+		else
+		{
+			return value;
+		}
 	}
 
 }
