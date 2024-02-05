@@ -716,8 +716,132 @@ namespace loquat
 	class RGBAlbedoSpectrum
 	{
 	public:
+		Float operator()(Float wavelength) const noexcept
+		{
+			return rsp(wavelength);
+		}
+
+		Float max_value() const noexcept
+		{
+			return rsp.max_value();
+		}
+
+		RGBAlbedoSpectrum(const RGBColorSpace& color_space, RGB rgb) noexcept;
+
+		SampledSpectrum sample(const SampledWavelengths& wavelengths)
+			const noexcept
+		{
+			SampledSpectrum result;
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result[i] = rsp(wavelengths[i]);
+			}
+			return result;
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
 
 	private:
 		RGBSigmoidPolynomial rsp;
 	};
+
+
+	class RGBUnboundedSpectrum
+	{
+	public:
+		Float operator()(Float wavelength) const noexcept
+		{
+			return scale * rsp(wavelength);
+		}
+
+		Float max_value() const noexcept
+		{
+			return scale * rsp.max_value();
+		}
+
+		RGBUnboundedSpectrum(const RGBColorSpace& color_space, RGB rgb)
+			noexcept;
+
+		RGBUnboundedSpectrum()
+			: rsp{ 0, 0, 0 }
+			, scale{ 0 }
+		{}
+
+		SampledSpectrum sample(const SampledWavelengths& wavelengths)
+			const noexcept
+		{
+			SampledSpectrum result;
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result[i] = scale * rsp(wavelengths[i]);
+			}
+			return result;
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		Float scale = 1;
+		RGBSigmoidPolynomial rsp;
+	};
+
+	class RGBIlluminantSpectrum
+	{
+	public:
+
+		RGBIlluminantSpectrum() = default;
+
+		RGBIlluminantSpectrum(const RGBColorSpace& color_space, RGB rgb)
+			noexcept;
+
+		Float operator()(Float wavelength) const noexcept
+		{
+			if (!illuminant)
+			{
+				return 0;
+			}
+			return scale * rsp(wavelength) * (*illuminant)(wavelength);
+		}
+
+		Float max_value() const noexcept
+		{
+			if (!illuminant)
+			{
+				return 0;
+			}
+			return scale * rsp.max_value() * illuminant->max_value();
+		}
+
+		const DenselySampledSpectrum* get_illuminant() const noexcept
+		{
+			return illuminant;
+		}
+
+		SampledSpectrum sample(const SampledWavelengths& wavelengths)
+			const noexcept
+		{
+			if (!illuminant)
+			{
+				return SampledSpectrum(0);
+			}
+			SampledSpectrum result;
+			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+			{
+				result[i] = scale * rsp(wavelengths[i]);
+			}
+			return scale * illuminant->sample(wavelengths);
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		Float scale;
+		RGBSigmoidPolynomial rsp;
+		const DenselySampledSpectrum* illuminant;
+	};
+
+
 }
