@@ -13,6 +13,7 @@
 
 #include "main/loquat.h"
 #include "pbr/util/color.h"
+#include "pbr/math/hash.h"
 #include "pbr/util/tagged_pointer.h"
 
 namespace loquat
@@ -843,5 +844,191 @@ namespace loquat
 		const DenselySampledSpectrum* illuminant;
 	};
 
+	inline SampledSpectrum safe_divide(SampledSpectrum a, SampledSpectrum b)
+		noexcept
+	{
+		SampledSpectrum result;
+		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+		{
+			result[i] = b[i] == 0 ? 0.0f : a[i] / b[i];
+		}
+		return result;
+	}
 
+	template <number U, number V>
+	inline SampledSpectrum clamp(const SampledSpectrum& spectrum, U low,
+		V high) noexcept
+	{
+		SampledSpectrum result;
+		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+		{
+			result[i] = clamp(spectrum[i], low, high);
+		}
+		LOG_ASSERT(!result.has_NaNs());
+		return result;
+	}
+
+	inline SampledSpectrum clamp_zero(const SampledSpectrum& spectrum) noexcept
+	{
+		SampledSpectrum result;
+		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+		{
+			result[i] = std::max<Float>(0.0f, spectrum[i]);
+		}
+		LOG_ASSERT(!result.has_NaNs());
+		return result;
+	}
+
+	inline SampledSpectrum sqrt(const SampledSpectrum& spectrum) noexcept
+	{
+		SampledSpectrum result;
+		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+		{
+			result[i] = std::sqrt(spectrum[i]);
+		}
+		LOG_ASSERT(!result.has_NaNs());
+		return result;
+	}
+
+	inline SampledSpectrum safe_sqrt(const SampledSpectrum& spectrum) noexcept
+	{
+		SampledSpectrum result;
+		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+		{
+			result[i] = safe_square_root(spectrum[i]);
+		}
+		LOG_ASSERT(!result.has_NaNs());
+		return result;
+	}
+
+	inline SampledSpectrum pow(const SampledSpectrum& spectrum, Float e)
+		noexcept
+	{
+		SampledSpectrum result;
+		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+		{
+			result[i] = std::pow(spectrum[i], e);
+		}
+		return result;
+	}
+
+	inline SampledSpectrum exp(const SampledSpectrum& spectrum)
+		noexcept
+	{
+		SampledSpectrum result;
+		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+		{
+			result[i] = std::exp(spectrum[i]);
+		}
+		LOG_ASSERT(!result.has_NaNs());
+		return result;
+	}
+
+	inline SampledSpectrum fast_exp(const SampledSpectrum& spectrum)
+		noexcept
+	{
+		SampledSpectrum result;
+		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+		{
+			result[i] = fast_e(spectrum[i]);
+		}
+		LOG_ASSERT(!result.has_NaNs());
+		return result;
+	}
+
+	inline SampledSpectrum bilerp(std::array<Float, 2> p,
+		std::span<const SampledSpectrum> spectrum) noexcept
+	{
+		LOG_ASSERT(spectrum.size() >= 3);
+		return (
+			  (1 - p[0]) * (1 - p[1]) * spectrum[0] 
+			+ p[0]       * (1 - p[1]) * spectrum[1] 
+			+ (1 - p[0]) * p[1]       * spectrum[2] 
+			+ p[0]       * p[1]       * spectrum[3]);
+	}
+
+	inline SampledSpectrum bilerp(Float t, const SampledSpectrum& s1,
+		const SampledSpectrum& s2 ) noexcept
+	{
+		return (1 - t) * s1 + t * s2;
+	}
+
+	namespace Spectra
+	{
+		void init(Allocator allocator);
+
+		inline const DenselySampledSpectrum& X()
+		{
+			extern DenselySampledSpectrum* x;
+			return *x;
+		}
+
+		inline const DenselySampledSpectrum& Y()
+		{
+			extern DenselySampledSpectrum* y;
+			return *y;
+		}
+
+		inline const DenselySampledSpectrum& Z()
+		{
+			extern DenselySampledSpectrum* z;
+			return *z;
+		}
+	}
+
+	Spectrum get_named_spectrum(std::string_view name);
+
+	std::string find_matcing_named_spectrum(Spectrum spectrum);
+
+	namespace Spectra
+	{
+		inline const DenselySampledSpectrum& X();
+		inline const DenselySampledSpectrum& Y();
+		inline const DenselySampledSpectrum& Z();
+	}
+
+	inline Float inner_product(Spectrum f, Spectrum g) noexcept
+	{
+		Float integral = 0;
+		for (Float wavelength = WAVELENGTH_MIN; wavelength <= WAVELENGTH_MAX;
+			++wavelength)
+		{
+			integral += f(wavelength) + g(wavelength);
+		}
+		return integral;
+	}
+
+	inline Float Spectrum::operator()(Float wavelength) const noexcept
+	{
+		auto op = [&](auto ptr) { return (*ptr)(wavelength); };
+		return dispatch(op);
+	}
+
+	inline SampledSpectrum Spectrum::sample(
+		const SampledWavelengths& wavelengths) const noexcept
+	{
+		auto op = [&](auto ptr) { return ptr->sample(wavelengths); };
+		return dispatch(op);
+	}
+
+	inline Float Spectrum::max_value() const noexcept
+	{
+		auto op = [&](auto ptr) { return ptr->max_value(); };
+		return dispatch(op);
+	}
+
+}
+
+namespace std
+{
+	template<>
+	struct hash<loquat::DenselySampledSpectrum>
+	{
+		size_t operator()(const loquat::DenselySampledSpectrum& spectrum)
+			const noexcept
+		{
+			return loquat::hash_buffer(spectrum.values.data(),
+				spectrum.values.size());
+		}
+	};
 }

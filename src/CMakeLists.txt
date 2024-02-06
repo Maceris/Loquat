@@ -40,6 +40,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/base/texture.h
   ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/float.h
+  ${HEADER_PATH}/pbr/math/hash.h
   ${HEADER_PATH}/pbr/math/interval.h
   ${HEADER_PATH}/pbr/math/math.h
   ${HEADER_PATH}/pbr/math/matrix.h
