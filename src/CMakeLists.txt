@@ -21,6 +21,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/main/vulkan_instance.h
   ${HEADER_PATH}/pbr/bsdf.h
   ${HEADER_PATH}/pbr/bxdfs.h
+  ${HEADER_PATH}/pbr/films.h
   ${HEADER_PATH}/pbr/light_samplers.h
   ${HEADER_PATH}/pbr/shapes.h
   ${HEADER_PATH}/pbr/base/bssrdf.h

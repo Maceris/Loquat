@@ -6,42 +6,67 @@
 
 #pragma once
 
-#include "pbr/base/spectrum.h"
+#include "main/loquat.h"
+#include "pbr/base/filter.h"
+#include "pbr/util/tagged_pointer.h"
+
+#include <string_view>
 
 namespace loquat
 {
-	class PixelSensor
+	class VisibleSurface;
+	class RGBFilm;
+	class GBufferFilm;
+	class SpectralFilm;
+	class PixelSensor;
+
+	class Film : public TaggedPointer<RGBFilm, GBufferFilm, SpectralFilm>
 	{
+	public:
+		using TaggedPointer::TaggedPointer;
 
-	};
+		inline void add_sample(Point2i point_film, SampledSpectrum spectrum,
+			const SampledWavelengths& wavelengths,
+			const VisibleSurface* visible_surface, Float weight) noexcept;
 
-	class VisibleSurface
-	{
+		inline AABB2f sample_bounds() const noexcept;
 
-	};
+		bool uses_visible_surface() const noexcept;
 
-	struct FilmBaseParameters
-	{
+		void add_splat(Point2f point, SampledSpectrum light_spectrum,
+			const SampledWavelengths& wavelengths) noexcept;
 
-	};
+		inline SampledWavelengths sample_wavelengths(Float sample_1D)
+			const noexcept;
 
-	class FilmBase
-	{
+		inline Point2i full_resolution() const noexcept;
+		inline AABB2i pixel_bounds() const noexcept;
+		inline Float diagonal() const noexcept;
 
-	};
+		void write_image(ImageMetadata metadata, Float splat_scale = 1)
+			noexcept;
 
-	class RGBFilm : public FilmBase
-	{
+		inline RGB to_output_RGB(SampledSpectrum light_spectrum,
+			const SampledWavelengths& wavelengths) const noexcept;
 
-	};
+		Image get_image(ImageMetadata* metadata, Float splat_scale = 1)
+			noexcept;
 
-	class GBufferFilm : public FilmBase
-	{
+		RGB get_pixel_RGB(Point2i point, Float splat_scale = 1) const noexcept;
 
-	};
+		inline Filter get_filter() const noexcept;
+		inline const PixelSensor* get_pixel_sensor() const noexcept;
 
-	class SpectralFilm : public FilmBase
-	{
+		std::string get_filename() const noexcept;
 
+		static Film create(std::string_view name,
+			const ParameterDictionary& parameters, Float exposure_time,
+			const CameraTransform& camera_transform, Filter filter,
+			Allocator allocator) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		inline void reset_pixel(Point2i point) noexcept;
 	};
 }

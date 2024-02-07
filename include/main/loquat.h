@@ -49,6 +49,8 @@ namespace loquat
 	class XYZ;
 	enum class SpectrumType;
 
+	class Image;
+	struct ImageMetadata;
 
 	template <typename T>
 	struct SOA;
