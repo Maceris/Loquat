@@ -28,16 +28,15 @@
 
 namespace loquat
 {
+	class AnimatedTransform;
+	class BilinearPatchMesh;
 	class Interaction;
 	class MediumInteraction;
-	class SurfaceInteraction;
 	class Ray;
 	class RayDifferential;
+	class SurfaceInteraction;
 	class Transform;
-
-	class Image;
-	class ParameterDictionary;
-	class TextureParameterDictionary;
+	class TriangleMesh;
 
 	class RGB;
 	class RGBColorSpace;
@@ -49,9 +48,26 @@ namespace loquat
 	class XYZ;
 	enum class SpectrumType;
 
+	class BSDF;
+	class CameraTransform;
 	class Image;
+	class ParameterDictionary;
+	struct NamedTextures;
+	class TextureParameterDictionary;
 	struct ImageMetadata;
+	class MediumInterface;
+	struct PBRTOptions;
+
+	class PiecewiseConstant1D;
+	class PiecewiseConstant2D;
+	class ProgressReporter;
+	class RNG;
+	struct FileLoc;
+	class Interval;
+	template <typename T>
+	class Array2D;
 
 	template <typename T>
 	struct SOA;
+	class ScratchBuffer;
 }
