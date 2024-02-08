@@ -120,7 +120,7 @@ namespace loquat
 		[[nodiscard]]
 		inline std::optional<LightIncidentSample> sample_light_incoming(
 			LightSampleContext context, Point2f point,
-			SampledWavelengths lambda,bool allow_incomplete_PDF = false)
+			SampledWavelengths lambda, bool allow_incomplete_PDF = false)
 			const noexcept;
 
 		/// <summary>
