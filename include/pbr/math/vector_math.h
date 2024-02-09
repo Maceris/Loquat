@@ -125,4 +125,37 @@ namespace loquat
 	{
 		return glm::dot(normal, vector) < 0.0f ? -normal : normal;
 	}
+
+	class DirectionCone
+	{
+	public:
+		DirectionCone() = default;
+
+		DirectionCone(Vec3f direction, Float cos_theta) noexcept
+			: direction{ glm::normalize(direction) }
+			, cos_theta{ cos_theta }
+		{}
+
+		explicit DirectionCone(Vec3f direction) noexcept
+			: DirectionCone(direction, 1)
+		{}
+
+		bool is_empty() const noexcept
+		{
+			return cos_theta == FLOAT_INFINITY;
+		}
+
+		static DirectionCone entire_sphere()
+		{
+			return DirectionCone{ Vec3f(0,0,1), -1 };
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		Vec3f closest_vector_in_cone(Vec3f vec) const noexcept;
+
+		Vec3f direction;
+		Float cos_theta = FLOAT_INFINITY;
+	};
 }
