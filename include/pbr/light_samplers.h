@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "main/loquat.h"
+#include "pbr/base/light.h"
 #include "pbr/base/light_sampler.h"
 
 namespace loquat
@@ -18,7 +20,9 @@ namespace loquat
 
 	class PowerLightSampler
 	{
-
+	public:
+		PowerLightSampler(std::span<const Light> lights, Allocator allocator)
+			noexcept;
 	};
 
 	class BVHLightSampler

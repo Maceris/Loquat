@@ -8,6 +8,7 @@
 
 #include <format>
 #include <optional>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -331,14 +332,67 @@ namespace loquat
 
 	class LightPathIntegrator : public ImageTileIntegrator
 	{
+	public:
 
+		LightPathIntegrator(int max_depth, Camera camera, Sampler sampler,
+			Primitive aggregate, std::vector<Light> lights) noexcept;
+
+		void evaluate_pixel_sample(Point2i pixel, int sample_index,
+			Sampler sampler, ScratchBuffer& scratch_buffer) noexcept;
+
+		static std::unique_ptr<LightPathIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
+			noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		int max_depth;
+		PowerLightSampler light_sampler;
 	};
 
 	struct Vertex;
 
 	class BDPTIntegrator : public RayIntegrator
 	{
+	public:
+		BDPTIntegrator(Camera camera, Sampler sampler, Primitive aggregate,
+			std::vector<Light> lights, int max_depth,
+			bool visualize_strategies, bool visualize_weights,
+			bool regularize = false) noexcept
+			:RayIntegrator(camera, sampler, aggregate, lights)
+			, max_depth{ max_depth }
+			, regularize{ regularize }
+			, light_sampler{ new PowerLightSampler(lights, Allocator()) }
+			, visualize_strategies{ visualize_strategies }
+			, visualize_weights{ visualize_weights }
+		{}
 
+		[[nodiscard]]
+		SampledSpectrum light_incoming(RayDifferential ray,
+			SampledWavelengths& lambda, Sampler sampler,
+			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
+			const noexcept;
+
+		static std::unique_ptr<BDPTIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
+			noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		void render() const noexcept;
+
+	private:
+		int max_depth;
+		bool regularize;
+		LightSampler light_sampler;
+		bool visualize_strategies;
+		bool visualize_weights;
+		mutable std::vector<Film> weight_films;
 	};
 
 	class MLTSampler;
