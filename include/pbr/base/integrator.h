@@ -455,9 +455,50 @@ namespace loquat
 		Float sigma;
 	};
 
+	/// <summary>
+	/// Stochastic Progressive Photon Mapping integrator.
+	/// </summary>
 	class SPPMIntegrator : public Integrator
 	{
+	public:
+		SPPMIntegrator(Camera camera, Sampler sampler, Primitive aggregate,
+			std::vector<Light> lights, int photons_per_iteration,
+			int max_depth, Float initial_search_radius, int seed,
+			const RGBColorSpace* color_space) noexcept
+			: Integrator{ aggregate, lights }
+			, camera{ camera }
+			, sampler_prototype{ sampler }
+			, max_depth{ max_depth }
+			, photons_per_iteration{ photons_per_iteration > 0 ?
+			photons_per_iteration : camera.get_film().pixel_bounds().area() }
+			, color_space{ color_space }
+			, digit_permutations_seed{ seed }
+		{}
 
+		static std::unique_ptr<SPPMIntegrator> create(
+			const ParameterDictionary& parameters, 
+			const RGBColorSpace* color_space, Camera camera, Sampler sampler,
+			Primitive aggregate, std::vector<Light> lights) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		void render();
+
+	private:
+
+		SampledSpectrum sample_direct_light(
+			const SurfaceInteraction& interaction, const BSDF& bsdf,
+			SampledWavelengths& wavelengths, Sampler sampler,
+			LightSampler light_sampler) const noexcept;
+
+		Camera camera;
+		Float initial_search_radius;
+		Sampler sampler_prototype;
+		int digit_permutations_seed;
+		int max_depth;
+		int photons_per_iteration;
+		const RGBColorSpace* color_space;
 	};
 
 	class FunctionIntegrator : public Integrator
