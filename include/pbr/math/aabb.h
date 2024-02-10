@@ -10,24 +10,26 @@
 
 namespace loquat
 {
-	template <typename PointType>
-		requires is_point<PointType>
+	template <template<typename U> typename PointBase, typename T>
+		requires is_point<PointBase<T>>
 	struct AABB;
 
-	using AABB1f = AABB<Point1f>;
-	using AABB1i = AABB<Point1i>;
+	using AABB1f = AABB<Point1, Float>;
+	using AABB1i = AABB<Point1, int>;
 
-	using AABB2f = AABB<Point2f>;
-	using AABB2i = AABB<Point2i>;
+	using AABB2f = AABB<Point2, Float>;
+	using AABB2i = AABB<Point2, int>;
 
-	using AABB3f = AABB<Point3f>;
-	using AABB3i = AABB<Point3i>;
+	using AABB3f = AABB<Point3, Float>;
+	using AABB3i = AABB<Point3, int>;
 
-	template <typename PointType>
-		requires is_point<PointType>
+	template <template<typename U> typename PointBase, typename T>
+		requires is_point<PointBase<T>>
 	struct AABB
 	{
 	public:
+		using PointType = PointBase<T>;
+
 		PointType min;
 		PointType max;
 
@@ -72,5 +74,11 @@ namespace loquat
 				vector::to_string(max));
 		}
 
+		T area() const noexcept
+			requires requires (PointType p) { p.x; p.y; }
+		{
+			PointType diagonal = max - min;
+			return diagonal.x * diagonal.y;
+		}
 	};
 }
