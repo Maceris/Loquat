@@ -142,4 +142,14 @@ namespace loquat
 		Mat4 matrix;
 		Mat4 matrix_inverse;
 	};
+
+	class AnimatedTransform
+	{
+	public:
+		AnimatedTransform() = default;
+
+		AABB3f motion_bounds(const AABB3f& bound) const;
+
+		//TODO(ches) finish this
+	};
 }
