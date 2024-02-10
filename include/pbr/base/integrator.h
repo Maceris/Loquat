@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <functional>
 #include <format>
 #include <optional>
 #include <memory>
@@ -340,6 +341,7 @@ namespace loquat
 		void evaluate_pixel_sample(Point2i pixel, int sample_index,
 			Sampler sampler, ScratchBuffer& scratch_buffer) noexcept;
 
+		[[nodiscard]]
 		static std::unique_ptr<LightPathIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
 			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
@@ -376,6 +378,7 @@ namespace loquat
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
 			const noexcept;
 
+		[[nodiscard]]
 		static std::unique_ptr<BDPTIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
 			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
@@ -421,6 +424,7 @@ namespace loquat
 
 		void render() noexcept;
 
+		[[nodiscard]]
 		static std::unique_ptr<MLTIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
 			Primitive aggregate, std::vector<Light> lights) noexcept;
@@ -434,6 +438,7 @@ namespace loquat
 		static constexpr int connection_stream_index = 2;
 		static constexpr int sample_stream_count = 3;
 
+		[[nodiscard]]
 		SampledSpectrum radiance(ScratchBuffer& scratch_buffer,
 			MLTSampler& sampler, int depth, Point2f* raster,
 			SampledWavelengths* wavelengths) noexcept;
@@ -475,6 +480,7 @@ namespace loquat
 			, digit_permutations_seed{ seed }
 		{}
 
+		[[nodiscard]]
 		static std::unique_ptr<SPPMIntegrator> create(
 			const ParameterDictionary& parameters, 
 			const RGBColorSpace* color_space, Camera camera, Sampler sampler,
@@ -487,6 +493,7 @@ namespace loquat
 
 	private:
 
+		[[nodiscard]]
 		SampledSpectrum sample_direct_light(
 			const SurfaceInteraction& interaction, const BSDF& bsdf,
 			SampledWavelengths& wavelengths, Sampler sampler,
@@ -503,7 +510,30 @@ namespace loquat
 
 	class FunctionIntegrator : public Integrator
 	{
+	public:
 
+		FunctionIntegrator(std::function<double(Point2f)> function,
+			std::string_view output_filename, Camera camera,
+			Sampler sampler, bool skip_bad, std::string_view image_filename)
+			noexcept;
+
+		[[nodiscard]]
+		static std::unique_ptr<FunctionIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Sampler sampler) noexcept;
+
+		void render();
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+
+	private:
+		std::function<double(Point2f)> function;
+		std::string output_filename;
+		Camera camera;
+		Sampler base_sampler;
+		bool skip_bad;
+		std::string image_filename;
 	};
 
 }
