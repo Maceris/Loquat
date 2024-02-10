@@ -397,9 +397,62 @@ namespace loquat
 
 	class MLTSampler;
 
+	/// <summary>
+	/// Metropolis Light Transport integrator.
+	/// </summary>
 	class MLTIntegrator : public Integrator
 	{
+	public:
+		MLTIntegrator(Camera camera, Primitive aggregate,
+			std::vector<Light> lights, int max_depth, int bootstrap_count,
+			int chain_count, int mutations_per_pixel, Float sigma,
+			Float large_step_probability, bool regularize) noexcept
+			: Integrator{ aggregate, lights }
+			, light_sampler{ new PowerLightSampler{lights, Allocator()} }
+			, camera{ camera }
+			, max_depth{ max_depth }
+			, bootstrap_count{ bootstrap_count }
+			, chain_count{ chain_count }
+			, mutations_per_pixel{ mutations_per_pixel }
+			, sigma{ sigma }
+			, large_step_probability{ large_step_probability }
+			, regularize{ regularize }
+		{}
 
+		void render() noexcept;
+
+		static std::unique_ptr<MLTIntegrator> create(
+			const ParameterDictionary& parameters, Camera camera,
+			Primitive aggregate, std::vector<Light> lights) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		static constexpr int camera_stream_index = 0;
+		static constexpr int light_stream_index = 1;
+		static constexpr int connection_stream_index = 2;
+		static constexpr int sample_stream_count = 3;
+
+		SampledSpectrum radiance(ScratchBuffer& scratch_buffer,
+			MLTSampler& sampler, int depth, Point2f* raster,
+			SampledWavelengths* wavelengths) noexcept;
+
+		static Float c(const SampledSpectrum& radiance,
+			const SampledWavelengths& wavelengths)
+		{
+			return radiance.y(wavelengths);
+		}
+
+		int bootstrap_count;
+		Camera camera;
+		int chain_count;
+		Float large_step_probability;
+		LightSampler light_sampler;
+		int max_depth;
+		int mutations_per_pixel;
+		bool regularize;
+		Float sigma;
 	};
 
 	class SPPMIntegrator : public Integrator

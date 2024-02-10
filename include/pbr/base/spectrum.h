@@ -257,10 +257,10 @@ namespace loquat
 			return false;
 		}
 
-		XYZ to_XYZ(const SampledSpectrum& lambda) const noexcept;
-		RGB to_RGB(const SampledSpectrum& lambda,
+		XYZ to_XYZ(const SampledWavelengths& lambda) const noexcept;
+		RGB to_RGB(const SampledWavelengths& lambda,
 			const RGBColorSpace& color_space) const noexcept;
-		Float y(const SampledSpectrum& lambda) const noexcept;
+		Float y(const SampledWavelengths& lambda) const noexcept;
 
 		SampledSpectrum() noexcept = default;
 

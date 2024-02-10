@@ -547,7 +547,8 @@ namespace loquat
 		TaggedPointer() = default;
 
 		template <typename T>
-		TaggedPointer(T* pointer) {
+		TaggedPointer(T* pointer)
+        {
 			uint64_t iptr = reinterpret_cast<uint64_t>(pointer);
 			LOG_ASSERT(iptr & POINTER_MASK == iptr
 				&& "Our pointer tagging is breaking the pointers");
