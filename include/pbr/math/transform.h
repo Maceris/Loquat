@@ -133,7 +133,7 @@ namespace loquat
 			const noexcept;
 
 		[[nodiscard]]
-		Vec3fi operator()(const Vec3fi& point) const noexcept;
+		Point3fi operator()(const Point3fi& point) const noexcept;
 
 		[[nodiscard]]
 		Point3fi apply_inverse(const Point3fi& point) const noexcept;
