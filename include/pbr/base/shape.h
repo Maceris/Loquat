@@ -65,7 +65,7 @@ namespace loquat
 			Point2f sample_2D) const noexcept;
 
 		inline Float PDf(const ShapeSampleContext& context,
-			Vec3f incoming) const noexcept;
+			Vec3f incident_direction) const noexcept;
 
 	};
 
