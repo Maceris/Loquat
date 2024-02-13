@@ -8,6 +8,9 @@
 
 #include "main/loquat.h"
 
+#include "pbr/base/light.h"
+#include "pbr/base/shape.h"
+#include "pbr/base/material.h"
 #include "pbr/math/transform.h"
 
 namespace loquat
