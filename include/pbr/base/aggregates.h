@@ -43,6 +43,7 @@ namespace loquat
 			SplitMethod split_method = SplitMethod::SurfaceAreaHeuristic)
 			noexcept;
 
+		[[nodiscard]]
 		static BVHAggregate* create(std::vector<Primitive> primitives,
 			const ParameterDictionary& parameters) noexcept;
 
@@ -64,11 +65,13 @@ namespace loquat
 		/// <summary>
 		/// Build Hiearchical Linear Bounding Volume Hierarchy.
 		/// </summary>
+		[[nodiscard]]
 		BVHBuildNode* build_HLBVH(Allocator allocator,
 			const std::vector<BVHPrimitive>& primitive_info,
 			std::atomic_ref<int> total_nodes,
 			std::vector<Primitive>& ordered_primitives) noexcept;
 
+		[[nodiscard]]
 		BVHBuildNode* emit_LBVH(BVHBuildNode*& build_nodes,
 			const std::vector<BVHPrimitive>& primitive_info,
 			MortonPrimitive* morton_primitives, int primitive_count,
@@ -76,6 +79,7 @@ namespace loquat
 			std::atomic_ref<int> ordered_primitives_offset, int bit_index)
 			noexcept;
 
+		[[nodiscard]]
 		BVHBuildNode* build_upper_SAH(Allocator allocator,
 			std::vector<BVHBuildNode*>& treelet_roots, int start,
 			int end, std::atomic_ref<int> total_nodes) const noexcept;
@@ -93,6 +97,44 @@ namespace loquat
 
 	class KdTreeAggregate
 	{
+	public:
+		KdTreeAggregate(std::vector<Primitive> primitives,
+			int intersection_cost = 5, int traversal_cost = 1,
+			Float empty_bonus = 0.5, int max_primitives = 1,
+			int max_depth = -1) noexcept;
+		
+		[[nodiscard]]
+		static KdTreeAggregate* create(std::vector<Primitive> primitives,
+			const ParameterDictionary& parameters) noexcept;
+
+		[[nodiscard]]
+		std::optional<ShapeIntersection> intersect(const Ray& ray,
+			float t_max) const noexcept;
+
+		AABB3f bounds() const noexcept
+		{
+			return cached_bounds;
+		}
+
+		bool has_intersection(const Ray& ray, float t_max) const noexcept;
+
+	private:
+		void build_tree(int node_number, const AABB3f& bounds,
+			const std::vector<AABB3f>& primitive_bounds,
+			std::span<const int> primitive_numbers, int depth,
+			std::vector<BoundEdge> edges[3], std::span<int> primitives0,
+			std::span<int> primitives1, int bad_refines);
+
+		int intersection_cost;
+		int traversal_cost;
+		int max_primitives;
+		Float empty_bonus;
+		std::vector<Primitive> primitives;
+		std::vector<int> primitive_indices;
+		KdTreeNode* nodes;
+		int allocated_node_count;
+		int next_free_node;
+		AABB3f cached_bounds;
 
 	};
 }
