@@ -36,6 +36,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/base/material.h
   ${HEADER_PATH}/pbr/base/medium.h
   ${HEADER_PATH}/pbr/base/primitive.h
+  ${HEADER_PATH}/pbr/base/render.h
   ${HEADER_PATH}/pbr/base/sampler.h
   ${HEADER_PATH}/pbr/base/shape.h
   ${HEADER_PATH}/pbr/base/spectrum.h
