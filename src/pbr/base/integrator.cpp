@@ -17,8 +17,7 @@ namespace loquat
 		SampledWavelengths& lambda, Sampler sampler,
 		ScratchBuffer& scratch_buffer, int depth) const noexcept
 	{
-#if 0
-		//TODO(ches) add this back once we have more types filled out
+#if ENABLE_WIP_CODE
 		std::optional<ShapeIntersection> intersection = intersect(ray);
 
 		if (!intersection)
