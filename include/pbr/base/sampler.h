@@ -38,7 +38,6 @@ namespace loquat
 	class MLTSampler;
 	class DebugMLTSampler;
 
-
 	class Sampler : public TaggedPointer<PMJ02BNSampler, IndependentSampler,
 		StratifiedSampler, HaltonSampler, PaddedSobolSampler, SobolSampler,
 		ZSobolSampler, MLTSampler, DebugMLTSampler>

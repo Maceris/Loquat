@@ -23,6 +23,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/bxdfs.h
   ${HEADER_PATH}/pbr/films.h
   ${HEADER_PATH}/pbr/light_samplers.h
+  ${HEADER_PATH}/pbr/samplers.h
   ${HEADER_PATH}/pbr/shapes.h
   ${HEADER_PATH}/pbr/base/aggregates.h
   ${HEADER_PATH}/pbr/base/bssrdf.h
@@ -85,6 +86,7 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/main/global_state.cpp
   ${SOURCE_PATH}/main/loquat.cpp
   ${SOURCE_PATH}/main/vulkan_instance.cpp
+  ${SOURCE_PATH}/pbr/samplers.cpp
   ${SOURCE_PATH}/pbr/base/integrator.cpp
   ${SOURCE_PATH}/pbr/math/transform.cpp
   ${SOURCE_PATH}/pbr/struct/interaction.cpp
