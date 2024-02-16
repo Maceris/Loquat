@@ -22,7 +22,9 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/bsdf.h
   ${HEADER_PATH}/pbr/bxdfs.h
   ${HEADER_PATH}/pbr/films.h
+  ${HEADER_PATH}/pbr/filters.h
   ${HEADER_PATH}/pbr/light_samplers.h
+  ${HEADER_PATH}/pbr/options.h
   ${HEADER_PATH}/pbr/samplers.h
   ${HEADER_PATH}/pbr/shapes.h
   ${HEADER_PATH}/pbr/base/aggregates.h
@@ -62,6 +64,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/color.h
   ${HEADER_PATH}/pbr/util/color_space.h
   ${HEADER_PATH}/pbr/util/parallel.h
+  ${HEADER_PATH}/pbr/util/sampling.h
   ${HEADER_PATH}/pbr/util/tagged_pointer.h
   ${HEADER_PATH}/pipeline/pipeline.h
   ${HEADER_PATH}/render/render.h
