@@ -57,6 +57,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/transform.h
   ${HEADER_PATH}/pbr/math/vec.h
   ${HEADER_PATH}/pbr/math/vector_math.h
+  ${HEADER_PATH}/pbr/struct/containers.h
   ${HEADER_PATH}/pbr/struct/image.h
   ${HEADER_PATH}/pbr/struct/interaction.h
   ${HEADER_PATH}/pbr/struct/parameter_dictionary.h
