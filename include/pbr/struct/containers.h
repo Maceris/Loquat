@@ -261,11 +261,11 @@ namespace loquat
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		InlinedVector(const Allocator& allocator = {})
+		InlinedVector(const Allocator& allocator = {}) noexcept
 			: allocator{ allocator }
 		{}
 		InlinedVector(size_t count, const value_type& value,
-			const Allocator& allocator = {})
+			const Allocator& allocator = {}) noexcept
 			: allocator{ allocator }
 		{
 			reserve(count);
@@ -275,11 +275,11 @@ namespace loquat
 			}
 			stored_count = count;
 		}
-		InlinedVector(size_t count, const Allocator& allocator = {})
+		InlinedVector(size_t count, const Allocator& allocator = {}) noexcept
 			: InlinedVector{ count, T{}, allocator }
 		{}
 		InlinedVector(const InlinedVector& other,
-			const Allocator& allocator = {})
+			const Allocator& allocator = {}) noexcept
 			: allocator{ allocator }
 		{
 			reserve(other.size());
@@ -291,7 +291,7 @@ namespace loquat
 		}
 		template <class InputIterator>
 		InlinedVector(InputIterator first, InputIterator last,
-			const Allocator& allocator = {})
+			const Allocator& allocator = {}) noexcept
 			: allocator{ allocator }
 		{
 			reserve(last - first);
@@ -302,7 +302,7 @@ namespace loquat
 					*iterator);
 			}
 		}
-		InlinedVector(InlinedVector&& other)
+		InlinedVector(InlinedVector&& other) noexcept
 			: allocator{ other.allocator }
 		{
 			stored_count = other.stored_count;
@@ -325,6 +325,7 @@ namespace loquat
 		}
 
 		InlinedVector(InlinedVector&& other, const Allocator& allocator)
+			noexcept
 		{
 			if (allocator == other.allocator)
 			{
@@ -354,7 +355,7 @@ namespace loquat
 			}
 		}
 
-		InlinedVector& operator=(const InlinedVector& other)
+		InlinedVector& operator=(const InlinedVector& other) noexcept
 		{
 			if (this == &other)
 			{
@@ -372,7 +373,7 @@ namespace loquat
 			return *this;
 		}
 
-		InlinedVector& operator=(InlinedVector&& other)
+		InlinedVector& operator=(InlinedVector&& other) noexcept
 		{
 			if (this == &other)
 			{
@@ -409,7 +410,7 @@ namespace loquat
 			return *this;
 		}
 
-		InlinedVector& operator=(std::initializer_list<T>& init)
+		InlinedVector& operator=(std::initializer_list<T>& init) noexcept
 		{
 			clear();
 			reserve(init.size());
@@ -421,7 +422,7 @@ namespace loquat
 			return *this;
 		}
 
-		void assign(size_t count, const T& value)
+		void assign(size_t count, const T& value) noexcept
 		{
 			clear();
 			reserve(count);
@@ -434,7 +435,7 @@ namespace loquat
 
 		template <class InputIterator>
 			requires requires(InputIterator a, InputIterator b) { b - a; }
-		void assign(InputIterator first, InputIterator last)
+		void assign(InputIterator first, InputIterator last) noexcept
 		{
 			difference_type count = last - first;
 			if (count <= 0)
@@ -453,81 +454,81 @@ namespace loquat
 			}
 		}
 
-		void assign(std::initializer_list<T>& init)
+		void assign(std::initializer_list<T>& init) noexcept
 		{
 			assign(init.begin(), init.end());
 		}
 
-		~InlinedVector()
+		~InlinedVector() noexcept
 		{
 			clear();
 			allocator.deallocate_object(pointer, allocated_count);
 		}
 
-		iterator begin()
+		iterator begin() noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
-		iterator end()
+		iterator end() noexcept
 		{
 			return begin() + stored_count;
 		}
-		const_iterator begin() const
+		const_iterator begin() const noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
-		const_iterator end() const
+		const_iterator end() const noexcept
 		{
 			return begin() + stored_count;
 		}
-		const_iterator cbegin() const
+		const_iterator cbegin() const noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
-		const_iterator cend() const
+		const_iterator cend() const noexcept
 		{
 			return begin() + stored_count;
 		}
 
-		reverse_iterator rbegin()
+		reverse_iterator rbegin() noexcept
 		{
 			return reverse_iterator{ end() };
 		}
-		reverse_iterator rend()
+		reverse_iterator rend() noexcept
 		{
 			return reverse_iterator{ begin() };
 		}
-		const_reverse_iterator rbegin() const
+		const_reverse_iterator rbegin() const noexcept
 		{
 			return const_reverse_iterator{ end() };
 		}
-		const_reverse_iterator rend() const
+		const_reverse_iterator rend() const noexcept
 		{
 			return const_reverse_iterator{ begin() };
 		}
 
-		Allocator get_allocator() const
+		Allocator get_allocator() const noexcept
 		{
 			return allocator;
 		}
-		size_t size() const
+		size_t size() const noexcept
 		{
 			return stored_count;
 		}
-		bool empty() const
+		bool empty() const noexcept
 		{
 			return size() == 0;
 		}
-		size_t max_size() const
+		size_t max_size() const noexcept
 		{
 			return (size_t)-1;
 		}
-		size_t capacity() const
+		size_t capacity() const noexcept
 		{
 			return pointer ? allocated_count : N;
 		}
 
-		void reserve(size_t n)
+		void reserve(size_t n) noexcept
 		{
 			if (capacity() >= N)
 			{
@@ -547,7 +548,7 @@ namespace loquat
 			pointer = reserved;
 		}
 
-		void shrink_to_fit()
+		void shrink_to_fit() noexcept
 		{
 			if (capacity() >= n)
 				return;
@@ -570,44 +571,44 @@ namespace loquat
 			pointer = reserved;
 		}
 
-		T& operator[](size_t index)
+		T& operator[](size_t index) noexcept
 		{
 			LOG_ASSERT(index <= size() && "Index out of bounds");
 			return begin()[index];
 		}
 
-		const T& operator[](size_t index) const
+		const T& operator[](size_t index) const noexcept
 		{
 			LOG_ASSERT(index <= size() && "Index out of bounds");
 			return begin()[index];
 		}
 
-		T& front()
+		T& front() noexcept
 		{
 			return *begin();
 		}
-		const T& front() const
+		const T& front() const noexcept
 		{
 			return *begin();
 		}
-		T& back()
+		T& back() noexcept
 		{
 			return *(begin() + stored_count - 1);
 		}
-		const T& back() const
+		const T& back() const noexcept
 		{
 			return *(begin() + stored_count - 1);
 		}
-		T* data()
+		T* data() noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
-		const T* data() const
+		const T* data() const noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
 
-		void clear()
+		void clear() noexcept
 		{
 			for (int i = 0; i < stored_count; ++i)
 			{
@@ -616,23 +617,24 @@ namespace loquat
 			stored_count = 0;
 		}
 
-		iterator insert(const_iterator position, const T& value)
+		iterator insert(const_iterator position, const T& value) noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
 		}
-		iterator insert(const_iterator position, T&& value)
+		iterator insert(const_iterator position, T&& value) noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
 		}
 		iterator insert(const_iterator position, size_t count, const T& value)
+			noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
 		}
 		template <class InputIterator>
-		iterator insert(const_iterator position)
+		iterator insert(const_iterator position) noexcept
 		{
 			if (position == end())
 			{
@@ -652,24 +654,25 @@ namespace loquat
 			}
 		}
 		iterator insert(const_iterator position, std::initializer_list<T> init)
+			noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
 		}
 		template <class... Args>
-		iterator emplace(const_iterator pos, Args &&... args)
+		iterator emplace(const_iterator pos, Args &&... args) noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
 		}
 		template <class... Args>
-		iterator emplace_back(Args &&... args)
+		iterator emplace_back(Args &&... args) noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
 		}
 
-		iterator erase(const_iterator cpos)
+		iterator erase(const_iterator cpos) noexcept
 		{
 			iterator pos = const_cast<iterator>(cpos);
 			while (pos != end() - 1)
@@ -681,13 +684,13 @@ namespace loquat
 			--stored_count;
 			return const_cast<iterator>(cpos);
 		}
-		iterator erase(const_iterator first, const_iterator last)
+		iterator erase(const_iterator first, const_iterator last) noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
 		}
 
-		void push_back(const T& value)
+		void push_back(const T& value) noexcept
 		{
 			if (size() == capacity())
 			{
@@ -696,7 +699,7 @@ namespace loquat
 			allocator.construct(begin() stored_count, value);
 			++stored_count;
 		}
-		void push_back(T&& value)
+		void push_back(T&& value) noexcept
 		{
 			if (size() == capacity())
 			{
@@ -705,14 +708,14 @@ namespace loquat
 			allocator.construct(begin() stored_count, std::move(value));
 			++stored_count;
 		}
-		void pop_back()
+		void pop_back() noexcept
 		{
 			LOG_ASSERT(!empty());
 			allocator.destroy(begin() + stored_count - 1);
 			--stored_count;
 		}
 
-		void resize(size_t n)
+		void resize(size_t n) noexcept
 		{
 			if (n < size())
 			{
@@ -731,12 +734,12 @@ namespace loquat
 			}
 			stored_count = n;
 		}
-		void resize(size_t count, const T& value)
+		void resize(size_t count, const T& value) noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
 		}
-		void swap(InlinedVector& other)
+		void swap(InlinedVector& other) noexcept
 		{
 			LOG_FATAL("Not yet implemented");
 			// TODO(ches) implement this
