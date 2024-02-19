@@ -10,9 +10,26 @@
 
 #include "pbr/base/filter.h"
 #include "pbr/math/math.h"
+#include "pbr/struct/containers.h"
 #include "pbr/util/sampling.h"
 
 namespace loquat
 {
+	struct FilterSample
+	{
+		Point2f p;
+		Float weight;
+	};
+
+	class FilterSampler
+	{
+	public:
+
+	private:
+		AABB2f domain;
+		Array2D<Float> f;
+		PiecewiseConstant2D distribution;
+	};
+
 	//TODO(ches) complete this
 }

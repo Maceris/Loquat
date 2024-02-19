@@ -11,4 +11,22 @@
 namespace loquat
 {
 	//TODO(ches) complete this
+
+	class PiecewiseConstant1D
+	{
+	public:
+
+	private:
+
+	};
+
+	class PiecewiseConstant2D
+	{
+	public:
+
+	private:
+		AABB2f domain;
+		std::vector<PiecewiseConstant1D> conditional_densities;
+		PiecewiseConstant1D marginal_density;
+	};
 }

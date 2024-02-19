@@ -158,4 +158,27 @@ namespace loquat
 		Vec3f direction;
 		Float cos_theta = FLOAT_INFINITY;
 	};
+
+	template <typename T>
+	inline bool inside_exclusive(Point2<T> point,
+		const AABB<Point2, T>& bounds)
+	{
+		return point.x >= bounds.min.x
+			&& point.x < bounds.max.x
+			&& point.y >= bounds.min.y
+			&& point.y < bounds.min.y;
+	}
+
+	template <typename T>
+	inline bool inside_exclusive(Point3<T> point,
+		const AABB<Point3, T>& bounds)
+	{
+		return point.x >= bounds.min.x
+			&& point.x < bounds.max.x
+			&& point.y >= bounds.min.y
+			&& point.y < bounds.min.y
+			&& point.z >= bounds.min.z
+			&& point.z < bounds.min.z;
+	}
+
 }
