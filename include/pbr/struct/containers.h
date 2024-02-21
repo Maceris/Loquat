@@ -760,5 +760,19 @@ namespace loquat
 		size_type stored_count = 0;
 	};
 
+	template <typename Key, typename Value, typename Hash = std::hash<Key>,
+		typename Allocator = AllocatorBase<std::optional<std::pair<Key, Value>>>
+	>
+	class HashMap
+	{
+	public:
+		using TableEntry = std::optional<std::pair<Key, Value>>;
+
+	private:
+		std::vector<TableEntry> table;
+		size_t stored_count = 0;
+	};
+
+
 	//TODO(ches) complete this
 }
