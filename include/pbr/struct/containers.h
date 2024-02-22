@@ -768,7 +768,174 @@ namespace loquat
 	public:
 		using TableEntry = std::optional<std::pair<Key, Value>>;
 
+		class Iterator
+		{
+		public:
+			Iterator& operator++() noexcept
+			{
+				while (++pointer < end && !pointer->has_value())
+				{
+					// Nothing required here
+				}
+				return *this;
+			}
+
+			Iterator operator++(int) noexcept
+			{
+				Iterator old = *this;
+				operator++();
+				return old;
+			}
+
+			bool operator==(const Iterator& other) const noexcept
+			{
+				return pointer == other.pointer;
+			}
+
+			bool operator!=(const Iterator& other) const noexcept
+			{
+				return pointer != other.pointer;
+			}
+
+			std::pair<Key, Value>& operator*() noexcept
+			{
+				return pointer->value();
+			}
+
+			const std::pair<Key, Value>& operator*() const noexcept
+			{
+				return pointer->value();
+			}
+
+			std::pair<Key, Value>* operator->() noexcept
+			{
+				return &pointer->value();
+			}
+
+			const std::pair<Key, Value>* operator->() const noexcept
+			{
+				return &pointer->value();
+			}
+
+		private:
+			friend class HashMap;
+			Iterator(TableEntry* pointer, TableEntry* end) noexcept
+				: pointer{ pointer }
+				, end{ end }
+			{}
+			TableEntry* pointer;
+			TableEntry* end;
+		};
+
+		using iterator = Iterator;
+		using const_iterator = const iterator;
+
+		size_t size() const noexcept
+		{
+			return stored_count;
+		}
+
+		size_t capacity() const noexcept
+		{
+			return table.size();
+		}
+
+		void clear() noexcept
+		{
+			table.clear();
+			stored_count = 0;
+		}
+
+		HashMap(Allocator allocator)
+			: table{ 8, allocator }
+		{}
+
+		HashMap(const HashMap&) = delete;
+		HashMap& operator=(const HashMap&) = delete;
+
+		void insert(const Key& key, const Value& value) noexcept
+		{
+			size_t offset = find_offset(key);
+			if (!table[offset].has_value())
+			{
+				if (3 * ++stored_count > capacity())
+				{
+					grow();
+					offset = find_offset(key);
+				}
+			}
+			table[offset] = std::make_pair(key, value);
+		}
+
+		bool has_key(const Key& key) const noexcept
+		{
+			return table[find_offset(key)].has_value();
+		}
+
+		const Value& operator[](const Key& key) const noexcept
+		{
+			size_t offset = find_offset(key);
+			LOG_ASSERT(table[offset].has_value() && "Key not found");
+			return table[offset]->second;
+		}
+
+		iterator begin() noexcept
+		{
+			Iterator iterator{ table.data(), table.data() + capacity() };
+			while (iterator.pointer < iterator.end
+				&& !iterator.pointer->has_value())
+			{
+				++iterator.pointer;
+			}
+			return iterator;
+		}
+
 	private:
+
+		size_t find_offset(const Key& key) const noexcept
+		{
+			size_t base_offset = hash()(key) & (capacity() - 1);
+			for (int probe_count = 0;/* nothing */; ++probe_count)
+			{
+				size_t offset = (base_offset + probe_count / 2
+					+ probe_count * probe_count / 2) & (capacity() - 1);
+				if (!table[offset].has_value() || key == table[offset]->first)
+				{
+					return offset;
+				}
+			}
+			LOG_FATAL("Offset not found");
+		}
+
+		void grow() noexcept
+		{
+			size_t current_capacity = capacity();
+			std::vector<TableEntry> new_table{
+				std::max<size_t>(64, 2 * current_capacity),
+				table.get_allocator() };
+			size_t new_capacity = new_table.size();
+			for (size_t i = 0; i < current_capacity; ++i)
+			{
+				if (!table[i].has_value())
+				{
+					continue;
+				}
+				size_t base_offset = hash()(table[i]->first) 
+					& (new_capacity - 1);
+				for (int probe_count = 0; /* nothing */; ++probe_count)
+				{
+					size_t offset = (base_offset + probe_count / 2
+						+ probe_count * probe_count / 2) & (capacity() - 1);
+					if (!new_table[offset])
+					{
+						new_table[offset] = std::move(*table[i]);
+						break;
+					}
+				}
+			}
+			table = std::move(new_table);
+		}
+
 		std::vector<TableEntry> table;
 		size_t stored_count = 0;
 	};
