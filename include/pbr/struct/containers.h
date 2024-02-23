@@ -940,6 +940,162 @@ namespace loquat
 		size_t stored_count = 0;
 	};
 
+	template <typename T>
+	class SampleGrid
+	{
+	public:
+		using const_iterator = typename std::vector<T>::const_iterator;
+
+		SampleGrid() noexcept = default;
+		SampleGrid(Allocator allocator) noexcept
+			: values{ allocator }
+		{}
+		SampleGrid(std::span<const T> values, int nx, int ny, int nz,
+			Allocator allocator) noexcept
+			: values{ values.begin(), values.end(), allocator }
+			, nx{ nx }
+			, ny{ ny }
+			, nz{ nz }
+		{
+			LOG_ASSERT(nx * ny * nz == value.size());
+		}
+
+		size_t bytes_allocated() const noexcept
+		{
+			return values.size() * sizeof(T);
+		}
+		int size_x() const noexcept
+		{
+			return nx;
+		}
+		int size_y() const noexcept
+		{
+			return ny;
+		}
+		int size_z() const noexcept
+		{
+			return nz;
+		}
+
+		const_iterator begin() const noexcept
+		{
+			return values.begin();
+		}
+		const_iterator end() const noexcept
+		{
+			return values.end();
+		}
+
+		template <std::invocable<Float> F>
+		auto lookup(Point3f point, F convert) const noexcept
+		{
+			Point3f samples{ point.x * nx - 0.5f, point.y * ny - 0.5f, 
+				point.z * nz - 0.5f };
+			Point3i pi = glm::floor(samples);
+			Vec3f d = samples - pi;
+
+			//NOTE(ches) trilinearly interpolated voxel values
+			auto d00 = lerp(d.x, lookup(pi, convert),
+				lookup(pi + Vec3i(1, 0, 0), convert));
+			auto d10 = lerp(d.x, lookup(pi + Vec3i(0, 1, 0), convert),
+				lookup(pi + Vec3i(1, 1, 0), convert));
+			auto d01 = lerp(d.x, lookup(pi + Vec3i(0, 0, 1), convert),
+				lookup(pi + Vec3i(1, 0, 1), convert));
+			auto d11 = lerp(d.x, lookup(pi + Vec3i(0, 1, 1), convert),
+				lookup(pi + Vec3i(1, 1, 1), convert));
+			
+			return lerp(d.z, lerp(d.y, d00, d10), lerp(d.y, d01, d11));
+		}
+
+		T lookup(Point3f point) const noexcept
+		{
+			Point3f samples{ point.x * nx - 0.5f, point.y * ny - 0.5f,
+				point.z * nz - 0.5f };
+			Point3i pi = glm::floor(samples);
+			Vec3f d = samples - pi;
+
+			//NOTE(ches) trilinearly interpolated voxel values
+			auto d00 = lerp(d.x, lookup(pi),
+				lookup(pi + Vec3i(1, 0, 0)));
+			auto d10 = lerp(d.x, lookup(pi + Vec3i(0, 1, 0)),
+				lookup(pi + Vec3i(1, 1, 0)));
+			auto d01 = lerp(d.x, lookup(pi + Vec3i(0, 0, 1)),
+				lookup(pi + Vec3i(1, 0, 1)));
+			auto d11 = lerp(d.x, lookup(pi + Vec3i(0, 1, 1)),
+				lookup(pi + Vec3i(1, 1, 1)));
+			return lerp(d.z, lerp(d.y, d00, d10), lerp(d.y, d01, d11));
+		}
+
+		template <std::invocable<Float> F>
+		auto lookup(const Point3f point, F convert) const noexcept
+		{
+			AABB3i sample_bounds{ Point3i{0,0,0}, Point3i{nx, ny, nz} };
+			if (!inside_exclusive(point, sample_bounds))
+			{
+				return convert(T{});
+			}
+			return convert(values[(point.z * ny + point.y) * nx + point.x]);
+		}
+
+		T lookup(const Point3f point) const noexcept
+		{
+			AABB3i sample_bounds{ Point3i{0,0,0}, Point3i{nx, ny, nz} };
+			if (!inside_exclusive(point, sample_bounds))
+			{
+				return T{};
+			}
+			return values[(point.z * ny + point.y) * nx + point.x];
+		}
+
+		template <std::invocable<Float> F>
+		Float max_value(const AABB3f& bounds, F convert) const noexcept
+		{
+			Point3f ps[2] = {
+				Point3f{bounds.min.x * nx - 0.5f,
+					bounds.min.y * ny - 0.5f, bounds.min.z * nz - 0.5f},
+				Point3f{bounds.max.x * nx - 0.5f,bounds.max.y * ny - 0.5f,
+					bounds.max.z * nz - 0.5f} 
+			};
+			Point3i pi[2] = {
+				max(Point3i{floor(ps[0])}, Point3i{0, 0, 0}), 
+				min(floor(ps[1]) + Vec3i{1, 1, 1}, 
+					Point3i{nx - 1, ny - 1, nz - 1}
+			};
+
+			Float max_value = lookup(Point3i(pi[0]), convert);
+			for (int z = pi[0].z; z <= pi[1].z; ++z)
+			{
+				for (int y = pi[0].y; y <= pi[1].y; ++y)
+				{
+					for (int x = pi[0].x; x <= pi[1].x; ++x)
+					{
+						max_value = std::max(max_value, 
+							lookup(Point3i(x, y, z), convert));
+					}
+				}
+			}
+			return max_value;
+		}
+
+		T max_value(const AABB3f& bounds) const noexcept
+		{
+			return max_value(bounds, [](T value) {return value; });
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept
+		{
+			return std::format(
+				"[ SampleGrid nx: {}, ny: {}, nz:{}, values: {} ]",
+				nx, ny, nz, values);
+		}
+
+	private:
+		std::vector<T> values;
+		int nx;
+		int ny;
+		int nz;
+	};
 
 	//TODO(ches) complete this
 }
