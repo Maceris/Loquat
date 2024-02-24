@@ -1099,5 +1099,132 @@ namespace loquat
 		int nz;
 	};
 
-	//TODO(ches) complete this
+	template <typename T, typename Hash = std::hash<T>>
+	class InternCache
+	{
+	public:
+		InternCache(Allocator allocator = {}) noexcept
+			: hash_table(256, allocator)
+			, buffer_resource(allocator.resource())
+			, item_allocator(&buffer_resource)
+		{}
+
+		template <std::invocable F>
+		const T* lookup(const T& item, F create) noexcept
+		{
+			size_t offset = Hash()(item) % hash_table.size();
+			int step = 1;
+			mutex.lock_shared();
+			while (true)
+			{
+				//NOTE(ches) check for provided item
+				if (!hash_table[offset])
+				{
+					mutex.unlock_shared();
+					mutex.lock();
+					//NOTE(ches) double-check another thread hasn't inserted it
+					size_t offset = Hash()(item) % hash_table.size();
+					int step = 1;
+					while (true)
+					{
+						if (!hash_table[offset])
+						{
+							//NOTE(ches) not in the table.
+							break;
+						}
+						else if (*hash_table[offset] == item)
+						{
+							//NOTE(ches) another thread has inserted
+							const T* result = hash_table[offset];
+							mutex.unlock();
+							return result;
+						}
+						else
+						{
+							//NOTE(ches) collision
+							offset += step;
+							++step;
+							offset %= hash_table.size();
+						}
+					}
+
+					//NOTE(ches) grow the hash table if it's too full
+					if (entry_count * 4 > hash_table.size())
+					{
+						std::vector<const T*> new_hash{ hash_table.size() * 2,
+							hash_table.get_allocator() };
+						for (const T* pointer : hash_table)
+						{
+							if (pointer)
+							{
+								insert(pointer, &new_hash);
+							}
+						}
+						hash_table.swap(new_hash);
+					}
+
+					//NOTE(ches) allocate a new entry and add it
+					++entry_count;
+					T* new_pointer = create(item_allocator, item);
+					insert(new_pointer, &hash_table);
+					mutex.unlock();
+					return new_pointer;
+				}
+				else if (*hash_table[offset] == item)
+				{
+					//NOTE(ches) we found the item
+					const T* result = hash_table[offset];
+					mutex.unlock_shared();
+					return result;
+				}
+				else
+				{
+					//NOTE(ches) we had a collision
+					offset += step;
+					++step;
+					offset %= hash_table.size();
+				}
+			}
+		}
+
+		const T* lookup(const T& item) noexcept
+		{
+			return lookup(item, [](Allocator allocator, const T& item)
+				{
+					return allocator.new_object<T>(item);
+				});
+		}
+
+		size_t size() const noexcept
+		{
+			return entry_count;
+		}
+
+		size_t capacity() const noexcept
+		{
+			return hash_table.size();
+		}
+
+	private:
+		void insert(const T* pointer, std::vector<const T*>* table) noexcept
+		{
+			size_t offset = Hash()(*pointer) % table->size();
+			int step = 1;
+			while ((*table)[offset])
+			{
+				offset += step;
+				++step;
+				offset %= table->size();
+			}
+			//NOTE(ches) next free entry in hash table
+			(*table)[offset] = pointer;
+		}
+
+		std::pmr::monotonic_buffer_resource buffer_resource;
+		Allocator item_allocator;
+		size_t entry_count = 0;
+		std::vector<const T*> hash_table;
+		std::shared_mutex mutex;
+	};
+
 }
