@@ -6,6 +6,15 @@
 
 #pragma once
 
+#include "main/loquat.h"
+
+#include "pbr/base/sampler.h"
+#include "pbr/filters.h"
+#include "pbr/options.h"
+#include "pbr/math/hash.h"
+#include "pbr/math/math.h"
+#include "pbr/math/vector_math.h"
+
 namespace loquat
 {
 

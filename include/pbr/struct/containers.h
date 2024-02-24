@@ -7,6 +7,7 @@
 #pragma once
 
 #include "main/loquat.h"
+#include "pbr/math/hash.h"
 #include "pbr/math/vector_math.h"
 
 #include <algorithm>
@@ -37,7 +38,7 @@ namespace loquat
 			: Array2D{ {0, 0}, {0, 0}, allocator }
 		{}
 
-		Array2D(AABB2i extent, Allocator allocator = {}) noexcept
+		Array2D(AABB2i extent, allocator_type allocator = {}) noexcept
 			: extent{ extent }
 			, allocator{ allocator }
 		{
@@ -50,7 +51,7 @@ namespace loquat
 		}
 		
 		Array2D(AABB2i extent, T def, allocator_type allocator = {}) noexcept
-			: Array2D{ extent, allcator }
+			: Array2D{ extent, allocator }
 		{
 			std::ranges::fill(begin(), end(), def);
 			
@@ -147,8 +148,8 @@ namespace loquat
 			LOG_ASSERT(inside_exclusive(point, extent)
 				&& "Array2D index out of bounds");
 
-			p.x -= extent.min.x;
-			p.y -= extent.min.y;
+			point.x -= extent.min.x;
+			point.y -= extent.min.y;
 			return values[point.x + (extent.max.x - extent.min.x) * point.y];
 		}
 
@@ -167,8 +168,8 @@ namespace loquat
 			LOG_ASSERT(inside_exclusive(point, extent)
 				&& "Array2D index out of bounds");
 
-			p.x -= extent.min.x;
-			p.y -= extent.min.y;
+			point.x -= extent.min.x;
+			point.y -= extent.min.y;
 			return values[point.x + (extent.max.x - extent.min.x) * point.y];
 		}
 
@@ -239,17 +240,17 @@ namespace loquat
 
 	private:
 		AABB2i extent;
-		Allocator allocator;
+		allocator_type allocator;
 		T* values;
 	};
 
 
-	template <typename T, int N, class Allocator = AllocatorBase<T>>
+	template <typename T, int N, class AllocatorT = AllocatorBase<T>>
 	class InlinedVector
 	{
 	public:
 		using value_type = T;
-		using allocator_type = Allocator;
+		using allocator_type = AllocatorT;
 		using size_type = std::size_t;
 		using difference_type = std::ptrdiff_t;
 		using reference_type = value_type&;
@@ -261,11 +262,11 @@ namespace loquat
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		InlinedVector(const Allocator& allocator = {}) noexcept
+		InlinedVector(const AllocatorT& allocator = {}) noexcept
 			: allocator{ allocator }
 		{}
 		InlinedVector(size_t count, const value_type& value,
-			const Allocator& allocator = {}) noexcept
+			const AllocatorT& allocator = {}) noexcept
 			: allocator{ allocator }
 		{
 			reserve(count);
@@ -275,11 +276,11 @@ namespace loquat
 			}
 			stored_count = count;
 		}
-		InlinedVector(size_t count, const Allocator& allocator = {}) noexcept
+		InlinedVector(size_t count, const AllocatorT& allocator = {}) noexcept
 			: InlinedVector{ count, T{}, allocator }
 		{}
 		InlinedVector(const InlinedVector& other,
-			const Allocator& allocator = {}) noexcept
+			const AllocatorT& allocator = {}) noexcept
 			: allocator{ allocator }
 		{
 			reserve(other.size());
@@ -291,7 +292,7 @@ namespace loquat
 		}
 		template <class InputIterator>
 		InlinedVector(InputIterator first, InputIterator last,
-			const Allocator& allocator = {}) noexcept
+			const AllocatorT& allocator = {}) noexcept
 			: allocator{ allocator }
 		{
 			reserve(last - first);
@@ -313,7 +314,7 @@ namespace loquat
 				for (int i = 0; i < other.stored_count; ++i)
 				{
 					this->allocator.template construct<T>(fixed + i,
-						std::move(other.fixed[i]);
+						std::move(other.fixed[i]));
 				}
 			}
 			else
@@ -324,7 +325,7 @@ namespace loquat
 			other.pointer = nullptr;
 		}
 
-		InlinedVector(InlinedVector&& other, const Allocator& allocator)
+		InlinedVector(InlinedVector&& other, const AllocatorT& allocator)
 			noexcept
 		{
 			if (allocator == other.allocator)
@@ -507,7 +508,7 @@ namespace loquat
 			return const_reverse_iterator{ begin() };
 		}
 
-		Allocator get_allocator() const noexcept
+		AllocatorT get_allocator() const noexcept
 		{
 			return allocator;
 		}
@@ -548,7 +549,7 @@ namespace loquat
 			pointer = reserved;
 		}
 
-		void shrink_to_fit() noexcept
+		void shrink_to_fit(size_t n) noexcept
 		{
 			if (capacity() >= n)
 				return;
@@ -634,7 +635,8 @@ namespace loquat
 			// TODO(ches) implement this
 		}
 		template <class InputIterator>
-		iterator insert(const_iterator position) noexcept
+		iterator insert(const_iterator position, InputIterator first,
+			InputIterator last) noexcept
 		{
 			if (position == end())
 			{
@@ -696,7 +698,7 @@ namespace loquat
 			{
 				reserve(2 * capacity());
 			}
-			allocator.construct(begin() stored_count, value);
+			allocator.construct(begin(), stored_count, value);
 			++stored_count;
 		}
 		void push_back(T&& value) noexcept
@@ -705,7 +707,7 @@ namespace loquat
 			{
 				reserve(2 * capacity());
 			}
-			allocator.construct(begin() stored_count, std::move(value));
+			allocator.construct(begin(), stored_count, std::move(value));
 			++stored_count;
 		}
 		void pop_back() noexcept
@@ -746,7 +748,7 @@ namespace loquat
 		}
 
 	private:
-		Allocator allocator;
+		AllocatorT allocator;
 		/// <summary>
 		/// A pointer to the contents, or nullptr if we are using fixed[].
 		/// </summary>
@@ -761,7 +763,7 @@ namespace loquat
 	};
 
 	template <typename Key, typename Value, typename Hash = std::hash<Key>,
-		typename Allocator = AllocatorBase<std::optional<std::pair<Key, Value>>>
+		typename AllocatorT = AllocatorBase<std::optional<std::pair<Key, Value>>>
 	>
 	class HashMap
 	{
@@ -846,7 +848,7 @@ namespace loquat
 			stored_count = 0;
 		}
 
-		HashMap(Allocator allocator)
+		HashMap(AllocatorT allocator)
 			: table{ 8, allocator }
 		{}
 
@@ -957,7 +959,7 @@ namespace loquat
 			, ny{ ny }
 			, nz{ nz }
 		{
-			LOG_ASSERT(nx * ny * nz == value.size());
+			LOG_ASSERT(nx * ny * nz == values.size());
 		}
 
 		size_t bytes_allocated() const noexcept
@@ -1027,7 +1029,7 @@ namespace loquat
 		}
 
 		template <std::invocable<Float> F>
-		auto lookup(const Point3f point, F convert) const noexcept
+		auto lookup(const Point3i point, F convert) const noexcept
 		{
 			AABB3i sample_bounds{ Point3i{0,0,0}, Point3i{nx, ny, nz} };
 			if (!inside_exclusive(point, sample_bounds))
@@ -1037,7 +1039,7 @@ namespace loquat
 			return convert(values[(point.z * ny + point.y) * nx + point.x]);
 		}
 
-		T lookup(const Point3f point) const noexcept
+		T lookup(const Point3i point) const noexcept
 		{
 			AABB3i sample_bounds{ Point3i{0,0,0}, Point3i{nx, ny, nz} };
 			if (!inside_exclusive(point, sample_bounds))
@@ -1057,9 +1059,9 @@ namespace loquat
 					bounds.max.z * nz - 0.5f} 
 			};
 			Point3i pi[2] = {
-				max(Point3i{floor(ps[0])}, Point3i{0, 0, 0}), 
-				min(floor(ps[1]) + Vec3i{1, 1, 1}, 
-					Point3i{nx - 1, ny - 1, nz - 1}
+				max(Point3i{floor(ps[0])}, Point3i{0, 0, 0}),
+				min(floor(ps[1]) + Vec3i{1, 1, 1},
+					Point3i{nx - 1, ny - 1, nz - 1})
 			};
 
 			Float max_value = lookup(Point3i(pi[0]), convert);
