@@ -8,11 +8,7 @@
 
 #include "main/loquat.h"
 
-#include "pbr/base/sampler.h"
-
-
 namespace loquat
 {
-	
 
 }

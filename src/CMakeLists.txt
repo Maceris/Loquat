@@ -55,6 +55,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/point.h
   ${HEADER_PATH}/pbr/math/quaternion.h
   ${HEADER_PATH}/pbr/math/ray.h
+  ${HEADER_PATH}/pbr/math/rng.h
   ${HEADER_PATH}/pbr/math/sampling.h
   ${HEADER_PATH}/pbr/math/transform.h
   ${HEADER_PATH}/pbr/math/vec.h
