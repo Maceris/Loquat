@@ -584,11 +584,11 @@ namespace loquat
 		{
 			return ((bits & TAG_MASK) >> POINTER_BITS);
 		}
-
+      
 		template <typename T>
 		bool is() const
 		{
-			return tag() == TypeIndex<T>();
+			return tag() == type_index<T>();
 		}
 
 		static constexpr unsigned int max_tag()

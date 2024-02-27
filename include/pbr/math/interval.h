@@ -6,6 +6,10 @@
 
 #pragma once
 
+#include <algorithm>
+
+#include "main/loquat.h"
+
 namespace loquat
 {
 	class Interval
