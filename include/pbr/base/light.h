@@ -166,7 +166,6 @@ namespace loquat
 		inline SampledSpectrum infinite_light_contribution(const Ray& ray,
 			const SampledWavelengths& lambda) const noexcept;
 
-		[[nodiscard]]
 		void preprocess(const AABB3f& sceneBounds);
 
 		std::optional<LightBounds> bounds() const noexcept;

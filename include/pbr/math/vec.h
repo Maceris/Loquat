@@ -8,6 +8,8 @@
 
 #include <format>
 
+#include "pbr/math/float.h"
+
 namespace loquat
 {
 	template <typename T>
@@ -68,7 +70,7 @@ namespace loquat
 		{
 			for (glm::length_t i = 0; i < vector.length(); ++i)
 			{
-				if (isnan(vector[i]))
+				if (is_NaN(vector[i]))
 				{
 					return true;
 				}
