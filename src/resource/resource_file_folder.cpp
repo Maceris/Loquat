@@ -1,5 +1,6 @@
 #include "resource/resource_file_folder.h"
 
+#include <algorithm>
 #include <climits>
 #include <filesystem>
 #include <fstream>

@@ -1,6 +1,7 @@
 #include "resource/resource_cache.h"
 
 #include <algorithm>
+#include <cstring>
 
 #include "debug/logger.h"
 #include "main/memory_utils.h"
@@ -258,7 +259,8 @@ namespace loquat
 		for (size_t i = 0; i < file_count; ++i)
 		{
 			std::string name = file->get_resource_name(i);
-			std::transform(name.begin(), name.end(), name.begin(), std::tolower);
+			std::transform(name.begin(), name.end(), name.begin(),
+                           [](unsigned char c){ return std::tolower(c); });
 			if (wildcard_match(pattern.data(), name.c_str()))
 			{
 				matching_names.push_back(name);
