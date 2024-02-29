@@ -55,4 +55,22 @@ namespace loquat
         int digit_count;
         uint16_t* permutations;
     };
+
+    inline uint64_t sobol_interval_to_index(int32_t log2_scale,
+        uint64_t sample_index, Point2i point) noexcept;
+
+    inline Float blue_noise_sample(Point2i point, int instance);
+
+    Float scrambled_radical_inverse(int base_index uint64_t a,
+        const DigitPermutation& permutation) noexcept;
+
+    struct NoRandomizer
+    {
+        uint32_t operator()(uint32_t v) const noexcept
+        {
+            return v;
+        }
+    }
+
+
 }
