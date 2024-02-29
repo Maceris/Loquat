@@ -60,14 +60,14 @@ namespace loquat
 	concept number = std::integral<T> || std::floating_point<T>;
 	
 	template <typename Float, typename C>
-	inline constexpr Float evaluate_polynomial(Float t, C c)
+	inline constexpr Float evaluate_polynomial(Float t, C c) noexcept
 	{
 		return c;
 	}
 
 	template <typename Float, typename C, typename... Args>
 	inline constexpr Float evaluate_polynomial(Float t, C c,
-		Args... remaining)
+		Args... remaining) noexcept
 	{
 		return std::fma(t, evaluate_polynomial(t, remaining...), c);
 	}
@@ -77,7 +77,7 @@ namespace loquat
 	/// </summary>
 	/// <param name="x">The exponent.</param>
 	/// <returns>e to the power of the provided x.</returns>
-	inline float fast_e(float x)
+	inline float fast_e(float x) noexcept
 	{
 		// Compute x' such that e^x = 2^x'
 		float xp = x * 1.442695041f;
@@ -107,13 +107,45 @@ namespace loquat
 		return std::bit_cast<float>(bits);
 	}
 
-	inline Float lerp(Float x, Float a, Float b)
+	inline Float lerp(Float x, Float a, Float b) noexcept
 	{
 		return (1 - x) * a + x * b;
 	}
 
+    inline int permutation_element(uint32_t i, uint32_t l, uint32_t p) noexcept
+    {
+        uint32_t w = l - 1;
+        w |= w >> 1;
+        w |= w >> 2;
+        w |= w >> 4;
+        w |= w >> 8;
+        w |= w >> 16;
+        do {
+            i ^= p;
+            i *= 0xe170893d;
+            i ^= p >> 16;
+            i ^= (i & w) >> 4;
+            i ^= p >> 8;
+            i *= 0x0929eb3f;
+            i ^= p >> 23;
+            i ^= (i & w) >> 1;
+            i *= 1 | p >> 27;
+            i *= 0x6935fa69;
+            i ^= (i & w) >> 11;
+            i *= 0x74dcb303;
+            i ^= (i & w) >> 2;
+            i *= 0x9e501cc3;
+            i ^= (i & w) >> 2;
+            i *= 0xc860a3df;
+            i &= w;
+            i ^= i >> 5;
+        } while (i >= l);
+        
+        return (i + p) % l;
+    }
+
 	template <int n>
-	constexpr float pow(const float v)
+	constexpr float pow(const float v) noexcept
 	{
 		if constexpr (n < 0)
 		{
@@ -124,19 +156,19 @@ namespace loquat
 	}
 
 	template <>
-	constexpr float pow<1>(const float v)
+	constexpr float pow<1>(const float v) noexcept
 	{
 		return v;
 	}
 
 	template <>
-	constexpr float pow<0>(const float v)
+	constexpr float pow<0>(const float v) noexcept
 	{
 		return 1;
 	}
 
 	template <int n>
-	constexpr float pow(const double v)
+	constexpr float pow(const double v) noexcept
 	{
 		if constexpr (n < 0)
 		{
@@ -147,13 +179,13 @@ namespace loquat
 	}
 
 	template <>
-	constexpr float pow<1>(const double v)
+	constexpr float pow<1>(const double v) noexcept
 	{
 		return v;
 	}
 
 	template <>
-	constexpr float pow<0>(const double v)
+	constexpr float pow<0>(const double v) noexcept
 	{
 		return 1;
 	}
@@ -166,7 +198,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
-	inline float safe_square_root(float x)
+	inline float safe_square_root(float x) noexcept
 	{
 		LOG_ASSERT(x >= -1e-3f 
 			&& "Computing square root of very negative float");
@@ -174,7 +206,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
-	inline float safe_square_root(double x)
+	inline float safe_square_root(double x) noexcept
 	{
 		LOG_ASSERT(x >= -1e-3f
 			&& "Computing square root of very negative double");
