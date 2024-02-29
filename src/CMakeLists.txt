@@ -53,6 +53,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/math.h
   ${HEADER_PATH}/pbr/math/matrix.h
   ${HEADER_PATH}/pbr/math/point.h
+  ${HEADER_PATH}/pbr/math/primes.h
   ${HEADER_PATH}/pbr/math/quaternion.h
   ${HEADER_PATH}/pbr/math/ray.h
   ${HEADER_PATH}/pbr/math/rng.h
