@@ -7,8 +7,14 @@
 #pragma once
 
 #include <algorithm>
+#include <memory>
+#include <string>
 
 #include "main/loquat.h"
+#include "pbr/math/hash.h"
+#include "pbr/math/primes.h"
+#include "pbr/math/sobol_matrices.h"
+#include "pbr/math/vector_math.h"
 
 namespace loquat
 {
@@ -18,26 +24,28 @@ namespace loquat
     public:
         DigitPermutation() = default;
         DigitPermutation(int base, int32_t seed, Allocator allocator) noexcept
-        : base{ base }
+            : base{ base }
         {
             LOG_ASSERT(base < 65535 && "Base too large");
             digit_count = 0;
-            Float inverse_base = (Float) 1 / (Float) base;
+            Float inverse_base = (Float)1 / (Float) base;
             Float inverse_base_m = 1;
             while (1 - (base - 1) * inverse_base_m < 1)
             {
                 ++digit_count;
                 inverse_base_m *= inverse_base;
             }
-            
-            permutations = allocator.allocate_object<uint16_t>(digit_count * bsae);
+
+            permutations = allocator.allocate_object<uint16_t>(
+                digit_count * base);
             for (int digit_index = 0; digit_index < digit_count; ++digit_index)
             {
                 uint64_t digit_seed = hash(base, digit_index, seed);
                 for (int digit_value = 0; digit_value < base; ++digit_value)
                 {
                     int index = digit_index * base + digit_value;
-                    permutations[index] = permutation_element(digit_value, base, digit_seed);
+                    permutations[index] = permutation_element(digit_value,
+                        base, digit_seed);
                 }
             }
         }
@@ -63,7 +71,7 @@ namespace loquat
 
     inline Float blue_noise_sample(Point2i point, int instance);
 
-    Float scrambled_radical_inverse(int base_index uint64_t a,
+    Float scrambled_radical_inverse(int base_index, uint64_t a,
         const DigitPermutation& permutation) noexcept;
 
     struct NoRandomizer
@@ -72,7 +80,7 @@ namespace loquat
         {
             return v;
         }
-    }
+    };
 
     inline Float radical_inverse(int base_index, uint64_t a) noexcept
     {
@@ -88,7 +96,7 @@ namespace loquat
             uint64_t digit = a - next * base;
             reversed_digits = reversed_digits * base + digit;
             inverse_base_m *= inverse_base;
-            a = next
+            a = next;
         }
         return std::min(reversed_digits * inverse_base_m, ONE_MINUS_EPSILON);
     }
@@ -115,7 +123,7 @@ namespace loquat
         Float inverse_base = (Float) 1 / (Float) base;
         Float inverse_base_m = 1;
         uint64_t reversed_digits = 0;
-        int digit_index - 0;
+        int digit_index = 0;
         while (1 - (base - 1) * inverse_base_m < 1 && reversed_digits < limit)
         {
             uint64_t next = a / base;
@@ -138,7 +146,7 @@ namespace loquat
         Float inverse_base = (Float) 1 / (Float) base;
         Float inverse_base_m = 1;
         uint64_t reversed_digits = 0;
-        int digit_index - 0;
+        int digit_index = 0;
         while (1 - inverse_base_m < 1 && reversed_digits < limit)
         {
             uint64_t next = a / base;
@@ -166,7 +174,5 @@ namespace loquat
         }
         return result;
     }
-
-
 
 }

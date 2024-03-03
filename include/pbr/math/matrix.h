@@ -38,17 +38,6 @@ namespace loquat
 		[[nodiscard]]
 		std::optional<SquareMatrix<Size>> invert(
 			const SquareMatrix<Size>& matrix) noexcept;
-    
-        [[nodiscard]]
-        std::optional<Mat3> invert(const Mat3& matrix) noexcept
-        {
-            return invert(matrix);
-        }
-    
-        [[nodiscard]]
-        std::optional<Mat4> invert(const Mat4& matrix) noexcept
-        {
-            return invert(matrix);
-        }
+        
 	}
 }
