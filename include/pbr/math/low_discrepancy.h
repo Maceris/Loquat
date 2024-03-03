@@ -82,6 +82,12 @@ namespace loquat
         }
     };
 
+    template <typename R>
+    concept randomizer = requires(R r, uint32_t i)
+    {
+        { r(i) } -> std::convertible_to<uint32_t>;
+    };
+
     inline Float radical_inverse(int base_index, uint64_t a) noexcept
     {
         unsigned int base = primes[base_index];
@@ -173,6 +179,165 @@ namespace loquat
             }
         }
         return result;
+    }
+
+    template <randomizer R>
+    inline Float sobol_sample(int64_t a, int dimension, R randomizer) noexcept
+    {
+        LOG_ASSERT(dimension < SOBOL_DIMENSIONS);
+        LOG_ASSERT(a >= 0 && a < (1ull << SOBOL_MATRIX_SIZE));
+
+        uint32_t v = 0;
+        for (int i = dimension * SOBOL_MATRIX_SIZE; a != 0; a >>= 1, ++i)
+        {
+            if (a & 1)
+            {
+                v ^= sobol_matrices_32[i];
+            }
+        }
+        v = randomizer(v);
+        return std::min(v * 0x1p-32f, ONE_MINUS_EPSILON_FLOAT);
+    }
+
+    inline Float blue_noise_sample(Point2i point, int instance) noexcept
+    {
+        auto hash_permutation = [&](uint64_t index) -> int
+            {
+                return uint32_t(
+                    mix_bits(index ^ (0x55555555 * instance)) >> 24
+                ) % 24;
+            };
+        
+        const int base_4_digit_count = 8;
+        point.x &= 255;
+        point.y &= 255;
+        uint64_t morton_index = encode_morton_2(point.x, point.y);
+
+        static const uint8_t permutations[24][4] = {
+            {0, 1, 2, 3}, {0, 1, 3, 2}, {0, 2, 1, 3}, {0, 2, 3, 1},
+            {0, 3, 2, 1}, {0, 3, 1, 2}, {1, 0, 2, 3}, {1, 0, 3, 2},
+            {1, 2, 0, 3}, {1, 2, 3, 0}, {1, 3, 2, 0}, {1, 3, 0, 2},
+            {2, 1, 0, 3}, {2, 1, 3, 0}, {2, 0, 1, 3}, {2, 0, 3, 1},
+            {2, 3, 0, 1}, {2, 3, 1, 0}, {3, 1, 2, 0}, {3, 1, 0, 2},
+            {3, 2, 1, 0}, {3, 2, 0, 1}, {3, 0, 2, 1}, {3, 0, 1, 2}
+        };
+
+        uint32_t sample_index = 0;
+
+        for (int i = base_4_digit_count - 1; i >= 0; --i)
+        {
+            int digit_shift = 2 * i;
+            int digit = (morton_index >> digit_shift) & 3;
+            int p = hash_permutation(morton_index >> (digit_shift + 2));
+            digit = permutations[p][digit];
+            sample_index |= digit << digit_shift;
+        }
+
+        return reverse_bits_32(sample_index) * 0x1p-32f;
+    }
+
+    struct BinaryPermuteScrambler
+    {
+        BinaryPermuteScrambler(uint32_t permutation) noexcept
+            : permutation{ permutation }
+        {}
+        uint32_t operator()(uint32_t v) const noexcept
+        {
+            return permutation ^ v;
+        }
+        uint32_t permutation;
+    };
+
+    struct FastOwenScrambler
+    {
+        FastOwenScrambler(uint32_t seed) noexcept
+            : seed{ seed }
+        {}
+
+        uint32_t operator()(uint32_t v) const noexcept
+        {
+            v = reverse_bits_32(v);
+            v ^= v * 0x3d20adea;
+            v += seed;
+            v *= (seed >> 16) | 1;
+            v ^= v * 0x05526c56;
+            v ^= v * 0x53a22864;
+            return reverse_bits_32(v);
+        }
+
+        uint32_t seed;
+    };
+
+    struct FastOwenScrambler
+    {
+        FastOwenScrambler(uint32_t seed) noexcept
+            : seed{ seed }
+        {}
+
+        uint32_t operator()(uint32_t v) const noexcept
+        {
+            if (seed & 1)
+            {
+                v ^= 1u << 31;
+            }
+            for (int b = 1; b < 32; ++b)
+            {
+                uint32_t mask = (~0u) << (32 - b);
+                if ((uint32_t)mix_bits((v & mask) ^ seed) & (1u << b))
+                {
+                    v ^= 1u << (31 - b);
+                }
+            }
+            return v;
+        }
+
+        uint32_t seed;
+    };
+
+    enum class RandomizeStrategy
+    {
+        None,
+        PermuteDigits,
+        FastOwen,
+        Owen
+    };
+
+    [[nodiscard]]
+    std::string to_string(RandomizeStrategy r) noexcept;
+
+    inline uint64_t sobol_interval_to_index(uint32_t m, uint64_t frame,
+        Point2i point) noexcept
+    {
+        if (m == 0)
+        {
+            return frame;
+        }
+
+        const uint32_t m2 = m << 1;
+        uint64_t index = uint64_t(frame) << m2;
+
+        uint64_t delta = 0;
+        for (int c = 0; frame; frame >>= 1, ++c)
+        {
+            //NOTE(ches) For flipped column m + c + 1
+            if (frame & 1)
+            {
+                delta ^= transformed_sobol_matrices[m - 1][c];
+            }
+        }
+
+        uint64_t b = (((uint64_t)((uint32_t)point.x) << m) 
+            | ((uint32_t)point.y)) ^ delta;
+
+        for (int c = 0; b; b >>= 1, ++c)
+        {
+            //NOTE(ches) for column 2 * m - c
+            if (b & 1)
+            {
+                index ^= inverse_transformed_sobol_matrices[m - 1][c];
+            }
+        }
+        return index;
     }
 
 }

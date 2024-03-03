@@ -107,9 +107,25 @@ namespace loquat
 		return std::bit_cast<float>(bits);
 	}
 
+	inline uint64_t left_shift_2(uint64_t x) noexcept
+	{
+		x &= 0xffffffff;
+		x = (x ^ (x << 16)) & 0x0000ffff0000ffff;
+		x = (x ^ (x << 8)) & 0x00ff00ff00ff00ff;
+		x = (x ^ (x << 4)) & 0x0f0f0f0f0f0f0f0f;
+		x = (x ^ (x << 2)) & 0x3333333333333333;
+		x = (x ^ (x << 1)) & 0x5555555555555555;
+		return x;
+	}
+
 	inline Float lerp(Float x, Float a, Float b) noexcept
 	{
 		return (1 - x) * a + x * b;
+	}
+
+	inline uint64_t encode_morton_2(uint32_t x, uint32_t y) noexcept
+	{
+		return (left_shift_2(y) << 1) | left_shift_2(x);
 	}
 
     inline int permutation_element(uint32_t i, uint32_t l, uint32_t p) noexcept
@@ -188,6 +204,25 @@ namespace loquat
 	constexpr float pow<0>(const double v) noexcept
 	{
 		return 1;
+	}
+
+	[[nodiscard]]
+	inline uint32_t reverse_bits_32(uint32_t n) noexcept
+	{
+		n = (n << 16) | (n >> 16);
+		n = ((n & 0x00ff00ff) << 8) | ((n & 0xff00ff00) >> 8);
+		n = ((n & 0x0f0f0f0f) << 4) | ((n & 0xf0f0f0f0) >> 4);
+		n = ((n & 0x33333333) << 2) | ((n & 0xcccccccc) >> 2);
+		n = ((n & 0x55555555) << 1) | ((n & 0xaaaaaaaa) >> 1);
+		return n;
+	}
+
+	[[nodiscard]]
+	inline uint64_t ReverseBits64(uint64_t n) noexcept
+	{
+		uint64_t n0 = reverse_bits_32((uint32_t) n);
+		uint64_t n1 = reverse_bits_32((uint32_t)(n >> 32));
+		return (n0 << 32) | n1;
 	}
 
 	template <typename T>
