@@ -17,6 +17,7 @@
 #include "pbr/math/hash.h"
 #include "pbr/math/low_discrepancy.h"
 #include "pbr/math/math.h"
+#include "pbr/math/pmj02_tables.h"
 #include "pbr/math/rng.h"
 #include "pbr/math/vector_math.h"
 
@@ -48,7 +49,7 @@ namespace loquat
 			return randomize;
 		}
 
-		void start_pixel_sample(Point2i point, int sample_index, int dim)
+		void start_pixel_sample(Point2i p, int sample_index, int dim)
 			noexcept
 		{
 			halton_index = 0;
@@ -56,8 +57,8 @@ namespace loquat
 			if (sample_stride > 1)
 			{
 				Point2i pm{
-					point.x % MAX_HALTON_RESOLUTION,
-					point.y % MAX_HALTON_RESOLUTION
+					p.x % MAX_HALTON_RESOLUTION,
+					p.y % MAX_HALTON_RESOLUTION
 				};
 				for (int i = 0; i < 2; ++i)
 				{
@@ -202,9 +203,9 @@ namespace loquat
 			return randomize;
 		}
 
-		void start_pixel_sample(Point2i point, int index, int dim) noexcept
+		void start_pixel_sample(Point2i p, int index, int dim) noexcept
 		{
-			pixel = point;
+			pixel = p;
 			sample_index = index;
 			dimension = dim;
 		}
@@ -212,26 +213,26 @@ namespace loquat
 		[[nodiscard]]
 		Float get_1D() noexcept
 		{
-			const uint64_t hash_value = hash(pixel, dimension, seed);
+			const uint64_t hash = loquat::hash(pixel, dimension, seed);
 			const int index = permutation_element(sample_index,
-				samples_per_pixel, hash_value);
+				samples_per_pixel, hash);
 
 			const int dim = dimension++;
-			return sample_dimension(0, index, hash_value >> 32);
+			return sample_dimension(0, index, hash >> 32);
 		}
 
 		[[nodiscard]]
 		Point2f get_2D() noexcept
 		{
-			const uint64_t hash_value = hash(pixel, dimension, seed);
+			const uint64_t hash = loquat::hash(pixel, dimension, seed);
 			const int index = permutation_element(sample_index,
-				samples_per_pixel, hash_value);
+				samples_per_pixel, hash);
 
 			const int dim = dimension;
 			dimension += 2;
 			return Point2f{
-				sample_dimension(0, index, static_cast<uint32_t>(hash_value)),
-				sample_dimension(1, index, hash_value >> 32)
+				sample_dimension(0, index, static_cast<uint32_t>(hash)),
+				sample_dimension(1, index, hash >> 32)
 			};
 		}
 
@@ -278,7 +279,99 @@ namespace loquat
 
 	class PMJ02BNSampler
 	{
+	public:
+		PMJ02BNSampler(int samples_per_pixel, int seed = 0,
+			Allocator allocator = {}) noexcept;
 
+		static constexpr const char* get_name() noexcept
+		{
+			return "PMJ02BNSampler";
+		}
+
+		static PMJ02BNSampler* create(
+			const ParameterDictionary& parameters, Allocator allocator)
+			noexcept;
+
+		int get_samples_per_pixel() const noexcept
+		{
+			return samples_per_pixel;
+		}
+
+		void start_pixel_sample(Point2i p, int index, int dim) noexcept
+		{
+			pixel = p;
+			sample_index = index;
+			dimension = std::max(2, dim);
+		}
+
+		[[nodiscard]]
+		Float get_1D() noexcept
+		{
+			const uint64_t hash = loquat::hash(pixel, dimension, seed);
+			const int index = permutation_element(sample_index,
+				samples_per_pixel, hash);
+
+			Float delta = blue_noise(dimension, pixel);
+			++dimension;
+			return std::min((index + delta) / samples_per_pixel,
+				ONE_MINUS_EPSILON);
+		}
+
+		[[nodiscard]]
+		Point2f get_2D() noexcept
+		{
+			int index = sample_index;
+			int pmj_instance = dimension / 2;
+			if (pmj_instance >= PMJ02BN_SET_COUNT)
+			{
+				uint64_t hash = loquat::hash(pixel, dimension, seed);
+				index = permutation_element(sample_index, samples_per_pixel,
+					hash);
+			}
+
+			Point2f u = get_PMJ02BN_sample(pmj_instance, index);
+			u += Vec2f{
+				blue_noise(dimension, pixel), 
+				blue_noise(dimension + 1, pixel)
+			};
+			if (u.x >= 1)
+			{
+				u.x -= 1;
+			}
+			if (u.y >= 1)
+			{
+				u.y -= 1;
+			}
+
+			dimension += 2;
+			return {
+				std::min(u.x, ONE_MINUS_EPSILON),
+				std::min(u.y, ONE_MINUS_EPSILON)
+			};
+		}
+
+		[[nodiscard]]
+		Point2f get_pixel_2D() noexcept
+		{
+			size_t px = pixel.x % pixel_tile_size;
+			size_t py = pixel.y % pixel_tile_size;
+			size_t offset = (px + py * pixel_tile_size) * samples_per_pixel;
+			return (*pixel_samples)[offset + sample_index];
+		}
+
+		Sampler clone(Allocator allocator) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		int samples_per_pixel;
+		int seed;
+		int pixel_tile_size;
+		std::vector<Point2f>* pixel_samples;
+		Point2i pixel;
+		int sample_index;
+		int dimension;
 	};
 
 	class IndependentSampler
@@ -330,11 +423,11 @@ namespace loquat
 			return 1 << log2_samples_per_pixel;
 		}
 
-		void start_pixel_sample(Point2i point, int index, int dim) noexcept
+		void start_pixel_sample(Point2i p, int index, int dim) noexcept
 		{
 			dimension = dim;
 			morton_index =
-				(encode_morton_2(point.x, point.y) << log2_samples_per_pixel)
+				(encode_morton_2(p.x, p.y) << log2_samples_per_pixel)
 				| index;
 		}
 
