@@ -73,6 +73,7 @@ namespace loquat
 			dimension = std::max(2, dim);
 		}
 
+		[[nodiscard]]
 		Float get_1D() noexcept
 		{
 			if (dimension >= PRIME_TABLE_SIZE)
@@ -82,6 +83,7 @@ namespace loquat
 			return sample_dimension(dimension++);
 		}
 
+		[[nodiscard]]
 		Point2f get_2D() noexcept
 		{
 			if (dimension +1 >= PRIME_TABLE_SIZE)
@@ -93,6 +95,7 @@ namespace loquat
 			return { sample_dimension(dim), sample_dimension(dim + 1) };
 		}
 
+		[[nodiscard]]
 		Point2f get_pixel_2D() noexcept
 		{
 			return {
@@ -165,7 +168,112 @@ namespace loquat
 
 	class PaddedSobolSampler
 	{
+	public:
+		static constexpr const char* get_name() noexcept
+		{
+			return "PaddedSobolSampler";
+		}
 
+		static PaddedSobolSampler* create(
+			const ParameterDictionary& parameters, Allocator allocator)
+			noexcept;
+
+		PaddedSobolSampler(int samples_per_pixel,
+			RandomizeStrategy randomizer, int seed = 0)
+			: samples_per_pixel{ samples_per_pixel }
+			, randomize{ randomizer }
+			, seed{ seed }
+		{
+			if (!is_power_of_2(samples_per_pixel))
+			{
+				LOG_WARNING(std::format(
+					"Sobol sampler has a sample count of {}, which is suboptimal as it is not a power of 2."
+					, samples_per_pixel));
+			}
+		}
+
+		int get_samples_per_pixel() const noexcept
+		{
+			return samples_per_pixel;
+		}
+
+		RandomizeStrategy get_randomize_strategy() const noexcept
+		{
+			return randomize;
+		}
+
+		void start_pixel_sample(Point2i point, int index, int dim) noexcept
+		{
+			pixel = point;
+			sample_index = index;
+			dimension = dim;
+		}
+
+		[[nodiscard]]
+		Float get_1D() noexcept
+		{
+			const uint64_t hash_value = hash(pixel, dimension, seed);
+			const int index = permutation_element(sample_index,
+				samples_per_pixel, hash_value);
+
+			const int dim = dimension++;
+			return sample_dimension(0, index, hash_value >> 32);
+		}
+
+		[[nodiscard]]
+		Point2f get_2D() noexcept
+		{
+			const uint64_t hash_value = hash(pixel, dimension, seed);
+			const int index = permutation_element(sample_index,
+				samples_per_pixel, hash_value);
+
+			const int dim = dimension;
+			dimension += 2;
+			return Point2f{
+				sample_dimension(0, index, static_cast<uint32_t>(hash_value)),
+				sample_dimension(1, index, hash_value >> 32)
+			};
+		}
+
+		[[nodiscard]]
+		Point2f get_pixel_2D() noexcept
+		{
+			return get_2D();
+		}
+
+		Sampler clone(Allocator allocator) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		Float sample_dimension(int dimension, uint32_t a, uint32_t hash)
+			const noexcept
+		{
+			if (randomize == RandomizeStrategy::None)
+			{
+				return sobol_sample(a, dimension, NoRandomizer());
+			}
+			else if (randomize == RandomizeStrategy::PermuteDigits)
+			{
+				return sobol_sample(a, dimension, BinaryPermuteScrambler(hash));
+			}
+			else if (randomize == RandomizeStrategy::FastOwen)
+			{
+				return sobol_sample(a, dimension, FastOwenScrambler(hash));
+			}
+			else
+			{
+				return sobol_sample(a, dimension, OwenScrambler(hash));
+			}
+		}
+
+		int samples_per_pixel;
+		int seed;
+		RandomizeStrategy randomize;
+		Point2i pixel;
+		int sample_index;
+		int dimension;
 	};
 
 	class PMJ02BNSampler

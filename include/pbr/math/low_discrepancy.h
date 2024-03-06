@@ -268,9 +268,9 @@ namespace loquat
         uint32_t seed;
     };
 
-    struct FastOwenScrambler
+    struct OwenScrambler
     {
-        FastOwenScrambler(uint32_t seed) noexcept
+        OwenScrambler(uint32_t seed) noexcept
             : seed{ seed }
         {}
 

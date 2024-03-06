@@ -128,6 +128,12 @@ namespace loquat
 		return (left_shift_2(y) << 1) | left_shift_2(x);
 	}
 
+	template <std::integral T>
+	inline constexpr bool is_power_of_2(T v) noexcept
+	{
+		return v && !(v & (v - 1));
+	}
+
     inline int permutation_element(uint32_t i, uint32_t l, uint32_t p) noexcept
     {
         uint32_t w = l - 1;
