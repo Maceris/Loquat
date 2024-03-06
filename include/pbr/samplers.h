@@ -298,6 +298,175 @@ namespace loquat
 
 	class ZSobolSampler
 	{
+	public:
+		ZSobolSampler(int samples_per_pixel, Point2i full_resolution,
+			RandomizeStrategy randomize, int seed = 0) noexcept
+			: randomize{ randomize }
+			, seed{ seed }
+		{
+			if (!is_power_of_2(samples_per_pixel))
+			{
+				LOG_WARNING(std::format(
+					"Sobol sampler has a sample count of {}, which is suboptimal as it is not a power of 2."
+					, samples_per_pixel));
+			}
+			log2_samples_per_pixel = log2_int(samples_per_pixel);
+			int res = round_up_pow2(std::max(full_resolution.x,
+				full_resolution.y));
+			int log4_samples_per_pixel = (log2_samples_per_pixel + 1) / 2;
+			base_4_digit_count = log2_int(res) + log4_samples_per_pixel;
+		}
+
+		static constexpr const char* get_name() noexcept
+		{
+			return "ZSobolSampler";
+		}
+
+		static ZSobolSampler* create(const ParameterDictionary& parameters,
+			Point2i full_resolution, Allocator allocator) noexcept;
+
+		int samples_per_pixel() const noexcept
+		{
+			return 1 << log2_samples_per_pixel;
+		}
+
+		void start_pixel_sample(Point2i point, int index, int dim) noexcept
+		{
+			dimension = dim;
+			morton_index =
+				(encode_morton_2(point.x, point.y) << log2_samples_per_pixel)
+				| index;
+		}
+
+		[[nodiscard]]
+		Float get_1D() noexcept
+		{
+			uint64_t sample_index = get_sample_index();
+			++dimension;
+			uint32_t sample_hash = hash(dimension, seed);
+			if (randomize == RandomizeStrategy::None)
+			{
+				return sobol_sample(sample_index, dimension, NoRandomizer());
+			}
+			else if (randomize == RandomizeStrategy::PermuteDigits)
+			{
+				return sobol_sample(sample_index, dimension,
+					BinaryPermuteScrambler(sample_hash));
+			}
+			else if (randomize == RandomizeStrategy::FastOwen)
+			{
+				return sobol_sample(sample_index, dimension,
+					FastOwenScrambler(sample_hash));
+			}
+			else
+			{
+				return sobol_sample(sample_index, dimension,
+					OwenScrambler(sample_hash));
+			}
+		}
+
+		[[nodiscard]]
+		Point2f get_2D() noexcept
+		{
+			uint64_t sample_index = get_sample_index();
+			dimension += 2;
+			uint64_t bits = hash(dimension, seed);
+			uint32_t sample_hash[2] = {
+				static_cast<uint32_t>(bits),
+				static_cast<uint32_t>(bits >> 32)
+			};
+			if (randomize == RandomizeStrategy::None)
+			{
+				return {
+					sobol_sample(sample_index, 0, NoRandomizer()),
+					sobol_sample(sample_index, 1, NoRandomizer()),
+				};
+			}
+			else if (randomize == RandomizeStrategy::PermuteDigits)
+			{
+				return {
+					sobol_sample(sample_index, 0,
+						BinaryPermuteScrambler(sample_hash[0])),
+					sobol_sample(sample_index, 1,
+						BinaryPermuteScrambler(sample_hash[1])),
+				};
+			}
+			else if (randomize == RandomizeStrategy::FastOwen)
+			{
+				return {
+					sobol_sample(sample_index, 0,
+						FastOwenScrambler(sample_hash[0])),
+					sobol_sample(sample_index, 1,
+						FastOwenScrambler(sample_hash[1])),
+				};
+			}
+			else
+			{
+				return {
+					sobol_sample(sample_index, 0,
+						OwenScrambler(sample_hash[0])),
+					sobol_sample(sample_index, 1,
+						OwenScrambler(sample_hash[1])),
+				};
+			}
+		}
+
+		[[nodiscard]]
+		Point2f get_pixel_2D() noexcept
+		{
+			return get_2D();
+		}
+
+		Sampler clone(Allocator allocator) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		[[nodiscard]]
+		uint64_t get_sample_index() const noexcept
+		{
+			static const uint8_t permutations[24][4] =
+			{
+			   {0, 1, 2, 3}, {0, 1, 3, 2}, {0, 2, 1, 3}, {0, 2, 3, 1},
+			   {0, 3, 2, 1}, {0, 3, 1, 2}, {1, 0, 2, 3}, {1, 0, 3, 2},
+			   {1, 2, 0, 3}, {1, 2, 3, 0}, {1, 3, 2, 0}, {1, 3, 0, 2},
+			   {2, 1, 0, 3}, {2, 1, 3, 0}, {2, 0, 1, 3}, {2, 0, 3, 1},
+			   {2, 3, 0, 1}, {2, 3, 1, 0}, {3, 1, 2, 0}, {3, 1, 0, 2},
+			   {3, 2, 1, 0}, {3, 2, 0, 1}, {3, 0, 2, 1}, {3, 0, 1, 2}
+			};
+
+			uint64_t sample_index = 0;
+			bool pow2_samples = log2_samples_per_pixel & 1;
+			int last_digit = pow2_samples ? 1 : 0;
+			for (int i = base_4_digit_count - 1; i >= last_digit; --i)
+			{
+				int digit_shift = 2 * i - (pow2_samples ? 1 : 0);
+				int digit = (morton_index >> digit_shift) & 3;
+				uint64_t higher_digits = morton_index >> (digit_shift + 2);
+				int p = (mix_bits(
+					higher_digits ^ 
+					(static_cast<uint64_t>(0x55555555u) * dimension)) >> 24) 
+					% 24;
+
+				digit = permutations[p][digit];
+				sample_index |= static_cast<uint64_t>(digit) << digit_shift;
+			}
+			if (pow2_samples)
+			{
+				int digit = morton_index & 1;
+				sample_index |= digit ^ (mix_bits((morton_index >> 1) ^
+					(static_cast<uint64_t>(0x55555555u) * dimension)) & 1);
+			}
+			return sample_index;
+		}
+
+	private:
+		RandomizeStrategy randomize;
+		int seed;
+		int log2_samples_per_pixel;
+		int base_4_digit_count;
+		uint64_t morton_index;
+		int dimension;
 
 	};
 

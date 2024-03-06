@@ -123,6 +123,107 @@ namespace loquat
 		return (1 - x) * a + x * b;
 	}
 
+	inline Float log2(Float x) noexcept
+	{
+		const Float inv_log2 = 1.442695040888963387004650940071;
+		return std::log(x) * inv_log2;
+	}
+
+	inline int log2_int(float v) noexcept
+	{
+		LOG_ASSERT(v > 0);
+		if (v < 1)
+		{
+			return -log2_int(1 / v);
+		}
+		// https://graphics.stanford.edu/~seander/bithacks.html#IntegerLog
+		// (With an additional check of the significant to get round-to-nearest
+		// rather than round down.)
+		// midsignif = Significand(std::pow(2., 1.5))
+		// i.e. grab the significand of a value halfway between two exponents,
+		// in log space.
+		const uint32_t midsignif = 0x0053'04F3;
+		return exponent(v) + ((significand(v) >= midsignif) ? 1 : 0);
+	}
+
+	inline int log2_int(double v) noexcept
+	{
+		LOG_ASSERT(v > 0);
+		if (v < 1)
+		{
+			return -log2_int(1 / v);
+		}
+		// https://graphics.stanford.edu/~seander/bithacks.html#IntegerLog
+		// (With an additional check of the significant to get round-to-nearest
+		// rather than round down.)
+		// midsignif = Significand(std::pow(2., 1.5))
+		// i.e. grab the significand of a value halfway between two exponents,
+		// in log space.
+		const uint64_t midsignif = 0x0006'A09E'667F'3BCD;
+		return exponent(v) + ((significand(v) >= midsignif) ? 1 : 0);
+	}
+
+	inline int log2_int(uint32_t v) noexcept
+	{
+#if __GNUC__
+		return 31 - __builtin_clz(v);
+#else
+		unsigned long lz = 0;
+#if defined(_WIN64)
+		_BitScanReverse64(&lz, v);
+#else
+		if (_BitScanReverse(&lz, v >> 32))
+		{
+			lz += 32;
+		}
+		else
+		{
+			_BitScanReverse(&lz, v & 0xffffffff);
+		}
+#endif // _WIN64
+		return lz;
+#endif // __GNUC__
+	}
+
+	inline int log2_int(int32_t v) noexcept
+	{
+		return log2_int(static_cast<uint32_t>(v));
+	}
+
+	inline int log2_int(uint64_t v) noexcept
+	{
+#ifdef __GNUC__
+		return 63 - __builtin_clzll(v);
+#else
+		unsigned long lz = 0;
+#if defined(_WIN64)
+		_BitScanReverse64(&lz, v);
+#else
+		if (_BitScanReverse(&lz, v >> 32))
+		{
+			lz += 32;
+		}
+		else
+		{
+			_BitScanReverse(&lz, v & 0xffffffff);
+		}
+#endif // _WIN64
+		return lz;
+#endif // __GNUC__
+	}
+
+	inline int log2_int(int64_t v) noexcept
+	{
+		return log2_int(static_cast<uint64_t>(v));
+	}
+
+	template <typename T>
+		requires std::integral<T> || std::floating_point<T>
+	inline int log4_int(T v) noexcept
+	{
+		return log2_int(v) / 2;
+	}
+
 	inline uint64_t encode_morton_2(uint32_t x, uint32_t y) noexcept
 	{
 		return (left_shift_2(y) << 1) | left_shift_2(x);
@@ -134,6 +235,7 @@ namespace loquat
 		return v && !(v & (v - 1));
 	}
 
+	[[nodiscard]]
     inline int permutation_element(uint32_t i, uint32_t l, uint32_t p) noexcept
     {
         uint32_t w = l - 1;
@@ -224,11 +326,44 @@ namespace loquat
 	}
 
 	[[nodiscard]]
-	inline uint64_t ReverseBits64(uint64_t n) noexcept
+	inline uint64_t reverse_bits_64(uint64_t n) noexcept
 	{
 		uint64_t n0 = reverse_bits_32((uint32_t) n);
 		uint64_t n1 = reverse_bits_32((uint32_t)(n >> 32));
 		return (n0 << 32) | n1;
+	}
+
+	[[nodiscard]]
+	inline constexpr int32_t round_up_pow2(int32_t v) noexcept
+	{
+		--v;
+		v |= v >> 1;
+		v |= v >> 2;
+		v |= v >> 4;
+		v |= v >> 8;
+		v |= v >> 16;
+		return v + 1;
+	}
+
+	[[nodiscard]]
+	inline constexpr int64_t round_up_pow2(int64_t v) noexcept
+	{
+		--v;
+		v |= v >> 1;
+		v |= v >> 2;
+		v |= v >> 4;
+		v |= v >> 8;
+		v |= v >> 16;
+		v |= v >> 32;
+		return v + 1;
+	}
+
+	template <typename T>
+		requires std::integral<T> || std::floating_point<T>
+	[[nodiscard]]
+	inline T round_up_pow4(T v) noexcept
+	{
+		return is_power_of_4(v) ? v : (1 << (2 * (1 + log4_int(v))));
 	}
 
 	template <typename T>
