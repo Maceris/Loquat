@@ -376,7 +376,57 @@ namespace loquat
 
 	class IndependentSampler
 	{
+	public:
+		IndependentSampler(int samples_per_pixel, int seed = 0)
+			: samples_per_pixel{ samples_per_pixel }
+			, seed{ seed }
+		{}
+		static IndependentSampler* create(
+			const ParameterDictionary& parameters, Allocator allocator)
+			noexcept;
+		static constexpr const char* get_name() noexcept
+		{
+			return "IndependentSampler";
+		}
 
+		int get_samples_per_pixel() const noexcept
+		{
+			return samples_per_pixel;
+		}
+
+		void start_pixel_sample(Point2i p, int index, int dimension) noexcept
+		{
+			rng.set_sequence(hash(p, seed));
+			rng.advance(index * 65536ull + dimension);
+		}
+
+		[[nodiscard]]
+		Float get_1D() noexcept
+		{
+			return rng.uniform<Float>();
+		}
+
+		[[nodiscard]]
+		Point2f get_2D() noexcept
+		{
+			return { rng.uniform<Float>(), rng.uniform<Float>() };
+		}
+
+		[[nodiscard]]
+		Point2f get_pixel_2D() noexcept
+		{
+			return get_2D();
+		}
+
+		Sampler clone(Allocator allocator) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		int samples_per_pixel;
+		int seed;
+		RNG rng;
 	};
 
 	class SobolSampler
