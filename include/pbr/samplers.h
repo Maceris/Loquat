@@ -143,17 +143,16 @@ namespace loquat
 			{
 				return radical_inverse(dimension, halton_index);
 			}
-			else if (randomize == RandomizeStrategy::PermuteDigits)
+			if (randomize == RandomizeStrategy::PermuteDigits)
 			{
 				return scrambled_radical_inverse(dimension, halton_index,
 					(*digit_permutations)[dimension]);
 			}
-			else
-			{
-				LOG_ASSERT(randomize == RandomizeStrategy::Owen);
-				return owen_scrambled_radical_inverse(dimension, halton_index,
-					mix_bits(1ull + (static_cast<uint64_t>(dimension) << 4)));
-			}
+			
+			LOG_ASSERT(randomize == RandomizeStrategy::Owen);
+			return owen_scrambled_radical_inverse(dimension, halton_index,
+				mix_bits(1ull + (static_cast<uint64_t>(dimension) << 4)));
+			
 		}
 
 		int samples_per_pixel;
@@ -255,18 +254,15 @@ namespace loquat
 			{
 				return sobol_sample(a, dimension, NoRandomizer());
 			}
-			else if (randomize == RandomizeStrategy::PermuteDigits)
+			if (randomize == RandomizeStrategy::PermuteDigits)
 			{
 				return sobol_sample(a, dimension, BinaryPermuteScrambler(hash));
 			}
-			else if (randomize == RandomizeStrategy::FastOwen)
+			if (randomize == RandomizeStrategy::FastOwen)
 			{
 				return sobol_sample(a, dimension, FastOwenScrambler(hash));
 			}
-			else
-			{
-				return sobol_sample(a, dimension, OwenScrambler(hash));
-			}
+			return sobol_sample(a, dimension, OwenScrambler(hash));
 		}
 
 		int samples_per_pixel;
@@ -381,9 +377,11 @@ namespace loquat
 			: samples_per_pixel{ samples_per_pixel }
 			, seed{ seed }
 		{}
+
 		static IndependentSampler* create(
 			const ParameterDictionary& parameters, Allocator allocator)
 			noexcept;
+
 		static constexpr const char* get_name() noexcept
 		{
 			return "IndependentSampler";
@@ -431,7 +429,111 @@ namespace loquat
 
 	class SobolSampler
 	{
+	public:
+		SobolSampler(int samples_per_pixel, Point2i full_resolution,
+			RandomizeStrategy randomize, int seed = 0)
+			: samples_per_pixel{ samples_per_pixel }
+			, seed{ seed }
+			, randomize{ randomize }
+		{
+			if (!is_power_of_2(samples_per_pixel))
+			{
+				LOG_WARNING(std::format(
+					"Sobol sampler has a sample count of {}, which is suboptimal as it is not a power of 2."
+					, samples_per_pixel));
+			}
+			scale = round_up_pow2(std::max(full_resolution.x,
+				full_resolution.y));
+		}
 
+		static constexpr const char* get_name() noexcept
+		{
+			return "SobolSampler";
+		}
+
+		int get_samples_per_pixel() const noexcept
+		{
+			return samples_per_pixel;
+		}
+
+		void start_pixel_sample(Point2i p, int index, int dimension) noexcept
+		{
+			pixel = p;
+			dimension = std::max(2, dimension);
+			sobol_index = sobol_interval_to_index(log2_int(scale), index,
+				pixel);
+		}
+
+		[[nodiscard]]
+		Float get_1D() noexcept
+		{
+			if (dimension >= SOBOL_DIMENSIONS) {
+				dimension = 2;
+			}
+			return sample_dimension(dimension++);
+		}
+
+		[[nodiscard]]
+		Point2f get_2D() noexcept
+		{
+			if (dimension >= SOBOL_DIMENSIONS) {
+				dimension = 2;
+			}
+			Point2f sample{
+				sample_dimension(dimension),
+				sample_dimension(dimension + 1)
+			};
+			dimension += 2;
+			return sample;
+		}
+
+		[[nodiscard]]
+		Point2f get_pixel_2D() noexcept
+		{
+			Point2f sample{
+				sobol_sample(sobol_index, 0, NoRandomizer()),
+				sobol_sample(sobol_index, 1, NoRandomizer())
+			};
+			for (int dim = 0; dim < 2; ++dim)
+			{
+				sample[dim] = clamp(sample[dim] * scale - pixel[dim], 0, 
+					ONE_MINUS_EPSILON);
+			}
+			return sample;
+		}
+
+		Sampler clone(Allocator allocator) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+	private:
+		Float sample_dimension(int dimension) const noexcept
+		{
+			if (randomize == RandomizeStrategy::None)
+			{
+				return sobol_sample(sobol_index, dimension, NoRandomizer());
+			}
+
+			uint32_t hash = loquat::hash(dimension, seed);
+			if (randomize == RandomizeStrategy::PermuteDigits)
+			{
+				return sobol_sample(sobol_index, dimension, BinaryPermuteScrambler(hash));
+			}
+			if (randomize == RandomizeStrategy::FastOwen)
+			{
+				return sobol_sample(sobol_index, dimension, FastOwenScrambler(hash));
+			}
+			return sobol_sample(sobol_index, dimension, OwenScrambler(hash));
+		}
+
+		int samples_per_pixel;
+		int scale;
+		int seed;
+		RandomizeStrategy randomize;
+		Point2i pixel;
+		int dimension;
+		int64_t sobol_index;
 	};
 
 	class StratifiedSampler
