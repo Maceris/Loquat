@@ -431,7 +431,7 @@ namespace loquat
 	{
 	public:
 		SobolSampler(int samples_per_pixel, Point2i full_resolution,
-			RandomizeStrategy randomize, int seed = 0)
+			RandomizeStrategy randomize, int seed = 0) noexcept
 			: samples_per_pixel{ samples_per_pixel }
 			, seed{ seed }
 			, randomize{ randomize }
@@ -538,7 +538,86 @@ namespace loquat
 
 	class StratifiedSampler
 	{
+	public:
+		StratifiedSampler(int pixel_samples_x, int pixel_samples_y,
+			bool jitter, int seed = 0) noexcept
+			: pixel_samples_x{ pixel_samples_x }
+			, pixel_samples_y{ pixel_samples_y }
+			, jitter{ jitter }
+			, seed{ seed }
+		{}
 
+		static constexpr const char* get_name() noexcept
+		{
+			return "StratifiedSampler";
+		}
+
+		static StratifiedSampler* create(
+			const ParameterDictionary& parameters, Allocator allocator)
+			noexcept;
+
+		int get_samples_per_pixel() const noexcept
+		{
+			return pixel_samples_x * pixel_samples_y;
+		}
+
+		void start_pixel_sample(Point2i p, int index, int dim) noexcept
+		{
+			pixel = p;
+			sample_index = index;
+			dimension = dim;
+			rng.set_sequence(hash(p, seed));
+			rng.advance(sample_index * 65536ull + dimension);
+		}
+
+		[[nodiscard]]
+		Float get_1D() noexcept
+		{
+			uint64_t hash = loquat::hash(pixel, dimension, seed);
+			int stratum = permutation_element(sample_index,
+				get_samples_per_pixel(), hash);
+
+			++dimension;
+			Float delta = jitter ? rng.uniform<Float>() : 0.5f;
+			return (stratum + delta) / get_samples_per_pixel();
+		}
+
+		[[nodiscard]]
+		Point2f get_2D() noexcept
+		{
+			uint64_t hash = loquat::hash(pixel, dimension, seed);
+			int stratum = permutation_element(sample_index,
+				get_samples_per_pixel(), hash);
+			dimension += 2;
+			int x = stratum % pixel_samples_x;
+			int y = stratum / pixel_samples_x;
+			Float dx = jitter ? rng.uniform<Float>() : 0.5f;
+			Float dy = jitter ? rng.uniform<Float>() : 0.5f;
+			return {
+				(x + dx) / pixel_samples_x,
+				(y + dy) / pixel_samples_y
+			};
+		}
+
+		[[nodiscard]]
+		Point2f get_pixel_2D() noexcept
+		{
+			return get_2D();
+		}
+
+		Sampler clone(Allocator allocator) noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+	private:
+		int pixel_samples_x;
+		int pixel_samples_y;
+		int seed;
+		bool jitter;
+		RNG rng;
+		Point2i pixel;
+		int sample_index = 0;
+		int dimension = 0;
 	};
 
 	class ZSobolSampler
