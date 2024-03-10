@@ -796,10 +796,27 @@ namespace loquat
 
 	class MLTSampler
 	{
+	public:
 
+	protected:
+
+		struct PrimarySample {
+			//TODO(ches) fill this out
+		};
+		int mutations_per_pixel;
+		RNG rng;
+		Float sigma;
+		Float large_step_probability;
+		int streamCount;
+		std::vector<PrimarySample> X;
+		int64_t current_iteration = 0;
+		bool large_step = true;
+		int64_t last_large_step_iteration = 0;
+		int stream_index;
+		int sample_index;
 	};
 
-	class DebugMLTSampler
+	class DebugMLTSampler : public MLTSampler
 	{
 
 	};
