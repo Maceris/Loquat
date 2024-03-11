@@ -797,17 +797,99 @@ namespace loquat
 	class MLTSampler
 	{
 	public:
+		MLTSampler(int mutations_per_pixel, int rng_sequence_index,
+			Float sigma, Float large_step_probability, int stream_count)
+			: mutations_per_pixel{ mutations_per_pixel }
+			, rng{ mix_bits(rng_sequence_index) ^ mix_bits(options->seed) }
+			, sigma{ sigma }
+			, large_step_probability{ large_step_probability }
+			, stream_count{ stream_count }
+		{}
+
+		void start_iteration() noexcept;
+
+		void reject() noexcept;
+
+		void start_stream(int index) noexcept;
+
+		int get_next_indes() noexcept
+		{
+			return stream_index + stream_count * sample_index++;
+		}
+
+		int get_samples_per_pixel() const noexcept
+		{
+			return mutations_per_pixel;
+		}
+
+		void start_pixel_sample(Point2i p, int sample_index, int dim) noexcept
+		{
+			rng.set_sequence(hash(p));
+			rng.advance(sample_index * 65536 + dim * 8192);
+		}
+
+		Float get_1D() noexcept;
+
+		Point2f get_2D() noexcept;
+
+		Point2f get_pixel_2D() noexcept;
+
+		Sampler clone(Allocator allocator) noexcept;
+
+		void accept() noexcept;
+
+		[[nodiscard]]
+		std::string dump_state() const noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept
+		{
+			return std::format(
+				"[ MLTSampler rng: {} sigma: {} large_step_probability: {} ]"
+				"stream_count: {} X: {} current_iteration: {} "
+				"large_step: {} last_large_step_iteration: {} "
+				"stream_index: {} sample_index: {}"
+				,
+				rng, sigma, large_step_probability, stream_count, X,
+				current_iteration, large_step, last_large_step_iteration,
+				stream_index, sample_index);
+		}
 
 	protected:
-
 		struct PrimarySample {
-			//TODO(ches) fill this out
+			Float value = 0;
+			void backup() noexcept
+			{
+				value_backup = value;
+				modify_backup = last_modification_iteration;
+			}
+			void restore() noexcept
+			{
+				value = value_backup;
+				last_modification_iteration = modify_backup;
+			}
+
+			[[nodiscard]]
+			std::string to_string() const noexcept
+			{
+				return std::format(
+					"[ PrimarySample last_modification_iteration: {} "
+					"value_backup: {} modify_backup: {} ]",
+					last_modification_iteration, value_backup, modify_backup);
+			}
+
+			int64_t last_modification_iteration = 0;
+			Float value_backup = 0;
+			int64_t modify_backup = 0;
 		};
+
+		void ensure_ready(int index) noexcept;
+
 		int mutations_per_pixel;
 		RNG rng;
 		Float sigma;
 		Float large_step_probability;
-		int streamCount;
+		int stream_count;
 		std::vector<PrimarySample> X;
 		int64_t current_iteration = 0;
 		bool large_step = true;
