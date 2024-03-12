@@ -812,7 +812,7 @@ namespace loquat
 
 		void start_stream(int index) noexcept;
 
-		int get_next_indes() noexcept
+		int get_next_index() noexcept
 		{
 			return stream_index + stream_count * sample_index++;
 		}
@@ -900,7 +900,43 @@ namespace loquat
 
 	class DebugMLTSampler : public MLTSampler
 	{
+	public:
+		static DebugMLTSampler create(std::span<const std::string> state,
+			int sample_stream_count) noexcept;
+		
+		Float get_1D() noexcept
+		{
+			int index = get_next_index();
 
+			LOG_ASSERT(index <= sampler.size());
+			return sampler[index];
+		}
+
+		Point2f get_2D() noexcept
+		{
+			return { get_1D(), get_1D() };
+		}
+
+		Point2f get_pixel_2D() noexcept
+		{
+			return get_2D();
+		}
+
+		[[nodiscard]]
+		std::string to_string() const noexcept
+		{
+			return std::format(
+				"[ DebugMLTSampler {} sampler: {} ",
+				static_cast<const MLTSampler*>(this)->to_string(),
+				sampler);
+		}
+
+	private:
+		DebugMLTSampler(int sample_stream_count)
+			: MLTSampler(1, 0, 0.5, 0.5, sample_stream_count)
+		{}
+
+		std::vector<Float> sampler;
 	};
-
+	//TODO(ches) fill this out
 }
