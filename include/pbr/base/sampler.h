@@ -50,9 +50,9 @@ namespace loquat
 			Allocator allocator);
 
 		[[nodiscard]]
-		inline int samples_per_pixel() const noexcept;
+		inline int get_samples_per_pixel() const noexcept;
 
-		inline void start_pixel_sample(Point2i point, int sample_index,
+		inline void start_pixel_sample(Point2i p, int sample_index,
 			int dimension = 0) noexcept;
 
 		[[nodiscard]]
@@ -68,4 +68,17 @@ namespace loquat
 
 		std::string to_string() const noexcept;
 	};
+
+	template<typename T>
+	concept is_sampler =
+		std::same_as<T, Sampler>
+		|| std::same_as<T, PMJ02BNSampler>
+		|| std::same_as<T, IndependentSampler>
+		|| std::same_as<T, StratifiedSampler>
+		|| std::same_as<T, HaltonSampler>
+		|| std::same_as<T, PaddedSobolSampler>
+		|| std::same_as<T, SobolSampler>
+		|| std::same_as<T, ZSobolSampler>
+		|| std::same_as<T, MLTSampler>
+		|| std::same_as<T, DebugMLTSampler>;
 }

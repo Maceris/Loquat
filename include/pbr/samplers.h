@@ -649,7 +649,7 @@ namespace loquat
 		static ZSobolSampler* create(const ParameterDictionary& parameters,
 			Point2i full_resolution, Allocator allocator) noexcept;
 
-		int samples_per_pixel() const noexcept
+		int get_samples_per_pixel() const noexcept
 		{
 			return 1 << log2_samples_per_pixel;
 		}
@@ -938,5 +938,63 @@ namespace loquat
 
 		std::vector<Float> sampler;
 	};
-	//TODO(ches) fill this out
+
+	inline void Sampler::start_pixel_sample(Point2i p, int sample_index,
+		int dimension) noexcept
+	{
+		auto start = [&](auto ptr) {
+			return ptr->start_pixel_sample(p, sample_index, dimension);
+		};
+		dispatch(start);
+	}
+
+	[[nodiscard]]
+	inline int Sampler::get_samples_per_pixel() const noexcept
+	{
+		auto spp = [&](auto ptr) { return ptr->get_samples_per_pixel(); };
+		return dispatch(spp);
+	}
+
+	[[nodiscard]]
+	inline Float Sampler::get_1D() noexcept
+	{
+		auto get = [&](auto ptr) { return ptr->get_1D(); };
+		return dispatch(get);
+	}
+
+	[[nodiscard]]
+	inline Point2f Sampler::get_2D() noexcept
+	{
+		auto get = [&](auto ptr) { return ptr->get_2D(); };
+		return dispatch(get);
+	}
+
+	[[nodiscard]]
+	inline Point2f Sampler::get_pixel_2D() noexcept
+	{
+		auto get = [&](auto ptr) { return ptr->get_pixel_2D(); };
+		return dispatch(get);
+	}
+
+	template <is_sampler S>
+	inline CameraSample get_camera_sample(S sampler, Point2i pixel,
+		Filter filter) noexcept
+	{
+		FilterSample filter_sample = filter.sample(sampler.get_pixel_2D());
+		CameraSample camera_sample;
+		camera_sample.pFilm = pPixel + filter_sample.p + Vector2f(0.5f, 0.5f);
+		camera_sample.time = sampler.get_1D();
+		camera_sample.pLens = sampler.get_2D();
+		camera_sample.filterWeight = filter_sample.weight;
+
+		if (GetOptions().disablePixelJitter) {
+			camera_sample.pFilm = pPixel + Vec2f{ 0.5f, 0.5f };
+			camera_sample.time = 0.5f;
+			camera_sample.pLens = Point2f{ 0.5f, 0.5f };
+			camera_sample.filterWeight = 1;
+		}
+		return camera_sample;
+	}
+
+
 }
