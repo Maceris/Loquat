@@ -169,6 +169,9 @@ namespace loquat
         HairBxDF, MeasuredBxDF, ConductorBxDF, NormalizedFresnelBxDF>
     {
     public:
+
+        inline BxDFFlags get_flags() const noexcept;
+
         [[nodiscard]]
         inline SampledSpectrum f(Vec3f outgoing, Vec3f incoming,
             TransportMode mode) const noexcept;

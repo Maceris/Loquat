@@ -21,6 +21,11 @@ namespace loquat
 			return (bool) bxdf;
 		}
 
+		BxDFFlags get_flags() const noexcept
+		{
+			return bxdf.get_flags();
+		}
+
 		Vec3f render_to_local(Vec3f vector) const noexcept
 		{
 			return shading_frame.to_local(vector);
