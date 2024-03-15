@@ -16,7 +16,14 @@ namespace loquat
 	class BSDF
 	{
 	public:
-		operator bool() const
+		BSDF() noexcept = default;
+
+		BSDF(Normal3f ns, Vec3f dpdus, BxDF bxdf) noexcept
+			: bxdf{ bxdf }
+			, shading_frame{ Frame::from_XZ(glm::normalize(dpdus), ns) }
+		{}
+
+		operator bool() const noexcept
 		{
 			return (bool) bxdf;
 		}
@@ -47,6 +54,21 @@ namespace loquat
 			}
 			return bxdf.f(outgoing, incoming, mode);
 		}
+
+		template <is_BxDF BxDF>
+		SampledSpectrum f(Vec3f outgoing_render, Vec3f incoming_render,
+			TransportMode mode = TransportMode::Radiance) const noexcept
+		{
+			Vec3f incoming = render_to_local(incoming_render);
+			Vec3f outgoing = render_to_local(outgoing_render);
+			if (outgoing.z == 0)
+			{
+				return {};
+			}
+			const BxDF* specific_BxDF = bxdf.cast_or_nullptr<BxDF>();
+			return specific_BxDF->f(outgoing, incoming, mode);
+		}
+
 	private:
 		BxDF bxdf;
 		Frame shading_frame;

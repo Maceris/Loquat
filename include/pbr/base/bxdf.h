@@ -207,4 +207,22 @@ namespace loquat
             std::span<const Float> samples_1D,
             std::span<const Point2f> samples_2D) const noexcept;
     };
+
+
+
+    
+
+    template<typename T>
+    concept is_BxDF =
+        std::same_as<T, BxDF>
+        || std::same_as <T, DiffuseBxDF>
+        || std::same_as <T, DiffuseTransmissionBxDF>
+        || std::same_as <T, DielectricBxDF>
+        || std::same_as <T, ThinDielectricBxDF>
+        || std::same_as <T, HairBxDF>
+        || std::same_as <T, MeasuredBxDF>
+        || std::same_as <T, ConductorBxDF>
+        || std::same_as <T, NormalizedFresnelBxDF>
+        || std::same_as <T, CoatedDiffuseBxDF>
+        || std::same_as <T, CoatedConductorBxDF>;
 }
