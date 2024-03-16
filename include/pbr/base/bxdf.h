@@ -32,6 +32,24 @@ namespace loquat
         All = Reflection | Transmission
     };
 
+    inline BxDFReflTransFlags operator|(BxDFReflTransFlags a,
+        BxDFReflTransFlags b)
+    {
+        return BxDFReflTransFlags((int)a | (int)b);
+    }
+
+    inline int operator&(BxDFReflTransFlags a, BxDFReflTransFlags b)
+    {
+        return ((int)a & (int)b);
+    }
+
+    inline BxDFReflTransFlags& operator|=(BxDFReflTransFlags& a,
+        BxDFReflTransFlags b)
+    {
+        (int&)a |= int(b);
+        return a;
+    }
+
     /// <summary>
     /// Flags for indicating different properties of materials.
     /// </summary>
@@ -55,19 +73,22 @@ namespace loquat
         All = Diffuse | Glossy | Specular | Reflection | Transmission
     };
 
-    inline BxDFReflTransFlags operator|(BxDFReflTransFlags a,
-        BxDFReflTransFlags b)
+    inline BxDFFlags operator|(BxDFFlags a, BxDFFlags b)
     {
-        return BxDFReflTransFlags((int)a | (int)b);
+        return BxDFFlags(static_cast<int>(a) | static_cast<int>(b));
     }
 
-    inline int operator&(BxDFReflTransFlags a, BxDFReflTransFlags b)
+    inline int operator&(BxDFFlags a, BxDFFlags b)
     {
-        return ((int)a & (int)b);
+        return (static_cast<int>(a) & static_cast<int>(b));
     }
 
-    inline BxDFReflTransFlags& operator|=(BxDFReflTransFlags& a,
-        BxDFReflTransFlags b)
+    inline int operator&(BxDFFlags a, BxDFReflTransFlags b)
+    {
+        return (static_cast<int>(a) & static_cast<int>(b));
+    }
+
+    inline BxDFFlags& operator|=(BxDFFlags& a, BxDFFlags b)
     {
         (int&) a |= int(b);
         return a;
@@ -169,6 +190,10 @@ namespace loquat
         HairBxDF, MeasuredBxDF, ConductorBxDF, NormalizedFresnelBxDF>
     {
     public:
+        using TaggedPointer::TaggedPointer;
+
+        [[nodiscard]]
+        std::string to_string() const noexcept;
 
         inline BxDFFlags get_flags() const noexcept;
 
@@ -178,7 +203,8 @@ namespace loquat
 
         [[nodiscard]]
         inline std::optional<BSDFSample> sample_f(Vec3f outgoing, 
-            Vec3f incoming, TransportMode mode = TransportMode::Radiance,
+            Float sample_1D, Point2f sample_2D,
+            TransportMode mode = TransportMode::Radiance,
             BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
             const noexcept;
 
@@ -188,8 +214,8 @@ namespace loquat
             const noexcept;
 
         SampledSpectrum reflectance(Vec3f outgoing,
-            std::span<const Float> samples_1D,
-            std::span<const Point2f> samples_2D) const noexcept;
+            std::span<const Float> sample_1D,
+            std::span<const Point2f> sample_2D) const noexcept;
 
         /// <summary>
         /// Hemispherical-hemispherical reflectance of a BRDF, calculating
@@ -204,13 +230,11 @@ namespace loquat
         /// </param>
         /// <returns></returns>
         SampledSpectrum reflectance(std::span<const Point2f> hemisphere_sample,
-            std::span<const Float> samples_1D,
-            std::span<const Point2f> samples_2D) const noexcept;
+            std::span<const Float> sample_1D,
+            std::span<const Point2f> sample_2D) const noexcept;
+
+        inline void regularize() noexcept;
     };
-
-
-
-    
 
     template<typename T>
     concept is_BxDF =
