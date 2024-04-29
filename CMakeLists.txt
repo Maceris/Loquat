@@ -50,7 +50,7 @@ OPTION(DOUBLE_PRECISION_FLOAT
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 IF(WIN32)
-  # Use subSETof Windows.h
+  # Use subsetof Windows.h
   ADD_DEFINITIONS(-DWIN32_LEAN_AND_MEAN)
 
   IF(MSVC)
@@ -59,7 +59,7 @@ IF(WIN32)
       ON
 	)
     IF(NOT (MSVC_VERSION LESS 1900))
-      # Multibyte character SETis deprecated since
+      # Multibyte character set is deprecated since
 	  # at least MSVC2015 (possibly earlier)
       ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
     ENDIF()

@@ -125,7 +125,6 @@ SET(IMGUI_HEADERS
   ${IMGUI_PATH}/imstb_truetype.h
   ${IMGUI_PATH}/backends/imgui_impl_glfw.h
   ${IMGUI_PATH}/backends/imgui_impl_vulkan.h
-  ${IMGUI_PATH}/backends/imgui_impl_win32.h
   ${IMGUI_PATH}/misc/cpp/imgui_stdlib.h
 )
 
@@ -143,9 +142,19 @@ SET(IMGUI_SRCS
   ${IMGUI_PATH}/imgui_widgets.cpp
   ${IMGUI_PATH}/backends/imgui_impl_glfw.cpp
   ${IMGUI_PATH}/backends/imgui_impl_vulkan.cpp
-  ${IMGUI_PATH}/backends/imgui_impl_win32.cpp
   ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
 )
+
+IF(MSVC)
+  SET(IMGUI_HEADERS
+    ${IMGUI_HEADERS}
+    ${IMGUI_PATH}/backends/imgui_impl_win32.h
+  )
+  SET(IMGUI_SRCS
+    ${IMGUI_SRCS}
+    ${IMGUI_PATH}/backends/imgui_impl_win32.cpp
+  )
+ENDIF()
 
 SOURCE_GROUP(TREE ${HEADER_PATH} PREFIX "include" FILES ${PUBLIC_HEADERS})
 SOURCE_GROUP(TREE ${SOURCE_PATH} PREFIX "src" FILES ${CORE_SRCS})
