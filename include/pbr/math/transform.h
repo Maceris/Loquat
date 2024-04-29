@@ -34,7 +34,7 @@ namespace loquat
 		Transform(const Mat4& matrix) noexcept
 			: matrix{ matrix }
 		{
-			std::optional<Mat4> inverse = matrix::invert(matrix);
+			std::optional<Mat4> inverse = glm::inverse(matrix);
 			if (inverse)
 			{
 				matrix_inverse = *inverse;

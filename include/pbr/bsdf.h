@@ -125,7 +125,7 @@ namespace loquat
 				return {};
 			}
 			const BxDF* specific_BxDF = bxdf.cast<BxDF>();
-			if (!(specific_BxDF.get_flags() & sample_flags))
+			if (!(specific_BxDF->get_flags() & sample_flags))
 			{
 				return {};
 			}

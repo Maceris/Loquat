@@ -56,10 +56,10 @@ namespace loquat
 			: type{ type }
 			, location{ location }
 		{}
-		constexpr ShaderStage(const ShaderStage&) = default;
-		ShaderStage& operator=(const ShaderStage&) = default;
-		constexpr ShaderStage(ShaderStage&&) = default;
-		ShaderStage& operator=(ShaderStage&&) = default;
+		constexpr ShaderStage(const ShaderStage&) = delete;
+		ShaderStage& operator=(const ShaderStage&) = delete;
+		constexpr ShaderStage(ShaderStage&&) = delete;
+		ShaderStage& operator=(ShaderStage&&) = delete;
 		~ShaderStage() = default;
 	};
 

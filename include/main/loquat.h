@@ -35,7 +35,7 @@ namespace loquat
 	class Ray;
 	class RayDifferential;
 	class SurfaceInteraction;
-	class Transform;
+	struct Transform;
 	class TriangleMesh;
 
 	class RGB;
