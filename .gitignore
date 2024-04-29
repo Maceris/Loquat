@@ -47,3 +47,4 @@ lib/*
 bin/*
 test/test_runner
 
+*.xcodeproj
