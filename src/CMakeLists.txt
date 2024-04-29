@@ -145,7 +145,7 @@ SET(IMGUI_SRCS
   ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
 )
 
-IF(MSVC)
+IF(WIN32)
   SET(IMGUI_HEADERS
     ${IMGUI_HEADERS}
     ${IMGUI_PATH}/backends/imgui_impl_win32.h
