@@ -79,13 +79,15 @@ namespace loquat
 	{
 		Logger::init();
 		Logger::set_display_flags("Debug", FLAG_WRITE_TO_DEBUGGER);
-
-		glfwInit();
+        
+        glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_TRUE);
+        glfwInit();
+        
 		if (!glfwVulkanSupported())
 		{
 			LOG_FATAL("Vulkan is not supported on this system!");
 		}
-
+        
 		std::filesystem::path resource_path{
 			std::filesystem::current_path().append("resources") };
 		std::filesystem::path full_resource_path =
