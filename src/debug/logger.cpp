@@ -218,21 +218,21 @@ void LogManager::set_display_flags(std::string_view tag, unsigned char flags)
 	std::scoped_lock lock{ tag_mutex };
 
 	Tags::iterator result = tags.find(tag);
-	if (flags == FLAG_WRITE_NOWHERE)
-	{
-		tags.erase(result);
-	}
-	else
-	{
-		if (result != tags.end())
-		{
-			result->second = flags;
-		}
-		else
-		{
-			tags.insert(std::make_pair(tag, flags));
-		}
-	}
+	
+    if (result != tags.end())
+    {
+        if (flags == FLAG_WRITE_NOWHERE)
+        {
+            tags.erase(result);
+        }
+        else {
+            result->second = flags;
+        }
+    }
+    else if (flags != FLAG_WRITE_NOWHERE)
+    {
+        tags.insert(std::make_pair(tag, flags));
+    }
 }
 
 void LogManager::add_error_logger(Logger::ErrorLogger* logger)
