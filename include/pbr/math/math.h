@@ -58,6 +58,23 @@ namespace loquat
 	/// </summary>
 	template <typename T>
 	concept number = std::integral<T> || std::floating_point<T>;
+
+	template <number T, number U, number V>
+	inline constexpr T clamp(T value, U low, V high) noexcept
+	{
+		if (value < low)
+		{
+			return static_cast<T>(low);
+		}
+		else if (value > high)
+		{
+			return static_cast<T>(high);
+		}
+		else
+		{
+			return value;
+		}
+	}
 	
 	template <typename Float, typename C>
 	inline constexpr Float evaluate_polynomial(Float t, C c) noexcept
@@ -105,6 +122,23 @@ namespace loquat
 		bits &= 0b10000000011111111111111111111111u;
 		bits |= (exp + 127) << 23;
 		return std::bit_cast<float>(bits);
+	}
+
+	template <std::predicate<size_t> Predicate>
+	inline size_t find_interval(size_t size, const Predicate& predicate) noexcept
+	{
+		using ssize_t = std::make_signed_t<size_t>;
+		ssize_t sz = static_cast<ssize_t>(size) - 2;
+		ssize_t first = 1;
+		while (sz > 0)
+		{
+			size_t half = static_cast<size_t>(sz) >> 1;
+			size_t middle = first + half;
+			bool result = predicate(middle);
+			first = result ? middle + 1 : first;
+			size = result ? size - (half + 1) : half;
+		}
+		return static_cast<size_t>(clamp(static_cast<size_t>(first) + 1, 0, size - 2));
 	}
 
 	inline uint64_t left_shift_2(uint64_t x) noexcept
@@ -387,23 +421,6 @@ namespace loquat
 		LOG_ASSERT(x >= -1e-3f
 			&& "Computing square root of very negative double");
 		return std::sqrt(std::max(0.0, x));
-	}
-
-	template <number T, number U, number V>
-	inline constexpr T clamp(T value, U low, V high) noexcept
-	{
-		if (value < low)
-		{
-			return static_cast<T>(low);
-		}
-		else if (value > high)
-		{
-			return static_cast<T>(high);
-		}
-		else
-		{
-			return value;
-		}
 	}
 
 }

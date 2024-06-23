@@ -17,17 +17,29 @@ namespace loquat
 {
 	struct FilterSample
 	{
-		Point2f p;
+		Point2f sample;
 		Float weight;
 	};
 
 	class FilterSampler
 	{
 	public:
+		FilterSampler(Filter filter, Allocator alloc = {});
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		FilterSample sample(Point2f sample_2d) const noexcept
+		{
+			Float pdf;
+			Point2i intersection;
+			Point2f sample = distribution.sample(sample_2d, &pdf, &intersection);
+			return FilterSample{ sample, filter_function_values[intersection] / pdf };
+		}
 
 	private:
 		AABB2f domain;
-		Array2D<Float> f;
+		Array2D<Float> filter_function_values;
 		PiecewiseConstant2D distribution;
 	};
 
