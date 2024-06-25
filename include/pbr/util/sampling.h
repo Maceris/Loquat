@@ -12,6 +12,18 @@ namespace loquat
 {
 	//TODO(ches) complete this
 
+	template <typename Float = Float>
+	class VarianceEstimator
+	{
+
+	};
+
+	template <typename T>
+	class WeightedReservoirSampler
+	{
+
+	};
+
 	class PiecewiseConstant1D
 	{
 	public:
@@ -77,4 +89,45 @@ namespace loquat
 		std::vector<PiecewiseConstant1D> conditional_densities;
 		PiecewiseConstant1D marginal_density;
 	};
+
+	class AliasTable
+	{
+	};
+
+	class SummedAreaTable
+	{
+
+	};
+
+	class WindowedPiecewiseConstant2D
+	{
+
+	};
+
+	namespace detail
+	{
+		template <typename Iterator>
+		class IndexingIterator
+		{
+
+		};
+
+		template <typename Generator, typename Iterator>
+		class IndexingGenerator
+		{
+
+		};
+
+		class Uniform1DIter;
+		class Uniform2DIter;
+		class Uniform3DIter;
+		class Hammersley2DIter;
+		class Hammersley3DIter;
+		class Stratified1DIter;
+		class Stratified2DIter;
+		class Stratified3DIter;
+		template <typename Iterator>
+		class RNGIterator;
+
+	}
 }
