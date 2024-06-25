@@ -6,10 +6,45 @@
 
 #pragma once
 
+#include <span>
+
 #include "main/loquat.h"
 
 namespace loquat
 {
+
+	inline int sample_discrete(std::span<const Float> weights, Float u,
+		Float* pmf = nullptr, Float* uRemapped = nullptr);
+
+	inline Float sample_linear(Float u, Float a, Float b);
+	inline Float invert_linear_sample(Float x, Float a, Float b);
+	
+	std::array<Float, 3> sample_spherical_triangle(
+		const std::array<Point3f, 3>& v, Point3f p, Point2f u,
+		Float* pdf = nullptr);
+	
+	Point2f invert_spherical_triangle_sample(
+		const std::array<Point3f, 3>& v, Point3f p, Vec3f w);
+	
+	Point3f sample_spherical_rectangle(Point3f p, Point3f v00, Vec3f eu,
+		Vec3f ev, Point2f u, Float* pdf = nullptr);
+	
+	Point2f invert_spherical_rectangle_sample(Point3f pRef, Point3f v00,
+		Vec3f eu, Vec3f ev, Point3f pRect);
+	
+	Vec3f sample_henyey_greenstein(Vec3f wo, Float g, Point2f u,
+		Float* pdf = nullptr);
+
+	Float sample_catmull_rom(std::span<const Float> nodes,
+		std::span<const Float> f, std::span<const Float> cdf, Float sample,
+		Float* fval = nullptr,
+		Float* pdf = nullptr);
+	
+	Float sample_catmull_rom_2D(std::span<const Float> nodes1,
+		std::span<const Float> nodes2, std::span<const Float> values,
+		std::span<const Float> cdf, Float alpha, Float sample,
+		Float* fval = nullptr, Float* pdf = nullptr);
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
@@ -128,6 +163,12 @@ namespace loquat
 		class Stratified3DIter;
 		template <typename Iterator>
 		class RNGIterator;
+
+		template <size_t Dimension = 0>
+		class PiecewiseLinear2D
+		{
+
+		};
 
 	}
 }
