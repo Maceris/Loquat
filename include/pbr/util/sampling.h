@@ -23,11 +23,6 @@
 
 namespace loquat
 {
-
-	inline int sample_discrete(std::span<const Float> weights, Float u,
-		Float* pmf = nullptr, Float* uRemapped = nullptr);
-
-	inline Float sample_linear(Float u, Float a, Float b);
 	inline Float invert_linear_sample(Float x, Float a, Float b);
 	
 	std::array<Float, 3> sample_spherical_triangle(
@@ -74,6 +69,76 @@ namespace loquat
 		}
 		return square(f) / (square(f) + square(g));
 	}
+
+	inline int sample_discrete(std::span<const Float> weights, Float u,
+		Float* pmf = nullptr, Float* u_remapped = nullptr)
+	{
+		if (weights.empty())
+		{
+			if (pmf)
+			{
+				*pmf = 0;
+			}
+			return -1;
+		}
+		Float weight_sum = 0;
+		for (Float weight : weights)
+		{
+			weight_sum += weight;
+		}
+
+		Float up = u * weight_sum;
+		if (up == weight_sum)
+		{
+			up = next_float_down(up);
+		}
+
+		int offset = 0;
+		Float sum = 0;
+		while (sum + weights[offset] <= up)
+		{
+			sum += weights[offset];
+			offset++;
+			LOG_ASSERT(offset < weights.size());
+		}
+
+		if (pmf)
+		{
+			*pmf = weights[offset] / weight_sum;
+		}
+		if (u_remapped)
+		{
+			*u_remapped = std::min((up - sum) / weights[offset], ONE_MINUS_EPSILON);
+		}
+
+		return offset;
+	}
+
+	inline Float linear_PDF(Float x, Float a, Float b)
+	{
+		LOG_ASSERT(a >= 0 && b >= 0);
+
+		if (x < 0 || x > 1)
+		{
+			return 0;
+		}
+
+		return 2 * lerp(x, a, b) / (a + b);
+	}
+
+	inline Float sample_linear(Float u, Float a, Float b)
+	{
+		LOG_ASSERT(a >= 0 && b >= 0);
+		
+		if (u == 0 && a == 0)
+		{
+			return 0;
+		}
+
+		Float x = u * (a + b) / (a + std::sqrt(lerp(u, square(a), square(b))));
+		return std::min(x, ONE_MINUS_EPSILON);
+	}
+
 
 	//TODO(ches) complete this
 
