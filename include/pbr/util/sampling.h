@@ -6,9 +6,20 @@
 
 #pragma once
 
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <ostream>
 #include <span>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 #include "main/loquat.h"
+#include "pbr/struct/containers.h"
+#include "pbr/math/math.h"
+#include "pbr/math/rng.h"
+#include "pbr/math/vector_math.h"
 
 namespace loquat
 {
@@ -44,6 +55,25 @@ namespace loquat
 		std::span<const Float> nodes2, std::span<const Float> values,
 		std::span<const Float> cdf, Float alpha, Float sample,
 		Float* fval = nullptr, Float* pdf = nullptr);
+
+	inline Float balance_heuristic(int sample_count1, Float sample1, 
+		int sample_count2, Float sample2)
+	{
+		return (sample_count1 * sample1) 
+			/ (sample_count1 * sample1 + sample_count2 * sample2);
+	}
+
+	inline Float power_heuristic(int sample_count1, Float sample1,
+		int sample_count2, Float sample2)
+	{
+		Float f = sample_count1 * sample1;
+		Float g = sample_count2 * sample2;
+		if (is_inf(square(f)))
+		{
+			return 1;
+		}
+		return square(f) / (square(f) + square(g));
+	}
 
 	//TODO(ches) complete this
 
