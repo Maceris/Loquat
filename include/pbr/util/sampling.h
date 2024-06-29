@@ -125,16 +125,16 @@ namespace loquat
 		return 2 * lerp(x, a, b) / (a + b);
 	}
 
-	inline Float sample_linear(Float u, Float a, Float b)
+	inline Float sample_linear(Float sample, Float a, Float b)
 	{
 		LOG_ASSERT(a >= 0 && b >= 0);
 		
-		if (u == 0 && a == 0)
+		if (sample == 0 && a == 0)
 		{
 			return 0;
 		}
 
-		Float x = u * (a + b) / (a + std::sqrt(lerp(u, square(a), square(b))));
+		Float x = sample * (a + b) / (a + std::sqrt(lerp(sample, square(a), square(b))));
 		return std::min(x, ONE_MINUS_EPSILON);
 	}
 
@@ -170,6 +170,77 @@ namespace loquat
 				+ sample[0] * sample[1] * values[3]
 			)
 			/ (values[0] + values[1] + values[2] + values[3]);
+	}
+
+	/// <summary>
+	/// Interpolates between 4 values at the four corners of [0, 1]^2,
+	/// and returns the sampled point.
+	/// </summary>
+	/// 
+	/// <param name="sample">The coordinates we are interested in.</param>
+	/// <param name="values">The valuse at (0, 0), (1, 0), (0, 1), and (1, 1) respectively.</param>
+	/// <returns></returns>
+	inline Point2f sample_bilinear(Point2f sample,
+		std::span<const Float> values)
+	{
+		LOG_ASSERT(values.size() == 4 && "Exactly 4 values are required");
+		Point2f result;
+
+		result.y = sample_linear(
+			sample[1], 
+			values[0] + values[1], 
+			values[2] + values[3]
+		);
+
+		result.x = sample_linear(
+			sample[0],
+			lerp(result.y, values[0], values[2]),
+			lerp(result.y, values[1], values[3])
+		);
+		
+		return result;
+	}
+
+	inline Point2f invert_bilinear_sample(Point2f sample,
+		std::span<const Float> values)
+	{
+		return {
+			invert_linear_sample(
+				sample.x, 
+				lerp(sample.y, values[0], values[2]), 
+				lerp(sample.y, values[1], values[3])
+			),
+			invert_linear_sample(
+				sample.y,
+				values[0] + values[1],
+				values[2] + values[3]
+			)
+		};
+	}
+
+	/// <summary>
+	/// Calculates the probability of sampling a particular wavelength.
+	/// </summary>
+	/// <param name="wavelength">The wavelenth, in nanometers.
+	/// Should be between 360 and 830 for nonzero results.</param>
+	/// <returns>The probability of sampling the provided wavelength.</returns>
+	inline Float visible_wavelengths_PDF(Float wavelength)
+	{
+		if (wavelength < 360 || wavelength > 830)
+		{
+			return 0;
+		}
+		return 0.0039398042f / square(std::cosh(0.0072f * (wavelength - 538)));
+	}
+
+	/// <summary>
+	/// Samples the visible wavelengths (between 360 and 830 nm).
+	/// </summary>
+	/// <param name="sample">The sample value, in the range [0, 1).</param>
+	/// <returns>The wavelength, in nm, between 360 and 830.</returns>
+	inline Float sample_visible_wavelengths(Float sample)
+	{
+		return 538 - 138.888889f * std::atanh(0.85691062f - 1.82750197f * sample);
 	}
 
 	//TODO(ches) complete this
