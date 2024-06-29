@@ -23,7 +23,6 @@
 
 namespace loquat
 {
-	inline Float invert_linear_sample(Float x, Float a, Float b);
 	
 	std::array<Float, 3> sample_spherical_triangle(
 		const std::array<Point3f, 3>& v, Point3f p, Point2f u,
@@ -139,6 +138,39 @@ namespace loquat
 		return std::min(x, ONE_MINUS_EPSILON);
 	}
 
+	inline Float invert_linear_sample(Float x, Float a, Float b)
+	{
+		return x * (a * (2 - x) + b * x) / (a + b);
+	}
+
+	/// <summary>
+	/// Interpolates between 4 values at the four corners of [0, 1]^2,
+	/// and returns the probability of that sample.
+	/// </summary>
+	/// 
+	/// <param name="sample">The coordinates we are interested in.</param>
+	/// <param name="values">The valuse at (0, 0), (1, 0), (0, 1), and (1, 1) respectively.</param>
+	/// <returns></returns>
+	inline Float bilinear_PDF(Point2f sample, std::span<const Float> values)
+	{
+		LOG_ASSERT(values.size() == 4 && "Exactly 4 values are required");
+		if (sample.x < 0 || sample.x > 1 || sample.y < 0 || sample.y > 1)
+		{
+			return 0;
+		}
+		if (values[0] + values[1] + values[2] + values[3] == 0)
+		{
+			return 1;
+		}
+		return 4 *
+			(
+				(1 - sample[0]) * (1 - sample[1]) * values[0]
+				+ sample[0] * (1 - sample[1]) * values[1]
+				+ (1 - sample[0]) * sample[1] * values[2]
+				+ sample[0] * sample[1] * values[3]
+			)
+			/ (values[0] + values[1] + values[2] + values[3]);
+	}
 
 	//TODO(ches) complete this
 
