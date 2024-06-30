@@ -7,6 +7,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <functional>
 #include <ostream>
@@ -241,6 +242,69 @@ namespace loquat
 	inline Float sample_visible_wavelengths(Float sample)
 	{
 		return 538 - 138.888889f * std::atanh(0.85691062f - 1.82750197f * sample);
+	}
+
+	inline std::array<Float, 3> sample_uniform_triangle(Point2f sample)
+	{
+		Float b0;
+		Float b1;
+
+		if (sample[0] < sample[1])
+		{
+			b0 = sample[0] / 2;
+			b1 = sample[1] - b0;
+		}
+		else
+		{
+			b1 = sample[1] / 2;
+			b0 = sample[0] - b1;
+		}
+		return { b0, b1, 1 - b0 - b1 };
+	}
+
+	inline Point2f invert_uniform_triangle_sample(const std::array<Float, 3>& b)
+	{
+		if (b[0] > b[1])
+		{
+			return { b[0] + b[1], 2 * b[1] };
+		}
+		return { 2 * b[0], b[1] + b[0] };
+	}
+
+	inline Float tent_PDF(Float x, Float r)
+	{
+		if (std::abs(x) >= r)
+		{
+			return 0;
+		}
+		return 1 / r - std::abs(x) / square(r);
+	}
+
+	inline Float invert_tent_sample(Float x, Float r)
+	{
+		if (x <= 0)
+		{
+			return (1 - invert_linear_sample(-x / r, 1, 0)) / 2;
+		}
+		return 0.5f + invert_linear_sample(x / r, 1, 0) / 2;
+	}
+
+	inline Float exponential_PDF(Float x, Float a)
+	{
+		LOG_ASSERT(a > 0);
+		return a * std::exp(-1 * x);
+	}
+
+	inline Float sample_exponential(Float u, Float a)
+	{
+		LOG_ASSERT(a > 0);
+		return -std::log(1 - u) / a;
+	}
+
+	inline Float invert_exponential_sample(Float x, Float a)
+	{
+		LOG_ASSERT(a > 0);
+		return 1 - std::exp(-a * x);
 	}
 
 	//TODO(ches) complete this
