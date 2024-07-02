@@ -307,6 +307,21 @@ namespace loquat
 		return 1 - std::exp(-a * x);
 	}
 
+	inline Float normal_PDF(Float x, Float mu = 0, Float sigma = 1)
+	{
+		return gaussian(x, mu, sigma);
+	}
+
+	inline Float sample_normal(Float u, Float mu = 0, Float sigma = 1)
+	{
+		return mu + SQRT2 * sigma * error_function_inverse(2 * u - 1);
+	}
+
+	inline Float invert_normal_sample(Float x, Float mu = 0, Float sigma = 1)
+	{
+		return 0.5f * (1 + std::erf((x - mu) / (sigma * SQRT2)));
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
