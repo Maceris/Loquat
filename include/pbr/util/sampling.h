@@ -322,6 +322,59 @@ namespace loquat
 		return 0.5f * (1 + std::erf((x - mu) / (sigma * SQRT2)));
 	}
 
+	inline Point2f sample_two_normal(Point2f u, Float mu = 0, Float sigma = 1)
+	{
+		Float r2 = -2 * std::log(1 - u[0]);
+		return {
+			mu + sigma * std::sqrt(r2 * std::cos(2 * PI * u[1])),
+			mu + sigma * std::sqrt(r2 * std::sin(2 * PI * u[1]))
+		};
+	}
+
+	inline Float logistic_PDF(Float x, Float s)
+	{
+		Float abs_x = std::abs(x);
+		return std::exp(-abs_x / s) / (s * square(1 + std::expint(-abs_x / s)));
+	}
+
+	inline Float sample_logistic(Float u, Float s)
+	{
+		return -s * std::log(1 / u - 1);
+	}
+
+	inline Float invert_logistic_sample(Float x, Float s)
+	{
+		return 1 / (1 + std::exp(-x / s));
+	}
+
+	inline Float trimmed_logistic_PDF(Float x, Float s, Float a, Float b)
+	{
+		if (x < a || x > b)
+		{
+			return 0;
+		}
+		auto p = [&](Float x) { return invert_logistic_sample(x, s); };
+		return logistic(x, s) / (p(b) - p(a));
+	}
+
+	inline Float sample_trimmed_logistic(Float u, Float s, Float a, Float b)
+	{
+		LOG_ASSERT(a < b);
+		auto p = [&](Float x) { return invert_logistic_sample(x, s); };
+		u = lerp(u, p(a), p(b));
+		Float x = sample_logistic(u, s);
+		LOG_ASSERT(!is_NaN(x));
+		return clamp(x, a, b);
+	}
+
+	inline Float invert_trimmed_logistic_sample(Float x, Float s, Float a,
+		Float b)
+	{
+		LOG_ASSERT(a <= x && x <= b);
+		auto p = [&](Float x) { return invert_logistic_sample(x, s); };
+		return (p(x) - p(a)) / (p(b) - p(a));
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>

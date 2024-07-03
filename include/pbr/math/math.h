@@ -309,6 +309,12 @@ namespace loquat
 		return log2_int(v) / 2;
 	}
 
+	inline Float logistic(Float x, Float s) noexcept
+	{
+		Float abs_x = std::abs(x);
+		return std::exp(-abs_x / s) / (s * square(1 + std::expf(-abs_x / s)));
+	}
+
 	inline uint64_t encode_morton_2(uint32_t x, uint32_t y) noexcept
 	{
 		return (left_shift_2(y) << 1) | left_shift_2(x);
