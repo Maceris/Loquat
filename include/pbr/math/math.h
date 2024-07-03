@@ -6,7 +6,9 @@
 
 #pragma once
 
+#include <concepts>
 #include <numbers>
+#include <utility>
 
 namespace loquat
 {
@@ -61,6 +63,9 @@ namespace loquat
 
 	// Forward declarations
 
+
+	inline uint64_t left_shift_2(uint64_t x) noexcept;
+
 	template <typename T>
 		requires std::integral<T> || std::floating_point<T>
 	constexpr T square(T value) noexcept;
@@ -82,6 +87,11 @@ namespace loquat
 		{
 			return value;
 		}
+	}
+
+	inline uint64_t encode_morton_2(uint32_t x, uint32_t y) noexcept
+	{
+		return (left_shift_2(y) << 1) | left_shift_2(x);
 	}
 
 	inline Float error_function_inverse(Float a) noexcept
@@ -190,6 +200,12 @@ namespace loquat
 	{
 		return 1 / std::sqrt(2 * PI * square(sigma))
 			* fast_e(-square(x - mu) / (2 * square(sigma)));
+	}
+
+	template <std::integral T>
+	inline constexpr bool is_power_of_2(T v) noexcept
+	{
+		return v && !(v & (v - 1));
 	}
 
 	inline uint64_t left_shift_2(uint64_t x) noexcept
@@ -315,15 +331,57 @@ namespace loquat
 		return std::exp(-abs_x / s) / (s * square(1 + std::expf(-abs_x / s)));
 	}
 
-	inline uint64_t encode_morton_2(uint32_t x, uint32_t y) noexcept
+	template <typename Func>
+		requires requires (Func f, Float x) {
+			{ f(x) } -> std::convertible_to<std::pair<Float, Float>>;
+		}
+	inline Float newton_bisection(Float x0, Float x1, Func f,
+		Float x_eps = 1e-6f, Float f_eps = 1e-6f)
 	{
-		return (left_shift_2(y) << 1) | left_shift_2(x);
-	}
+		LOG_ASSERT(x0 < x1);
+		Float fx0 = f(x0).first;
+		Float fx1 = f(x1).first;
 
-	template <std::integral T>
-	inline constexpr bool is_power_of_2(T v) noexcept
-	{
-		return v && !(v & (v - 1));
+		if (std::abs(fx0) < f_eps)
+		{
+			return x0;
+		}
+		if (std::abs(fx1) < f_eps)
+		{
+			return x1;
+		}
+
+		bool start_is_negative = fx0 < 0;
+
+		Float x_mid = x0 + (x1 - x0) * -fx0 / (fx1 - fx0);
+
+		while (true)
+		{
+			if (!(x0 < x_mid && x_mid < x1))
+			{
+				x_mid = (x0 + x1) / 2;
+			}
+
+			std::pair<Float, Float> fx_mid = f(x_mid);
+			LOG_ASSERT(!is_NaN(fx_mid.first));
+
+			if (start_is_negative == (fx_mid < 0))
+			{
+				x0 = x_mid;
+			}
+			else
+			{
+				x1 = x_mid;
+			}
+
+			if ((x1 - x0) < x_eps || std::abs(fx_mid.first) < f_eps)
+			{
+				return x_mid;
+			}
+
+			x_mid -= fx_mid.first / fx_mid.second;
+
+		}
 	}
 
 	[[nodiscard]]
@@ -478,6 +536,17 @@ namespace loquat
 		LOG_ASSERT(x >= -1e-3f
 			&& "Computing square root of very negative double");
 		return std::sqrt(std::max(0.0, x));
+	}
+
+	inline Float smooth_step(Float x, Float a, Float b) noexcept
+	{
+		if (a == b)
+		{
+			return (x < a) ? 0 : 1;
+		}
+		LOG_ASSERT(a < b);
+		Float t = clamp((x - a) / (b - a), 0, 1);
+		return t * t * (3 - 2 * t);
 	}
 
 }

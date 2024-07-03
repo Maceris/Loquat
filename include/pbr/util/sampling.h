@@ -375,6 +375,36 @@ namespace loquat
 		return (p(x) - p(a)) / (p(b) - p(a));
 	}
 
+	inline Float smooth_step_PDF(Float x, Float a, Float b)
+	{
+		if (x < a || x > b)
+		{
+			return 0;
+		}
+		LOG_ASSERT(a < b);
+		return (2 / (b - a)) * smooth_step(x, a, b);
+	}
+
+	inline Float sample_smooth_step(Float u, Float a, Float b)
+	{
+		LOG_ASSERT(a < b);
+		auto cdf_minus_u = [=](Float x) -> std::pair<Float, Float> {
+			Float t = (x - a) / (b - a);
+			Float p = 2 * pow<3>(t) - pow<4>(t);
+			Float p_deriv = smooth_step_PDF(x, a, b);
+			return { p - u, p_deriv };
+		};
+		return newton_bisection(a, b, cdf_minus_u);
+
+	}
+
+	inline Float invert_smooth_step_sample(Float x, Float a, Float b)
+	{
+		Float t = (x - a) / (b - a);
+		auto p = [&](Float x) { return 2 * pow<3>(t) - pow<4>(t); };
+		return (p(x) - p(a)) / (p(b) - p(a));
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
