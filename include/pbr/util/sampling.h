@@ -385,14 +385,14 @@ namespace loquat
 		return (2 / (b - a)) * smooth_step(x, a, b);
 	}
 
-	inline Float sample_smooth_step(Float u, Float a, Float b)
+	inline Float sample_smooth_step(Float sample, Float a, Float b)
 	{
 		LOG_ASSERT(a < b);
 		auto cdf_minus_u = [=](Float x) -> std::pair<Float, Float> {
 			Float t = (x - a) / (b - a);
 			Float p = 2 * pow<3>(t) - pow<4>(t);
 			Float p_deriv = smooth_step_PDF(x, a, b);
-			return { p - u, p_deriv };
+			return { p - sample, p_deriv };
 		};
 		return newton_bisection(a, b, cdf_minus_u);
 
@@ -405,10 +405,10 @@ namespace loquat
 		return (p(x) - p(a)) / (p(b) - p(a));
 	}
 
-	inline Point2f sample_uniform_disk_polar(Point2f u)
+	inline Point2f sample_uniform_disk_polar(Point2f sample)
 	{
-		Float r = std::sqrt(u[0]);
-		Float theta = 2 * PI * u[1];
+		Float r = std::sqrt(sample[0]);
+		Float theta = 2 * PI * sample[1];
 		return { r * std::cos(theta), r * std::sin(theta) };
 	}
 
@@ -420,6 +420,32 @@ namespace loquat
 			phi += 2 * PI;
 		}
 		return { square(p.x) + square(p.y), phi / (2 * PI) };
+	}
+
+	inline Point2f sample_uniform_disk_concentric(Point2f sample)
+	{
+		Point2f offset = 2.0f * sample - Vec2f(1, 1);
+
+		if (offset.x == 0 && offset.y == 0)
+		{
+			return { 0, 0 };
+		}
+
+		Float theta;
+		Float r;
+
+		if (std::abs(offset.x) > std::abs(offset.y))
+		{
+			r = offset.x;
+			theta = PI_OVER_4 * (offset.y / offset.x);
+		}
+		else
+		{
+			r = offset.y;
+			theta = PI_OVER_2 - PI_OVER_4 * (offset.x / offset.y);
+		}
+
+		return r * Point2f(std::cos(theta), std::sin(theta));
 	}
 
 	//TODO(ches) complete this
