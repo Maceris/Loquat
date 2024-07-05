@@ -405,6 +405,23 @@ namespace loquat
 		return (p(x) - p(a)) / (p(b) - p(a));
 	}
 
+	inline Point2f sample_uniform_disk_polar(Point2f u)
+	{
+		Float r = std::sqrt(u[0]);
+		Float theta = 2 * PI * u[1];
+		return { r * std::cos(theta), r * std::sin(theta) };
+	}
+
+	inline Point2f invert_uniform_disk_polar_sample(Point2f p)
+	{
+		Float phi = std::atan2(p.y, p.x);
+		if (phi < 0)
+		{
+			phi += 2 * PI;
+		}
+		return { square(p.x) + square(p.y), phi / (2 * PI) };
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
