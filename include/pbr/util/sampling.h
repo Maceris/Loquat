@@ -448,6 +448,62 @@ namespace loquat
 		return r * Point2f(std::cos(theta), std::sin(theta));
 	}
 
+	inline Point2f invert_uniform_disk_concentric_sample(Point2f p)
+	{
+		Float theta = std::atan2(p.y, p.x);
+		Float r = std::sqrt(square(p.x) + square(p.y));
+
+		Point2f uo;
+
+		if (std::abs(theta) < PI_OVER_4 || std::abs(theta) > 3 * PI_OVER_4)
+		{
+			uo.x = r = std::copysign(r, p.x);
+			if (p.x < 0)
+			{
+				Float pi = (p.y < 0) ? PI : -PI;
+				uo.y = (theta + pi) * r / PI_OVER_4;
+			}
+			else
+			{
+				uo.y = (theta * r) / PI_OVER_4;
+			}
+		}
+		else
+		{
+			uo.y = r = std::copysign(r, p.y);
+
+			Float pi_over_two = (p.y < 0) ? -PI_OVER_2 : PI_OVER_2;
+			uo.x = (pi_over_two - theta) * r / PI_OVER_4;
+		}
+
+		return { (uo.x + 1) / 2, (uo.y + 1) / 2 };
+	}
+
+	inline Vec3f sample_uniform_hemisphere(Point2f sample)
+	{
+		Float z = sample[0];
+		Float r = safe_square_root(1 - square(z));
+		Float phi = 2 * PI * sample[1];
+
+		return { r * std::cos(phi), r * std::sin(phi), z };
+	}
+
+	inline Float uniform_hemisphere_PDF()
+	{
+		return INV_2PI;
+	}
+
+	inline Point2f invert_uniform_hemisphere_sample(Vec3f w)
+	{
+		Float phi = std::atan2(w.y, w.x);
+		if (phi < 0)
+		{
+			phi += 2 * PI;
+		}
+
+		return Point2f(w.z, phi / (2 * PI));
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
