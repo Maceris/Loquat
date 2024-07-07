@@ -504,6 +504,31 @@ namespace loquat
 		return Point2f(w.z, phi / (2 * PI));
 	}
 
+	inline Vec3f sample_uniform_sphere(Point2f sample)
+	{
+		Float z = 1 - 2 * sample[0];
+		Float r = safe_square_root(1 - square(z));
+		Float phi = 2 * PI * sample[1];
+
+		return { r * std::cos(phi), r * std::sin(phi), z };
+	}
+
+	inline Float uniform_sphere_PDF()
+	{
+		return INV_4PI;
+	}
+
+	inline Point2f invert_uniform_sphere_sample(Vec3f w)
+	{
+		Float phi = std::atan2(w.y, w.x);
+		if (phi < 0)
+		{
+			phi += 2 * PI;
+		}
+
+		return { (1 - w.z) / 2, phi / (2 * PI) };
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
