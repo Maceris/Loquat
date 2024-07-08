@@ -529,6 +529,24 @@ namespace loquat
 		return { (1 - w.z) / 2, phi / (2 * PI) };
 	}
 
+	inline Vec3f sample_cosine_hemisphere(Point2f sample)
+	{
+		Point2f d = sample_uniform_disk_concentric(sample);
+		Float z = safe_square_root(1 - square(d.x) - square(d.y));
+
+		return { d.x, d.y, z };
+	}
+
+	inline Float cosine_hemisphere_PDF(Float cos_theta)
+	{
+		return cos_theta * INV_PI;
+	}
+
+	inline Point2f invert_cosine_hemisphere_sample(Vec3f w)
+	{
+		return invert_uniform_disk_concentric_sample({ w.x, w.y });
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
