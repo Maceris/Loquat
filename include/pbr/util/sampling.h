@@ -547,6 +547,27 @@ namespace loquat
 		return invert_uniform_disk_concentric_sample({ w.x, w.y });
 	}
 
+	inline Float uniform_cone_PDF(Float cos_theta_max)
+	{
+		return 1 / (2 * PI * (1 - cos_theta_max));
+	}
+
+	inline Vec3f sample_uniform_cone(Point2f sample, Float cos_theta_max)
+	{
+		Float cos_theta = (1 - sample[0]) + sample[0] * cos_theta_max;
+		Float sin_theta = safe_square_root(1 - square(cos_theta));
+		Float phi = sample[1] * 2 * PI;
+
+		return spherical_direction(sin_theta, cos_theta, phi);
+	}
+
+	inline Point2f invert_uniform_cone_sample(Vec3f w, Float cos_theta_max)
+	{
+		Float cos_theta = w.z;
+		Float phi = spherical_phi(w);
+		return { (cos_theta - 1) / (cos_theta_max - 1), phi / (2 * PI) };
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>

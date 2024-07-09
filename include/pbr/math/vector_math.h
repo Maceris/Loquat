@@ -181,4 +181,29 @@ namespace loquat
 			&& point.z < bounds.min.z;
 	}
 
+	inline Vec3f spherical_direction(Float sin_theta, Float cos_theta,
+		Float phi) noexcept
+	{
+		LOG_ASSERT(sin_theta >= -1.0001 && sin_theta <= 1.0001);
+		LOG_ASSERT(cos_theta >= -1.0001 && cos_theta <= 1.0001);
+
+		return {
+			clamp(sin_theta, -1, 1) * std::cos(phi),
+			clamp(sin_theta, -1, 1) * std::sin(phi),
+			clamp(cos_theta, -1, 1)
+		};
+	}
+
+	/// <summary>
+	/// Returns an angle in [0, 2*Pi], adjusted from the results of std::atan2.
+	/// </summary>
+	/// <param name="v">The dimensional vector, whose x and y coordinates
+	/// will be used to return the phi angle.</param>
+	/// <returns>The spherical angle phi.</returns>
+	inline Float spherical_phi(Vec3f v) noexcept
+	{
+		Float phi = std::atan2(v.y, v.x);
+		return (phi < 0) ? (phi + 2 * PI) : phi;
+	}
+
 }
