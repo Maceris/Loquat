@@ -568,6 +568,27 @@ namespace loquat
 		return { (cos_theta - 1) / (cos_theta_max - 1), phi / (2 * PI) };
 	}
 
+	inline Float sample_trimmed_exponential(Float sample, Float c, Float x_max)
+	{
+		return std::log(1 - sample * (1 - std::exp(-c * x_max))) / -c;
+	}
+
+	inline Float trimmed_exponential_PDF(Float x, Float c, Float x_max)
+	{
+		if (x < 0 || x > x_max)
+		{
+			return 0;
+		}
+		return c / (1 - std::exp(-c * x_max)) * std::exp(-c * x);
+	}
+
+	inline Float invert_trimmed_exponential_sample(Float x, Float c,
+		Float x_max)
+	{
+		LOG_ASSERT(x >= 0 && x <= x_max);
+		return (1 - std::exp(-c * x)) / (1 - std::exp(-c * x_max));
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
