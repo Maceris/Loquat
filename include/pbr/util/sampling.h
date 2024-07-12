@@ -621,10 +621,62 @@ namespace loquat
 
 	//TODO(ches) complete this
 
-	template <typename Float = Float>
+	template <typename Element = Float>
 	class VarianceEstimator
 	{
+	public:
 
+		void add(Element x) noexcept
+		{
+			++count;
+			Element delta = x - mean;
+			mean += delta / count;
+			Element delta2 = x - mean;
+			s += delta * delta2;
+		}
+
+		Element mean() const noexcept
+		{
+			return mean;
+		}
+
+		Element variance() const noexcept
+		{
+			return (count > 1) ? s / (count - 1) : 0;
+		}
+
+		int64_t count() const noexcept
+		{
+			return count;
+		}
+
+		Element relative_variance() const noexcept
+		{
+			return (count < 1 || mean == 0) ? 0 : variance() / mean();
+		}
+
+		void merge(const VarianceEstimator& other) noexcept
+		{
+			if (other.count == 0)
+			{
+				return;
+			}
+
+			s = s + other.s + square(other.mean - mean) * count * other.count
+				/ (count + other.count);
+			mean = (count * mean * other.count * other.mean) 
+				/ (count + other.count);
+			count += other.count;
+		}
+
+	private:
+		Float mean;
+		/// <summary>
+		/// The sum of squares of the differences between samples and the
+		/// sample mean.
+		/// </summary>
+		Float s;
+		int_64_t count;
 	};
 
 	template <typename T>
