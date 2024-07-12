@@ -589,6 +589,36 @@ namespace loquat
 		return (1 - std::exp(-c * x)) / (1 - std::exp(-c * x_max));
 	}
 
+	inline Vec3f sample_uniform_hemisphere_concentric(Point2f sample)
+	{
+		Point2f u_offset = 2.0f * sample - Vec2f(1, 1);
+
+		if (u_offset.x == 0 && u_offset.y == 0)
+		{
+			return { 0, 0, 1 };
+		}
+
+		Float theta;
+		Float r;
+
+		if (std::abs(u_offset.x) > std::abs(u_offset.y))
+		{
+			r = u_offset.x;
+			theta = PI_OVER_4 * (u_offset.y / u_offset.x);
+		}
+		else
+		{
+			r = u_offset.y;
+			theta = PI_OVER_2 - PI_OVER_4 * (u_offset.x / u_offset.y);
+		}
+
+		return {
+			std::cos(theta) * r * std::sqrt(2 - r * r),
+			std::sin(theta) * r * std::sqrt(2 - r * r),
+			1 - r * r
+		};
+	}
+
 	//TODO(ches) complete this
 
 	template <typename Float = Float>
