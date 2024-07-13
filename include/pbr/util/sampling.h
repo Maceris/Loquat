@@ -619,8 +619,6 @@ namespace loquat
 		};
 	}
 
-	//TODO(ches) complete this
-
 	template <typename Element = Float>
 	class VarianceEstimator
 	{
@@ -682,8 +680,110 @@ namespace loquat
 	template <typename T>
 	class WeightedReservoirSampler
 	{
+	public:
 
+		WeightedReservoirSampler() noexcept = default;
+
+		WeightedReservoirSampler(uint64_t rng_seed)
+			: rng{ rng_seed }
+		{}
+
+		void seed(uint64_t seed) noexcept
+		{
+			rng.set_sequence(seed);
+		}
+
+		bool add(const T& sample, Float weight) noexcept
+		{
+			weight_sum += weight;
+
+			Float p = weight / weight_sum;
+			if (rng.uniform<Float>() < p)
+			{
+				reservoir = sample;
+				reservoir_weight = weight;
+				return true; 
+			}
+
+			LOG_ASSERT(weight_sum < 1e80);
+			return false;
+		}
+
+		template <typename F>
+		requires requires(F f) { f() -> std::convertible_to<T> }
+		bool add(F func, Float weight) noexcept
+		{
+			weight_sum += weight;
+
+			Float p = weight / weight_sum;
+			if (rng.uniform<Float>() < p)
+			{
+				reservoir = func();
+				reservoir_weight = weight;
+				return true;
+			}
+
+			LOG_ASSERT(weight_sum < 1e80);
+			return false;
+		}
+
+		void copy(const WeightedReservoirSampler& other) noexcept
+		{
+			weight_sum = other.weight_sum;
+			reservoir = other.reservoir;
+			reservoir_weight = other.reservoir_weight;
+		}
+
+		int has_sample() const noexcept
+		{
+			return weight_sum > 0;
+		}
+
+		const T& get_sample() const noexcept
+		{
+			return reservoir;
+		}
+
+		Float sample_probability() const noexcept
+		{
+			return reservoir_weight / weight_sum;
+		}
+
+		Float weight_sum() const noexcept
+		{
+			return weight_sum;
+		}
+
+		void reset() noexcept
+		{
+			reservoir_weight = 0;
+			weight_sum = 0;
+		}
+
+		void merge(const WeightedReservoirSampler& other) noexcept
+		{
+			LOG_ASSERT(weight_sum + other.weight_sum <= 1e80);
+			if (other.has_sample() && add(other.reservoir, other.weight_sum))
+			{
+				reservoir_weight = other.reservoir_weight;
+			}
+		}
+
+		std::string to_string() const noexcept
+		{
+			return std::format("[ WeightedReservoirSampler rng: %s ]"
+				"weight_sum: %f reservoir: %s reservoir_weight: %f",
+				rng, weight_sum, reservoir, reservoir_weight);
+		}
+
+	private:
+		RNG rng;
+		Float weight_sum = 0;
+		Float reservoir_weight = 0;
+		T reservoir{};
 	};
+
+	//TODO(ches) complete this
 
 	class PiecewiseConstant1D
 	{
