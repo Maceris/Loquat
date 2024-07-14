@@ -783,11 +783,76 @@ namespace loquat
 		T reservoir{};
 	};
 
-	//TODO(ches) complete this
-
 	class PiecewiseConstant1D
 	{
 	public:
+
+		size_t bytes_used() const noexcept
+		{
+			return (function.capacity() + cdf.capacity()) * sizeof(Float);
+		}
+
+		static void test_compare_distributions(const PiecewiseConstant1D& da,
+			const PiecewiseConstant1D& db, Float eps = 1e-5) noexcept;
+
+		std::string to_string() const noexcept
+		{
+			return std::format(" PiecewiseConstant1D function: %s cdf: %s "
+				"min: %f max: %f function_integral: %f ]", function,
+				cdf, min, max, function_integral);
+		}
+
+		PiecewiseConstant1D() = default;
+		PiecewiseConstant1D(Allocator allocator)
+			: function(allocator)
+			, cdf(allocator)
+		{}
+		PiecewiseConstant1D(std::span<const Float> f, Allocator allocator = {})
+			: PiecewiseConstant1D(f, 0.0, 1.0, allocator)
+		{}
+		PiecewiseConstant1D(std::span<const Float> f, Float min, Float max,
+			Allocator allocator = {})
+			: function(f.begin(), f.end(), allocator)
+			, cdf(f.size() + 1, allocator)
+			, min{ min }
+			, max{ max }
+		{
+			LOG_ASSERT(max > min);
+			for (Float& f : function)
+			{
+				f = std::abs(f);
+			}
+
+			cdf[0] = 0;
+			size_t n = f.size();
+			for (size_t i = 1; i <= n; ++i)
+			{
+				LOG_ASSERT(function[i - 1] >= 0);
+				cdf[i] = cdf[i - 1] + function[i - 1] * (max - min) / n;
+			}
+
+			function_integral = cdf[n];
+
+			if (function_integral == 0)
+			{
+				for (size_t i = 1; i <= n; ++i)
+				{
+					cdf[i] = Float{ i } / Float{ n };
+				}
+			}
+			else
+			{
+				for (size_t i = 1; i <= n; ++i)
+				{
+					cdf[i] /= function_integral;
+				}
+			}
+		}
+
+		Float integral() const noexcept
+		{
+			return function_integral;
+		}
 
 		size_t size() const noexcept
 		{
@@ -817,12 +882,29 @@ namespace loquat
 			return lerp((off + du) / size(), min, max);
 		}
 
-		std::vector<Float> function;
-		std::vector<Float> cdf;
+		std::optional<Float> invert(Float x) const noexcept
+		{
+			if (x < min || x > max)
+			{
+				return {};
+			}
+
+			Float c = (x - min) / (max - min) * function.size();
+			int offset = clamp(int{ c }, 0, function.size() - 1);
+			LOG_ASSERT(offset >= 0 && offset + 1 < cdf.size());
+
+			Float delta = c - offset;
+			return lerp(delta, cdf[offset], cdf[offset + 1]);
+		}
+
+		std::pmr::vector<Float> function;
+		std::pmr::vector<Float> cdf;
 		Float min;
 		Float max;
 		Float function_integral = 0;
 	};
+
+	//TODO(ches) complete this
 
 	class PiecewiseConstant2D
 	{
