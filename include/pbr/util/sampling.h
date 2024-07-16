@@ -904,18 +904,109 @@ namespace loquat
 		Float function_integral = 0;
 	};
 
-	//TODO(ches) complete this
-
 	class PiecewiseConstant2D
 	{
 	public:
 
-		Point2f sample(Point2f sample_2d, Float* pdf = nullptr, Point2i* offset = nullptr) const noexcept
+		PiecewiseConstant2D() noexcept = default;
+
+		PiecewiseConstant2D(Allocator allocator) noexcept
+			: conditional_densities{ allocator }
+			, marginal_density{ allocator }
+		{}
+
+		PiecewiseConstant2D(std::span<const Float> data, int nx, int ny,
+			Allocator allocator = {}) noexcept
+			: PiecewiseConstant2D(data, nx, ny, AABB2f{ {0, 0}, {1, 1} },
+				allocator)
+		{}
+
+		explicit PiecewiseConstant2D(const Array2D<Float>& data,
+			Allocator allocator = {}) noexcept
+			: PiecewiseConstant2D(std::span<const Float>(data), data.size_x(),
+				data.size_y(), allocator)
+		{}
+
+		PiecewiseConstant2D(const Array2D<Float>& data, AABB2f domain,
+			Allocator allocator = {}) noexcept
+			: PiecewiseConstant2D(std::span<const Float>(data), data.size_x(),
+				data.size_y(), domain, allocator)
+		{}
+
+		PiecewiseConstant2D(std::span<const Float> function, int nu, int nv,
+			AABB2f domain, Allocator allocator = {})
+			: m_domain{ domain }
+			, conditional_densities{ allocator }
+			, marginal_density{ allocator }
+		{
+			LOG_ASSERT(function.size() == static_cast<size_t>(nu) * nv);
+			conditional_densities.reserve(nv);
+			
+			for (int v = 0; v < nv; ++v)
+			{
+				conditional_densities.emplace_back(
+					function.subspan(v * nu, nu), m_domain.min[0],
+					m_domain.max[0], allocator);
+			}
+
+			std::vector<Float> marginal_function;
+			marginal_function.reserve(nv);
+
+			for (int v = 0; v < nv; ++v)
+			{
+				marginal_function.push_back(conditional_densities[v].integral());
+			}
+			marginal_density = PiecewiseConstant1D(marginal_function,
+				m_domain.min[1], m_domain.max[1], allocator);
+		}
+
+		size_t bytes_used() const noexcept
+		{
+			return conditional_densities.size()
+				* (
+					conditional_densities[0].bytes_used()
+					+ sizeof(conditional_densities[0])
+					)
+				+ marginal_density.bytes_used();
+		}
+
+		AABB2f domain() const noexcept
+		{
+			return m_domain;
+		}
+
+		Point2i resolution() const noexcept
+		{
+			return {
+				static_cast<int>(conditional_densities[0].size()),
+				static_cast<int>(marginal_density.size())
+			};
+		}
+
+		std::string to_string() const noexcept
+		{
+			return std::format("[ PiecewiseConstant2D domain: %s"
+				"conditional_densities: %s marginal_density: %s ]",
+				m_domain, conditional_densities, marginal_density);
+		}
+
+		static void test_compare_distributions(const PiecewiseConstant2D& da,
+			const PiecewiseConstant2D& db, Float eps = 1e-5) noexcept;
+
+		Float integral() const noexcept
+		{
+			return marginal_density.integral();
+		}
+
+		Point2f sample(Point2f sample_2d, Float* pdf = nullptr,
+			Point2i* offset = nullptr) const noexcept
 		{
 			Float pdfs[2];
 			Point2i uv;
 			Float d1 = marginal_density.sample(sample_2d[1], &pdfs[1], &uv[1]);
-			Float d0 = conditional_densities[uv[1]].sample(sample_2d[0], &pdfs[0], &uv[0]);
+			Float d0 = conditional_densities[uv[1]].sample(sample_2d[0],
+				&pdfs[0], &uv[0]);
+
 			if (pdf)
 			{
 				*pdf = pdfs[0] * pdfs[1];
@@ -924,14 +1015,57 @@ namespace loquat
 			{
 				*offset = uv;
 			}
+
 			return Point2f{ d0, d1 };
 		}
 
+		Float PDF(Point2f pr) const noexcept
+		{
+			Point2f p = m_domain.offset(pr);
+			int iu = clamp(
+				static_cast<int>(p[0] * conditional_densities[0].size()),
+				0, conditional_densities.size() - 1);
+			int iv = clamp(static_cast<int>(p[1] * marginal_density.size()),
+				0, marginal_density.size() - 1);
+
+			return conditional_densities[iv].function[iu]
+				/ marginal_density.integral();
+		}
+
+		std::optional<Point2f> invert(Point2f p) const noexcept
+		{
+			std::optional<Float> m_inv = marginal_density.invert(p[1]);
+			if (!m_inv)
+			{
+				return {};
+			}
+
+			Float p1o = (p[1] - m_domain.min[1]) 
+				/ (m_domain.max[1] - m_domain.min[1]);
+			if (p1o < 0 || p1o > 1)
+			{
+				return {};
+			}
+
+			int offset = clamp(p1o * conditional_densities.size(), 
+				0, conditional_densities.size() - 1);
+			std::optional<Float> c_inv = 
+				conditional_densities[offset].invert(p[0]);
+			if (!c_inv)
+			{
+				return {};
+			}
+
+			return Point2f{ *c_inv, *m_inv };
+		}
+
 	private:
-		AABB2f domain;
+		AABB2f m_domain;
 		std::vector<PiecewiseConstant1D> conditional_densities;
 		PiecewiseConstant1D marginal_density;
 	};
+
+	//TODO(ches) complete this
 
 	class AliasTable
 	{

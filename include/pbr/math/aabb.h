@@ -80,5 +80,20 @@ namespace loquat
 			PointType diagonal = max - min;
 			return diagonal.x * diagonal.y;
 		}
+
+		Vec2<T> offset(Point2<T> p) const noexcept
+		{
+			Vec2<T> result = p - min;
+			if (max.x > min.x)
+			{
+				result.x /= max.x - min.x;
+			}
+			if (max.y > min.y)
+			{
+				result.y /= max.y - min.y;
+			}
+			return result;
+		}
+
 	};
 }
