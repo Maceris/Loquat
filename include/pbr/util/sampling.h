@@ -795,6 +795,7 @@ namespace loquat
 		static void test_compare_distributions(const PiecewiseConstant1D& da,
 			const PiecewiseConstant1D& db, Float eps = 1e-5) noexcept;
 
+		[[nodiscard]]
 		std::string to_string() const noexcept
 		{
 			return std::format(" PiecewiseConstant1D function: %s cdf: %s "
@@ -983,6 +984,7 @@ namespace loquat
 			};
 		}
 
+		[[nodiscard]]
 		std::string to_string() const noexcept
 		{
 			return std::format("[ PiecewiseConstant2D domain: %s"
@@ -1065,11 +1067,45 @@ namespace loquat
 		PiecewiseConstant1D marginal_density;
 	};
 
-	//TODO(ches) complete this
-
 	class AliasTable
 	{
+	public:
+		AliasTable() noexcept = default;
+
+		AliasTable(Allocator alloc = {}) noexcept
+			: bins{ alloc }
+		{}
+
+		AliasTable(std::span<const Float> weights,
+			Allocator alloc = {}) noexcept;
+
+		int sample(Float sample, Float* pmf = nullptr,
+			Float* u_remapped = nullptr) const noexcept;
+
+		[[nodiscard]]
+		std::string to_string() const noexcept;
+
+		size_t size() const noexcept
+		{
+			return bins.size();
+		}
+
+		Float PMF(int index) const noexcept
+		{
+			return bins[index].outcome_probability;
+		}
+
+	private:
+		struct Bin {
+			Float outcome_probability;
+			Float probability;
+			int alias;
+		};
+		
+		std::pmr::vector<Bin> bins;
 	};
+
+	//TODO(ches) complete this
 
 	class SummedAreaTable
 	{
