@@ -6,6 +6,50 @@
 #include <memory>
 #include <type_traits>
 
+#ifdef LOQUAT_IS_WINDOWS
+	#ifndef UNICODE
+		#define UNICODE
+	#endif
+	#ifndef _UNICODE
+		#define UNICODE
+	#endif
+#endif
+
+#if defined(__CUDA_ARCH__)
+	#define LOQUAT_IS_GPU_CODE
+#endif
+
+#if defined(LOQUAT_BUILD_GPU_RENDERER) && defined(__CUDACC__)
+	#ifndef LOQUAT_NOINLINE
+		#define LOQUAT_NOINLINE __attribute__((noinline))
+	#endif
+	#define LOQUAT_CPU_GPU __host__ __device__
+	#define LOQUAT_GPU __device__
+	#if defined(LOQUAT_IS_GPU_CODE)
+		#define LOQUAT_CONST __device__ const
+	#else
+		#define LOQUAT_CONST const
+	#endif
+#else
+	#define LOQUAT_CONST const
+	#define LOQUAT_CPU_GPU
+	#define LOQUAT_GPU
+#endif
+
+#ifdef LOQUAT_IS_WINDOWS
+#define LOQUAT_CPU_GPU_LAMBDA(...) [ =, *this ] LOQUAT_CPU_GPU(__VA_ARGS__) mutable
+#else
+#define LOQUAT_CPU_GPU_LAMBDA(...) [=] LOQUAT_CPU_GPU(__VA_ARGS__)
+#endif
+
+#ifdef LOQUAT_BUILD_GPU_RENDERER
+#define LOQUAT_L1_CACHE_LINE_SIZE 128
+#else
+#define LOQUAT_L1_CACHE_LINE_SIZE 64
+#endif
+
+#define LOQUAT_ARRAYSIZE(array) (sizeof(::loquat::detail::ArraySizeHelper(array)))
+
 #include "main/memory_utils.h"
 
 #include "debug/logger.h"
@@ -28,6 +72,12 @@
 
 namespace loquat
 {
+	namespace detail
+	{
+		template <typename T, uint64_t N>
+		auto ArraySizeHelper(const T(&array)[N]) -> char(&)[N];
+	}
+
 	class AnimatedTransform;
 	class BilinearPatchMesh;
 	class Interaction;
@@ -56,7 +106,7 @@ namespace loquat
 	class TextureParameterDictionary;
 	struct ImageMetadata;
 	class MediumInterface;
-	struct PBRTOptions;
+	struct LOQUATOptions;
 
 	class PiecewiseConstant1D;
 	class PiecewiseConstant2D;
