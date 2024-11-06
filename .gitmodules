@@ -1,0 +1,33 @@
+[submodule "third-party/double-conversion"]
+	path = third-party/double-conversion
+	url = https://github.com/mmp/double-conversion.git
+[submodule "third-party/filesystem"]
+	path = third-party/filesystem
+	url = https://github.com/wjakob/filesystem.git
+[submodule "third-party/libdeflate"]
+	path = third-party/libdeflate
+	url = https://github.com/mmp/libdeflate.git
+[submodule "third-party/lodepng"]
+	path = third-party/lodepng
+	url = https://github.com/lvandeve/lodepng.git
+[submodule "third-party/openexr"]
+	path = third-party/openexr
+	url = https://github.com/mmp/openexr.git
+[submodule "third-party/openvdb"]
+	path = third-party/openvdb
+	url = https://github.com/AcademySoftwareFoundation/openvdb.git
+[submodule "third-party/ptex"]
+	path = third-party/ptex
+	url = https://github.com/wdas/ptex.git
+[submodule "third-party/qoi"]
+	path = third-party/qoi
+	url = https://github.com/phoboslab/qoi.git
+[submodule "third-party/stb"]
+	path = third-party/stb
+	url = https://github.com/nothings/stb.git
+[submodule "third-party/utf8proc"]
+	path = third-party/utf8proc
+	url = https://github.com/JuliaStrings/utf8proc.git
+[submodule "third-party/zlib"]
+	path = third-party/zlib
+	url = https://github.com/mitsuba-renderer/zlib.git

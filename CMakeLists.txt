@@ -31,11 +31,6 @@ OPTION(UB_SANITIZER
   OFF
 )
 
-OPTION(LOQUAT_BUILD_DOCS
-  "Build documentation using Doxygen"
-  OFF
-)
-
 OPTION(LOQUAT_USE_WAYLAND
   "Use Wayland instead of X11 on linux"
   OFF
@@ -254,6 +249,8 @@ SET(LOQUAT_LIB_INSTALL_DIR ${LOQUAT_LIBRARY_OUTPUT_DIRECTORY})
 SET(LOQUAT_INCLUDE_INSTALL_DIR "include")
 SET(LOQUAT_BIN_INSTALL_DIR ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY})
 
+SET(LOQUAT_THIRD_PARTY_DIR ${LOQUAT_ROOT_DIRECTORY}/third-party)
+
 SET(GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 SET(CONFIG_INSTALL_DIR "${LOQUAT_LIB_INSTALL_DIR}/cmake/loquat-${LOQUAT_VERSION_MAJOR}.${LOQUAT_VERSION_MINOR}")
@@ -291,10 +288,6 @@ INSTALL(
   COMPONENT ${LIBLOQUAT-DEV_COMPONENT}
 )
 
-IF(LOQUAT_BUILD_DOCS)
-  ADD_SUBDIRECTORY(doc)
-ENDIF()
-
 SET (LOQUAT_BUILD_ARCHITECTURE "" CACHE STRING "describes the current architecture")
 IF(NOT LOQUAT_BUILD_ARCHITECTURE STREQUAL "")
   ADD_DEFINITIONS(-D'LOQUAT_BUILD_ARCHITECTURE="${LOQUAT_BUILD_ARCHITECTURE}"')
@@ -306,6 +299,47 @@ IF(NOT LOQUAT_BUILD_COMPILER STREQUAL "")
 ENDIF()
 
 MARK_AS_ADVANCED (LOQUAT_BUILD_ARCHITECTURE LOQUAT_BUILD_COMPILER)
+
+function (CHECK_EXT NAME DIR HASH)
+  if (NOT IS_DIRECTORY "${LOQUAT_THIRD_PARTY_DIR}/${DIR}")
+    message (FATAL_ERROR "The ${NAME} submodule directory is missing! "
+      "Either that submodule was recently added or you did not clone the project with --recursive. "
+      "In order to update the submodules, run:\n"
+      "  \"git submodule update --init --recursive\"")
+  endif ()
+
+  find_package(Git)
+  if (GIT_FOUND)
+    execute_process (
+      COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+      WORKING_DIRECTORY "${LOQUAT_THIRD_PARTY_DIR}/${DIR}"
+      RESULT_VARIABLE "git_return"
+      ERROR_QUIET
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      OUTPUT_VARIABLE "git_hash")
+    if (NOT ${git_hash} MATCHES "^${HASH}")
+      message (FATAL_ERROR "The ${LOQUAT_THIRD_PARTY_DIR}/${DIR} "
+        "submodule isn't up to date (${git_hash} vs ${HASH}). Please run:\n"
+        "  \"git submodule update --recursive\"")
+    else ()
+      message (STATUS "${NAME} at commit: ${git_hash}")
+    endif()
+  else (GIT_FOUND)
+    message (STATUS "git not found: unable to verify revisions in submodules")
+  endif (GIT_FOUND)
+endfunction ()
+
+check_ext ("OpenEXR" "openexr/OpenEXR" 5cfb5dab6dfada731586b0281bdb15ee75e26782)
+check_ext ("OpenVDB" "openvdb/nanovdb" 414bed84c2fc22e188eac7b611aa85c7edd7a5a9)
+check_ext ("Ptex" "ptex/src" 4cd8e9a6db2b06e478dfbbd8c26eb6df97f84483)
+check_ext ("double-conversion" "double-conversion/cmake" cc1f75a114aca8d2af69f73a5a959aecbab0e87a)
+check_ext ("filesystem" "filesystem/filesystem" c5f9de30142453eb3c6fe991e82dfc2583373116)
+check_ext ("libdeflate" "libdeflate/common" 1fd0bea6ca2073c68493632dafc4b1ddda1bcbc3)
+check_ext ("lodepng" "lodepng/examples" 8c6a9e30576f07bf470ad6f09458a2dcd7a6a84a)
+check_ext ("qoi" "qoi" 028c75fd26e5e0758c7c711216c00404994c1ad3)
+check_ext ("stb" "stb/tools" af1a5bc352164740c1cc1354942b1c6b72eacb8a)
+check_ext ("utf8proc" "utf8proc/bench" 2484e2ed5e1d9c19edcccf392a7d9920ad90dfaf)
+check_ext ("zlib" "zlib/doc" 54d591eabf9fe0e84c725638f8d5d8d202a093fa)
 
 # 3rd Party Libraries
 ADD_SUBDIRECTORY(third-party/glfw/)
