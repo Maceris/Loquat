@@ -9,7 +9,7 @@
 #include <span>
 
 #include "main/loquat.h"
-#include "pbr/base/spectrum.h"
+#include "pbr/util/spectrum.h"
 #include "pbr/util/tagged_pointer.h"
 
 namespace loquat

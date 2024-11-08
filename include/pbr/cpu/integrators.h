@@ -13,18 +13,18 @@
 #include <string>
 #include <vector>
 
+#include "pbr/light_samplers.h"
 #include "pbr/base/camera.h"
 #include "pbr/base/film.h"
 #include "pbr/base/light.h"
-#include "pbr/light_samplers.h"
-#include "pbr/base/primitive.h"
 #include "pbr/base/sampler.h"
-#include "pbr/base/spectrum.h"
+#include "pbr/cpu/primitive.h"
 #include "pbr/math/math.h"
 #include "pbr/math/sampling.h"
 #include "pbr/struct/interaction.h"
 #include "pbr/struct/parameter_dictionary.h"
 #include "pbr/util/color_space.h"
+#include "pbr/util/spectrum.h"
 
 namespace loquat
 {

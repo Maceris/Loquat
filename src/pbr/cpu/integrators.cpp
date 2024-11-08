@@ -5,9 +5,9 @@
 // This file has been modified from the original, original notice is above.
 
 #include "pbr/shapes.h"
-#include "pbr/base/integrator.h"
-#include "pbr/base/spectrum.h"
+#include "pbr/cpu/integrators.h"
 #include "pbr/math/ray.h"
+#include "pbr/util/spectrum.h"
 
 namespace loquat
 {

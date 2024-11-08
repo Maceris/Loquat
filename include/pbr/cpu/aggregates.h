@@ -7,7 +7,7 @@
 #pragma once
 
 #include "main/loquat.h"
-#include "pbr/base/primitive.h"
+#include "pbr/cpu/primitive.h"
 #include "pbr/util/parallel.h"
 
 #include <atomic>

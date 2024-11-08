@@ -27,23 +27,22 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/options.h
   ${HEADER_PATH}/pbr/samplers.h
   ${HEADER_PATH}/pbr/shapes.h
-  ${HEADER_PATH}/pbr/base/aggregates.h
   ${HEADER_PATH}/pbr/base/bssrdf.h
   ${HEADER_PATH}/pbr/base/bxdf.h
   ${HEADER_PATH}/pbr/base/camera.h
   ${HEADER_PATH}/pbr/base/film.h
   ${HEADER_PATH}/pbr/base/filter.h
-  ${HEADER_PATH}/pbr/base/integrator.h
   ${HEADER_PATH}/pbr/base/light.h
   ${HEADER_PATH}/pbr/base/light_sampler.h
   ${HEADER_PATH}/pbr/base/material.h
   ${HEADER_PATH}/pbr/base/medium.h
-  ${HEADER_PATH}/pbr/base/primitive.h
-  ${HEADER_PATH}/pbr/base/render.h
   ${HEADER_PATH}/pbr/base/sampler.h
   ${HEADER_PATH}/pbr/base/shape.h
-  ${HEADER_PATH}/pbr/base/spectrum.h
   ${HEADER_PATH}/pbr/base/texture.h
+  ${HEADER_PATH}/pbr/cpu/aggregates.h
+  ${HEADER_PATH}/pbr/cpu/integrators.h
+  ${HEADER_PATH}/pbr/cpu/primitive.h
+  ${HEADER_PATH}/pbr/cpu/render.h
   ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/blue_noise.h
   ${HEADER_PATH}/pbr/math/float.h
@@ -72,6 +71,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/color_space.h
   ${HEADER_PATH}/pbr/util/parallel.h
   ${HEADER_PATH}/pbr/util/sampling.h
+  ${HEADER_PATH}/pbr/util/spectrum.h
   ${HEADER_PATH}/pbr/util/tagged_pointer.h
   ${HEADER_PATH}/pipeline/pipeline.h
   ${HEADER_PATH}/render/render.h
@@ -97,7 +97,7 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/main/loquat.cpp
   ${SOURCE_PATH}/main/vulkan_instance.cpp
   ${SOURCE_PATH}/pbr/samplers.cpp
-  ${SOURCE_PATH}/pbr/base/integrator.cpp
+  ${SOURCE_PATH}/pbr/cpu/integrators.cpp
   ${SOURCE_PATH}/pbr/math/transform.cpp
   ${SOURCE_PATH}/pbr/struct/interaction.cpp
   ${SOURCE_PATH}/pipeline/pipeline.cpp
