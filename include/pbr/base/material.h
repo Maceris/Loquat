@@ -60,16 +60,20 @@ namespace loquat
             ScratchBuffer& buffer) const noexcept;
 
         template <typename TextureEvaluator>
+        LOQUAT_CPU_GPU
         [[nodiscard]]
         inline bool can_evaluate_textures(TextureEvaluator texture_evaluator)
             const noexcept;
 
+        LOQUAT_CPU_GPU
         [[nodiscard]]
         inline const Image* get_normal_map() const noexcept;
 
+        LOQUAT_CPU_GPU
         [[nodiscard]]
         inline FloatTexture get_displacement() const noexcept;
 
+        LOQUAT_CPU_GPU
         [[nodiscard]]
         inline bool has_subsurface_scattering() const noexcept;
     };

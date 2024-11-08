@@ -26,7 +26,7 @@ namespace loquat
         // BSSRDF Interface
         using TaggedPointer::TaggedPointer;
 
-        inline std::optional<BSSRDFProbeSegment> sample(Float sample_1D,
+        LOQUAT_CPU_GPU inline std::optional<BSSRDFProbeSegment> sample(Float sample_1D,
             Point2f sample_2D) const noexcept;
 
         inline BSSRDFSample probe_intersection_to_sample(

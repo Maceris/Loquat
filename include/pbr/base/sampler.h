@@ -49,18 +49,23 @@ namespace loquat
 			const ParameterDictionary& parameters, Point2i full_resolution,
 			Allocator allocator);
 
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline int get_samples_per_pixel() const noexcept;
 
+		LOQUAT_CPU_GPU
 		inline void start_pixel_sample(Point2i p, int sample_index,
 			int dimension = 0) noexcept;
 
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline Float get_1D() noexcept;
 
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline Point2f get_2D() noexcept;
 	
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline Point2f get_pixel_2D() noexcept;
 

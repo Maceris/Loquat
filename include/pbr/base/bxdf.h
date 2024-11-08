@@ -32,17 +32,20 @@ namespace loquat
         All = Reflection | Transmission
     };
 
+    LOQUAT_CPU_GPU
     inline BxDFReflTransFlags operator|(BxDFReflTransFlags a,
         BxDFReflTransFlags b)
     {
         return BxDFReflTransFlags((int)a | (int)b);
     }
 
+    LOQUAT_CPU_GPU
     inline int operator&(BxDFReflTransFlags a, BxDFReflTransFlags b)
     {
         return ((int)a & (int)b);
     }
 
+    LOQUAT_CPU_GPU
     inline BxDFReflTransFlags& operator|=(BxDFReflTransFlags& a,
         BxDFReflTransFlags b)
     {
@@ -73,52 +76,62 @@ namespace loquat
         All = Diffuse | Glossy | Specular | Reflection | Transmission
     };
 
+    LOQUAT_CPU_GPU
     inline BxDFFlags operator|(BxDFFlags a, BxDFFlags b)
     {
         return BxDFFlags(static_cast<int>(a) | static_cast<int>(b));
     }
 
+    LOQUAT_CPU_GPU
     inline int operator&(BxDFFlags a, BxDFFlags b)
     {
         return (static_cast<int>(a) & static_cast<int>(b));
     }
 
+    LOQUAT_CPU_GPU
     inline int operator&(BxDFFlags a, BxDFReflTransFlags b)
     {
         return (static_cast<int>(a) & static_cast<int>(b));
     }
 
+    LOQUAT_CPU_GPU
     inline BxDFFlags& operator|=(BxDFFlags& a, BxDFFlags b)
     {
         (int&) a |= int(b);
         return a;
     }
 
+    LOQUAT_CPU_GPU
     inline bool is_reflective(BxDFFlags flags)
     {
         return flags & BxDFFlags::Reflection;
     }
 
+    LOQUAT_CPU_GPU
     inline bool is_transmissive(BxDFFlags flags)
     {
         return flags & BxDFFlags::Transmission;
     }
 
+    LOQUAT_CPU_GPU
     inline bool is_diffuse(BxDFFlags flags)
     {
         return flags & BxDFFlags::Diffuse;
     }
 
+    LOQUAT_CPU_GPU
     inline bool is_glossy(BxDFFlags flags)
     {
         return flags & BxDFFlags::Glossy;
     }
 
+    LOQUAT_CPU_GPU
     inline bool is_specular(BxDFFlags flags)
     {
         return flags & BxDFFlags::Specular;
     }
 
+    LOQUAT_CPU_GPU
     inline bool is_non_specular(BxDFFlags flags)
     {
         return flags & (BxDFFlags::Diffuse | BxDFFlags::Glossy);
@@ -138,26 +151,31 @@ namespace loquat
             pdf_is_proportional{ pdf_is_proportional }
         {}
 
+        LOQUAT_CPU_GPU
         bool is_reflection() const noexcept
         {
             return loquat::is_reflective(flags);
         }
 
+        LOQUAT_CPU_GPU
         bool is_transmissive() const noexcept
         {
             return loquat::is_transmissive(flags);
         }
 
+        LOQUAT_CPU_GPU
         bool is_diffuse() const noexcept
         {
             return loquat::is_diffuse(flags);
         }
 
+        LOQUAT_CPU_GPU
         bool is_glossy() const noexcept
         {
             return loquat::is_glossy(flags);
         }
 
+        LOQUAT_CPU_GPU
         bool is_specular() const noexcept
         {
             return loquat::is_specular(flags);
@@ -195,12 +213,14 @@ namespace loquat
         [[nodiscard]]
         std::string to_string() const noexcept;
 
+        LOQUAT_CPU_GPU
         inline BxDFFlags get_flags() const noexcept;
 
         [[nodiscard]]
         inline SampledSpectrum f(Vec3f outgoing, Vec3f incoming,
             TransportMode mode) const noexcept;
 
+        LOQUAT_CPU_GPU
         [[nodiscard]]
         inline std::optional<BSDFSample> sample_f(Vec3f outgoing, 
             Float sample_1D, Point2f sample_2D,
@@ -208,11 +228,13 @@ namespace loquat
             BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
             const noexcept;
 
+        LOQUAT_CPU_GPU
         [[nodiscard]]
         inline Float PDF(Vec3f outgoing, Vec3f incoming, TransportMode mode,
             BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
             const noexcept;
 
+        LOQUAT_CPU_GPU
         SampledSpectrum reflectance(Vec3f outgoing,
             std::span<const Float> sample_1D,
             std::span<const Point2f> sample_2D) const noexcept;
@@ -233,6 +255,7 @@ namespace loquat
             std::span<const Float> sample_1D,
             std::span<const Point2f> sample_2D) const noexcept;
 
+        LOQUAT_CPU_GPU
         inline void regularize() noexcept;
     };
 

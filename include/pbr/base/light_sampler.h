@@ -45,18 +45,22 @@ namespace loquat
 		[[nodiscard]]
 		std::string to_string() const noexcept;
 
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline std::optional<SampledLight> sample(
 			const LightSampleContext& context, Float sample_1D) const noexcept;
 
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline Float probability_mass_function(
 			const LightSampleContext& context, Light light) const noexcept;
 
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline std::optional<SampledLight> sample(Float sample_1D)
 			const noexcept;
 
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline Float probability_mass_function(Light light) const noexcept;
 	};

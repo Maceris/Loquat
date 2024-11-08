@@ -50,6 +50,7 @@ namespace loquat
 		[[nodiscard]]
 		std::string to_string() const noexcept;
 
+		LOQUAT_CPU_GPU
 		inline Float evaluate(TextureEvalContext context) const noexcept;
 	};
 	
@@ -87,6 +88,7 @@ namespace loquat
 		[[nodiscard]]
 		std::string to_string() const noexcept;
 
+		LOQUAT_CPU_GPU
 		inline Float evaluate(TextureEvalContext context) const noexcept;
 	};
 }

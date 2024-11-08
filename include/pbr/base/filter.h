@@ -30,12 +30,16 @@ namespace loquat
 			const ParameterDictionary& parameters, Allocator allocators)
 			noexcept;
 
+		LOQUAT_CPU_GPU
 		inline Vec2f radius() const noexcept;
 
+		LOQUAT_CPU_GPU
 		inline Float evaluate(Point2f point) const noexcept;
 
+		LOQUAT_CPU_GPU
 		inline Float integral() const noexcept;
 
+		LOQUAT_CPU_GPU
 		inline FilterSample sample(Point2f sample_2D) const noexcept;
 
 		[[nodiscard]]

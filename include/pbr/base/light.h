@@ -98,6 +98,7 @@ namespace loquat
 		/// What kind of light this is.
 		/// </summary>
 		/// <returns>The type of light.</returns>
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline LightType type() const noexcept;
 
@@ -117,6 +118,7 @@ namespace loquat
 		/// impossible to light to reach the reference point or 
 		/// there is no valid light source associated with the point.
 		/// </returns>
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline std::optional<LightIncidentSample> sample_light_incoming(
 			LightSampleContext context, Point2f point,
@@ -132,6 +134,7 @@ namespace loquat
 		/// samples for directions where the light's contribution is small.
 		/// </param>
 		/// <returns>The value of the PDF.</returns>
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline Float sample_PDF(LightSampleContext context, Vec3f direction,
 			bool allow_incomplete_PDF = false) const noexcept;
@@ -150,6 +153,7 @@ namespace loquat
 		/// <param name="direction">The outgoing direction.</param>
 		/// <param name="lambda">The sampled wavelengths.</param>
 		/// <returns>Radiance reflected back along the ray.</returns>
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline SampledSpectrum radiance_reflected_back(Point3f point,
 			Normal3f normal, Point2f uv, Vec3f direction, 
@@ -162,6 +166,7 @@ namespace loquat
 		/// <param name="ray">The ray.</param>
 		/// <param name="lambda">The sampled wavelengths.</param>
 		/// <returns>Radiance from the infinite light.</returns>
+		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline SampledSpectrum infinite_light_contribution(const Ray& ray,
 			const SampledWavelengths& lambda) const noexcept;
@@ -170,6 +175,7 @@ namespace loquat
 
 		std::optional<LightBounds> bounds() const noexcept;
 
+		LOQUAT_CPU_GPU
 		std::optional<LightEmissiveSample> sample_emissive(Point2f sample1,
 			Point2f sample2, SampledWavelengths& lambda, Float time)
 			const noexcept;
@@ -182,6 +188,7 @@ namespace loquat
 		/// </param>
 		/// <param name="pdf_direction">The direction PDF for the given ray.
 		/// </param>
+		LOQUAT_CPU_GPU
 		void get_PDFs(const Ray& ray, Float* pdf_position, 
 			Float* pdf_direction) const noexcept;
 
@@ -195,6 +202,7 @@ namespace loquat
 		/// </param>
 		/// <param name="pdf_direction">The direction PDF for the given ray.
 		/// </param>
+		LOQUAT_CPU_GPU
 		void get_PDFs(const Interaction& interaction, Vec3f direction, 
 			Float* pdf_position, Float* pdf_direction) const noexcept;
 	};
