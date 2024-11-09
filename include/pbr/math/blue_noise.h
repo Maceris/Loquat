@@ -19,6 +19,7 @@ namespace loquat
 	extern const uint16_t blue_noise_textures[BLUE_NOISE_TEXTURE_COUNT]
 		[BLUE_NOISE_RESOLUTION][BLUE_NOISE_RESOLUTION];
 
+	LOQUAT_CPU_GPU
 	inline float blue_noise(int texture_index, Point2i point)
 	{
 		LOG_ASSERT(texture_index >= 0 && point.x >= 0 && point.y >= 0);

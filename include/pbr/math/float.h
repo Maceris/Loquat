@@ -11,6 +11,10 @@
 #include <concepts>
 #include <limits>
 
+#if defined(LOQUAT_BUILD_GPU_RENDERER) && defined(LOQUAT_IS_GPU_CODE)
+#include <cuda_fp16.h>
+#endif
+
 namespace loquat
 {
 #if defined(DOUBLE_PRECISION_FLOAT)
@@ -51,6 +55,21 @@ namespace loquat
 
     static_assert(sizeof(Float) == sizeof(FloatBits), "Floats are an unexpected size on this device");
 
+#if LOQUAT_IS_GPU_CODE
+
+    #define ONE_MINUS_EPSILON_DOUBLE 0x1.fffffffffffffp-1
+    #define ONE_MINUS_EPSILON_FLOAT float(0x1.fffffep-1)
+
+    #ifdef DOUBLE_PRECISION_FLOAT
+        #define ONE_MINUS_EPSILON ONE_MINUS_EPSILON_DOUBLE
+    #else
+        #define ONE_MINUS_EPSILON ONE_MINUS_EPSILON_FLOAT
+    #endif
+
+    #define FLOAT_INFINITY std::numeric_limits<Float>::infinity()
+    #define MACHINE_EPSILON std::numeric_limits<Float>::epsilon() * 0.5f
+
+#else
     /// <summary>
     /// As close to infinity as we can represent.
     /// </summary>
@@ -70,6 +89,7 @@ namespace loquat
     static constexpr Float ONE_MINUS_EPSILON = ONE_MINUS_EPSILON_FLOAT;
     #endif
 
+#endif // LOQUAT_IS_GPU_CODE
     static constexpr Float NaN = std::numeric_limits<Float>::has_signaling_NaN
         ? std::numeric_limits<Float>::signaling_NaN()
         : std::numeric_limits<Float>::quiet_NaN();

@@ -33,25 +33,30 @@ namespace loquat
 		PointType min;
 		PointType max;
 
+		LOQUAT_CPU_GPU
 		constexpr AABB() noexcept
 			: min{ 0 }
 			, max{ 0 }
 		{}
 		constexpr ~AABB() noexcept = default;
+		LOQUAT_CPU_GPU
 		constexpr AABB(const AABB& aabb) noexcept
 			: min{ aabb.min }
 			, max{ aabb.max }
 		{}
+		LOQUAT_CPU_GPU
 		constexpr AABB& operator=(const AABB& aabb) noexcept
 		{
 			this->min = aabb.min;
 			this->max = aabb.max;
 			return *this;
 		}
+		LOQUAT_CPU_GPU
 		constexpr AABB(AABB&& aabb) noexcept
 			: min{ std::move(aabb.min) }
 			, max{ std::move(aabb.max) }
 		{}
+		LOQUAT_CPU_GPU
 		constexpr AABB& operator=(AABB&& aabb)
 		{
 			this->min = std::move(aabb.min);
@@ -59,10 +64,12 @@ namespace loquat
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		constexpr AABB(const PointType& min, const PointType& max) noexcept
 			: min{ min }
 			, max{ max }
 		{}
+		LOQUAT_CPU_GPU
 		constexpr AABB(PointType&& min, PointType&& max) noexcept
 			: min{ std::move(min) }
 			, max{ std::move(max) }
@@ -74,6 +81,7 @@ namespace loquat
 				vector::to_string(max));
 		}
 
+		LOQUAT_CPU_GPU
 		T area() const noexcept
 			requires requires (PointType p) { p.x; p.y; }
 		{
@@ -81,6 +89,7 @@ namespace loquat
 			return diagonal.x * diagonal.y;
 		}
 
+		LOQUAT_CPU_GPU
 		Vec2<T> offset(Point2<T> p) const noexcept
 		{
 			Vec2<T> result = p - min;
