@@ -95,127 +95,145 @@ namespace loquat
         : std::numeric_limits<Float>::quiet_NaN();
 
     template <std::floating_point T>
+    LOQUAT_CPU_GPU
     inline T is_NaN(T v)
     {
-        return std::isnan(v);
+#ifdef LOQUAT_IS_GPU_CODE
+        return isnan(v);
+#else
+       return std::isnan(v);
+#endif
     }
 
     template <std::integral T>
+    LOQUAT_CPU_GPU
     inline T is_NaN(T v)
     {
         return false;
     }
 
     template <std::floating_point T>
+    LOQUAT_CPU_GPU
     inline T is_inf(T v)
     {
+#ifdef LOQUAT_IS_GPU_CODE
+        return isinf(v);
+#else
         return std::isinf(v);
+#endif
     }
 
     template <std::integral T>
+    LOQUAT_CPU_GPU
     inline T is_inf(T v)
     {
         return false;
     }
 
     template <std::floating_point T>
+    LOQUAT_CPU_GPU
     inline T is_finite(T v)
     {
+#ifdef LOQUAT_IS_GPU_CODE
+        return isfinite(v);
+#else
         return std::isfinite(v);
+#endif
     }
 
     template <std::integral T>
+    LOQUAT_CPU_GPU
     inline T is_finite(T v)
     {
         return true;
     }
 
     template <std::floating_point T>
+    LOQUAT_CPU_GPU
     inline T FMA(T a, T b, T c)
     {
         return std::fma(a, b, c);
     }
 
-    inline Float bits_to_float(FloatBits i)
+    LOQUAT_CPU_GPU
+    inline float bits_to_float(uint32_t i)
     {
-        return std::bit_cast<Float>(i);
+#ifdef LOQUAT_IS_GPU_CODE
+        return __uint_as_float(i);
+#else
+        return std::bit_cast<float>(i);
+#endif
     }
 
-    inline FloatBits float_to_bits(Float f)
+    LOQUAT_CPU_GPU
+    inline double bits_to_float(uint64_t i)
     {
-        return std::bit_cast<FloatBits>(f);
+#ifdef LOQUAT_IS_GPU_CODE
+        return __longlong_as_double(i);
+#else
+        return std::bit_cast<double>(i);
+#endif
     }
 
-
-    inline int exponent_float(float f)
+    LOQUAT_CPU_GPU
+    inline uint32_t float_to_bits(float f)
     {
-        return (std::bit_cast<uint32_t>(f) >> 23) - 127;
+#ifdef LOQUAT_IS_GPU_CODE
+        return __float_as_uint(f);
+#else
+        return std::bit_cast<uint32_t>(f);
+#endif
     }
 
-    inline int exponent_double(double d)
+    LOQUAT_CPU_GPU
+    inline uint64_t float_to_bits(double f)
     {
-        return (std::bit_cast<uint64_t>(d) >> 52) - 1023;
+#ifdef LOQUAT_IS_GPU_CODE
+        return __double_as_longlong(f);
+#else
+        return std::bit_cast<uint64_t>(f);
+#endif
     }
 
-    inline int exponent(Float f)
+    LOQUAT_CPU_GPU
+    inline int exponent(float f)
     {
-        if constexpr (std::is_same_v<Float, float>)
-        {
-            return exponent_float(f);
-        }
-        else
-        {
-            return exponent_double(f);
-        }
+        return (float_to_bits(f) >> 23) - 127;
     }
 
-    inline int significand_float(float f)
+    LOQUAT_CPU_GPU
+    inline int exponent(double d)
     {
-        return std::bit_cast<uint32_t>(f) & ((1 << 23) - 1);
+        return (float_to_bits(d) >> 52) - 1023;
     }
 
-    inline uint64_t significand_double(double d)
+    LOQUAT_CPU_GPU
+    inline int significand(float f)
     {
-        return std::bit_cast<uint64_t>(d) & ((1LL << 52) - 1);
+        return float_to_bits(f) & ((1 << 23) - 1);
     }
 
-    inline FloatBits significand(Float f)
+    LOQUAT_CPU_GPU
+    inline uint64_t significand(double d)
     {
-        if constexpr (std::is_same_v<Float, float>)
-        {
-            return std::bit_cast<FloatBits>(f)& ((1 << 23) - 1);
-        }
-        else
-        {
-            return std::bit_cast<FloatBits>(f) & ((1LL << 52) - 1);
-        }
+        return float_to_bits(d) & ((1ull << 52) - 1);
     }
 
-    inline int sign_bit_float(float f)
+    LOQUAT_CPU_GPU
+    inline uint32_t sign_bit(float f)
     {
-        return (std::bit_cast<uint32_t>(f) >> 31) & 0x1;
+        return float_to_bits(f) & 0x80000000;
     }
 
-    inline int sign_bit_double(double d)
+    LOQUAT_CPU_GPU
+    inline uint64_t sign_bit(double d)
     {
-        return (std::bit_cast<uint64_t>(d) >> 63) & 0x1;
+        return float_to_bits(d) & 0x8000000000000000;
     }
 
-    inline int sign_bit(Float f)
+    LOQUAT_CPU_GPU
+    inline float next_float_up(float v)
     {
-        if constexpr (std::is_same_v<Float, float>)
-        {
-            return sign_bit_float(f);
-        }
-        else
-        {
-            return sign_bit_double(f);
-        }
-    }
-
-    inline Float next_float_up(Float v)
-    {
-  
         if (is_inf(v) && v > 0.0f)
         {
             return v;
@@ -239,7 +257,34 @@ namespace loquat
         return bits_to_float(bit_value);
     }
 
-    inline Float next_float_down(Float v)
+    LOQUAT_CPU_GPU
+    inline double next_float_up(double v)
+    {
+        if (is_inf(v) && v > 0.0f)
+        {
+            return v;
+        }
+
+        if (v == -0.0f)
+        {
+            v = 0.0f;
+        }
+
+        uint64_t bit_value = float_to_bits(v);
+        if (v >= 0)
+        {
+            ++bit_value;
+        }
+        else
+        {
+            --bit_value;
+        }
+
+        return bits_to_float(bit_value);
+    }
+
+    LOQUAT_CPU_GPU
+    inline float next_float_down(float v)
     {
         if (is_inf(v) && v < 0.0f)
         {
@@ -263,68 +308,174 @@ namespace loquat
         return bits_to_float(bit_value);
     }
 
+    LOQUAT_CPU_GPU
+    inline double next_float_down(double v)
+    {
+        if (is_inf(v) && v < 0.0f)
+        {
+            return v;
+        }
+        if (v == 0.0f)
+        {
+            v = -0.0f;
+        }
+
+        uint64_t bit_value = float_to_bits(v);
+        if (v > 0)
+        {
+            --bit_value;
+        }
+        else
+        {
+            ++bit_value;
+        }
+
+        return bits_to_float(bit_value);
+    }
+
     inline constexpr Float gamma(int n)
     {
         return (n * MACHINE_EPSILON) / (1 - n * MACHINE_EPSILON);
     }
 
-    inline Float add_round_up(Float a, Float b)
-    {
+
+    LOQUAT_CPU_GPU
+	inline Float add_round_up(Float a, Float b) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __dadd_ru(a, b);
+#else
+        return __fadd_ru(a, b);
+#endif
+#else  // GPU
         return next_float_up(a + b);
+#endif
     }
-
-    inline Float add_round_down(Float a, Float b)
-    {
+    LOQUAT_CPU_GPU
+	inline Float add_round_down(Float a, Float b) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __dadd_rd(a, b);
+#else
+        return __fadd_rd(a, b);
+#endif
+#else  // GPU
         return next_float_down(a + b);
+#endif
     }
 
-    inline Float sub_round_up(Float a, Float b)
-    {
-        return next_float_up(a - b);
+    LOQUAT_CPU_GPU
+	inline Float sub_round_up(Float a, Float b) {
+        return add_round_up(a, -b);
+    }
+    LOQUAT_CPU_GPU
+	inline Float sub_round_down(Float a, Float b) {
+        return add_round_down(a, -b);
     }
 
-    inline Float sub_round_down(Float a, Float b)
-    {
-        return next_float_down(a - b);
-    }
-
-    inline Float mul_round_up(Float a, Float b)
-    {
+    LOQUAT_CPU_GPU
+	inline Float mul_round_up(Float a, Float b) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __dmul_ru(a, b);
+#else
+        return __fmul_ru(a, b);
+#endif
+#else  // GPU
         return next_float_up(a * b);
+#endif
     }
 
-    inline Float mul_round_down(Float a, Float b)
-    {
+    LOQUAT_CPU_GPU
+	inline Float mul_round_down(Float a, Float b) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __dmul_rd(a, b);
+#else
+        return __fmul_rd(a, b);
+#endif
+#else  // GPU
         return next_float_down(a * b);
+#endif
     }
 
-    inline Float div_round_up(Float a, Float b)
-    {
+    LOQUAT_CPU_GPU
+	inline Float div_round_up(Float a, Float b) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __ddiv_ru(a, b);
+#else
+        return __fdiv_ru(a, b);
+#endif
+#else  // GPU
         return next_float_up(a / b);
+#endif
     }
 
-    inline Float div_round_down(Float a, Float b)
-    {
+    LOQUAT_CPU_GPU
+	inline Float div_round_down(Float a, Float b) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __ddiv_rd(a, b);
+#else
+        return __fdiv_rd(a, b);
+#endif
+#else  // GPU
         return next_float_down(a / b);
+#endif
     }
 
-    inline Float sqrt_round_up(Float a)
-    {
+    LOQUAT_CPU_GPU
+	inline Float sqrt_round_up(Float a) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __dsqrt_ru(a);
+#else
+        return __fsqrt_ru(a);
+#endif
+#else  // GPU
         return next_float_up(std::sqrt(a));
+#endif
     }
 
-    inline Float sqrt_round_down(Float a)
-    {
-        return next_float_down(std::sqrt(a));
+    LOQUAT_CPU_GPU
+	inline Float sqrt_round_down(Float a) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __dsqrt_rd(a);
+#else
+        return __fsqrt_rd(a);
+#endif
+#else  // GPU
+        return std::max<Float>(0, next_float_down(std::sqrt(a)));
+#endif
     }
 
-    inline Float FMA_round_up(Float a, Float b, Float c)
-    {
+    LOQUAT_CPU_GPU
+	inline Float FMA_round_up(Float a, Float b, Float c) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __fma_ru(a, b, c);  //TODO(ches) fix this
+#else
+        return __fma_ru(a, b, c);
+#endif
+#else  // GPU
         return next_float_up(FMA(a, b, c));
+#endif
     }
 
-    inline Float FMA_round_down(Float a, Float b, Float c)
-    {
+    LOQUAT_CPU_GPU
+	inline Float FMA_round_down(Float a, Float b, Float c) {
+#ifdef LOQUAT_IS_GPU_CODE
+#ifdef DOUBLE_PRECISION_FLOAT
+        return __fma_rd(a, b, c);  //TODO(ches) fix this
+#else
+        return __fma_rd(a, b, c);
+#endif
+#else  // GPU
         return next_float_down(FMA(a, b, c));
+#endif
     }
+
+    //TODO(ches) finish this
 }
