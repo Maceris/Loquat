@@ -232,6 +232,12 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
+    inline double flip_sign(double a, double b)
+    {
+        return bits_to_float(float_to_bits(a) ^ sign_bit(b));
+    }
+
+    LOQUAT_CPU_GPU
     inline float next_float_up(float v)
     {
         if (is_inf(v) && v > 0.0f)
@@ -340,7 +346,8 @@ namespace loquat
 
 
     LOQUAT_CPU_GPU
-	inline Float add_round_up(Float a, Float b) {
+	inline Float add_round_up(Float a, Float b)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __dadd_ru(a, b);
@@ -352,7 +359,8 @@ namespace loquat
 #endif
     }
     LOQUAT_CPU_GPU
-	inline Float add_round_down(Float a, Float b) {
+	inline Float add_round_down(Float a, Float b)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __dadd_rd(a, b);
@@ -365,16 +373,19 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-	inline Float sub_round_up(Float a, Float b) {
+	inline Float sub_round_up(Float a, Float b)
+    {
         return add_round_up(a, -b);
     }
     LOQUAT_CPU_GPU
-	inline Float sub_round_down(Float a, Float b) {
+	inline Float sub_round_down(Float a, Float b)
+    {
         return add_round_down(a, -b);
     }
 
     LOQUAT_CPU_GPU
-	inline Float mul_round_up(Float a, Float b) {
+	inline Float mul_round_up(Float a, Float b)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __dmul_ru(a, b);
@@ -387,7 +398,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-	inline Float mul_round_down(Float a, Float b) {
+	inline Float mul_round_down(Float a, Float b)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __dmul_rd(a, b);
@@ -400,7 +412,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-	inline Float div_round_up(Float a, Float b) {
+	inline Float div_round_up(Float a, Float b)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __ddiv_ru(a, b);
@@ -413,7 +426,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-	inline Float div_round_down(Float a, Float b) {
+	inline Float div_round_down(Float a, Float b)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __ddiv_rd(a, b);
@@ -426,7 +440,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-	inline Float sqrt_round_up(Float a) {
+	inline Float sqrt_round_up(Float a)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __dsqrt_ru(a);
@@ -439,7 +454,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-	inline Float sqrt_round_down(Float a) {
+	inline Float sqrt_round_down(Float a)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __dsqrt_rd(a);
@@ -452,7 +468,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-	inline Float FMA_round_up(Float a, Float b, Float c) {
+	inline Float FMA_round_up(Float a, Float b, Float c)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __fma_ru(a, b, c);  //TODO(ches) fix this
@@ -465,7 +482,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-	inline Float FMA_round_down(Float a, Float b, Float c) {
+	inline Float FMA_round_down(Float a, Float b, Float c)
+    {
 #ifdef LOQUAT_IS_GPU_CODE
 #ifdef DOUBLE_PRECISION_FLOAT
         return __fma_rd(a, b, c);  //TODO(ches) fix this
@@ -477,5 +495,284 @@ namespace loquat
 #endif
     }
 
-    //TODO(ches) finish this
+    static const int HALF_EXPONENT_MASK = 0b0111110000000000;
+    static const int HALF_SIGNIFICAND_MASK = 0b1111111111;
+    static const int HALF_NEGATIVE_ZERO = 0b1000000000000000;
+    static const int HALF_POSITIVE_ZERO = 0;
+    static const int HALF_NEGATIVE_INFINITY = 0b1111110000000000;
+    static const int HALF_POSITIVE_INFINITY = 0b0111110000000000;
+
+    namespace
+    {
+        //TODO(ches) support for non-AVX systems, check CPUID
+        // https://gist.github.com/rygorous/2156668
+        union FP32
+        {
+            uint32_t u;
+            float f;
+            struct
+            {
+                unsigned int Mantissa : 23;
+                unsigned int Exponent : 8;
+                unsigned int Sign : 1;
+            };
+        };
+
+        union FP16
+        {
+            uint16_t u;
+            struct
+            {
+                unsigned int Mantissa : 10;
+                unsigned int Exponent : 5;
+                unsigned int Sign : 1;
+            };
+        };
+    }
+
+    class Half
+    {
+    public:
+        Half() = default;
+        Half(const Half&) = default;
+        Half& operator=(const Half&) = default;
+        
+        LOQUAT_CPU_GPU
+        static Half from_bits(uint16_t v)
+        {
+            return Half(v);
+        }
+
+        LOQUAT_CPU_GPU
+        explicit Half(float ff)
+        {
+#ifdef LOQUAT_IS_GPU_CODE
+            h = __half_as_ushort(__float2half(ff));
+#else
+            // Rounding ties to nearest even instead of towards + inf
+            FP32 f;
+            f.f = ff;
+            FP32 f32_infinity = { 25 << 23 };
+            FP32 f16_max = { (127 + 16) << 23 };
+            FP32 denorm_magic = { ((127 - 15) + (23 - 10) + 1) << 23 };
+            unsigned int sign_mask = 0x80000000u;
+            FP16 o = { 0 };
+
+            unsigned int sign = f.u & sign_mask;
+            f.u ^= sign;
+
+            // NOTE all the integer compares in this function can be safely
+            // compiled into signed compares since all operands are below
+            // 0x80000000. Important if you want fast straight SSE2 code
+            // (since there's no unsigned PCMPGTD).
+
+            if (f.u >= f16_max.u)
+            {
+                // Result is Inf or NaN (all exponent bits set)
+                // NaN->qNaN and Inf->Inf, respectively
+                o.u = (f.u > f32_infinity.u) ? 0x7e00 : 0x7c00;
+            }
+            else
+            {
+                // (De)normalized number or zero
+                if (f.u < (113 << 23))
+                {
+                    // resulting FP16 is subnormal or zero
+                    // use a magic value to align our 10 mantissa bits at the
+                    // bottom of the float. as long as FP addition is
+                    // round-to-nearest-even this just works.
+                    f.f += denorm_magic.f;
+
+                    // and one integer subtract of the bias later, we have our
+                    // final float!
+                    o.u = f.u - denorm_magic.u;
+                }
+                else
+                {
+                    // resulting mantissa is odd
+                    unsigned int mant_odd = (f.u >> 13) & 1;
+
+                    // update exponent, rounding bias part 1
+                    f.u += (uint32_t(15 - 127) << 23) + 0xfff;
+                    // rounding bias part 2
+                    f.u += mant_odd;
+                    // take the bits!
+                    o.u = f.u >> 13;
+                }
+            }
+            o.u |= sign >> 16;
+            h = o.u;
+#endif
+        }
+
+        LOQUAT_CPU_GPU
+        explicit Half(double d)
+            : Half(float(d))
+        {}
+
+        LOQUAT_CPU_GPU
+        explicit operator float() const
+        {
+#ifdef LOQUAT_IS_GPU_CODE
+            return __half2float(__ushort_as_half(h));
+#else
+            FP16 h;
+            h.u = this->h;
+            static const FP32 magic = { 113 << 23 };
+            // Exponent mask after shift
+            static const unsigned int shifted_exp = 0x7c00 << 13;
+
+            FP32 o;
+
+            // exponent/mantissa bits
+            o.u = (h.u & 0x7fff) << 13;
+            // just the exponent
+            unsigned int exp = shifted_exp & o.u;
+            // exponent adjust
+            o.u += (127 - 15) << 23;
+
+            // handle exponent special cases
+            // Inf/NaN?
+            if (exp == shifted_exp)
+            {
+                // extra exp adjust
+                o.u += (128 - 16) << 23;
+            }
+            else if (exp == 0)
+            {
+                // Zero/Denormal?
+                // extra exp adjust
+                o.u += 1 << 23;
+                // renormalize
+                o.f -= magic.f;
+            }
+
+            // sign bit
+            o.u |= (h.u & 0x8000) << 16;
+            return o.f;
+#endif
+        }
+
+        LOQUAT_CPU_GPU
+        explicit operator double() const
+        {
+            return (float)(*this);
+        }
+
+        LOQUAT_CPU_GPU
+        bool operator==(const Half& v) const
+        {
+#if defined(LOQUAT_IS_GPU_CODE) && __CUDA_ARCH__ >= 530
+            return __ushort_as_half(h) == __ushort_as_half(v.h);
+#else
+            if (bits() == v.bits())
+            {
+                return true;
+            }
+            return (
+                (bits() == HALF_NEGATIVE_ZERO && v.bits() == HALF_POSITIVE_ZERO) ||
+                (bits() == HALF_POSITIVE_ZERO && v.bits() == HALF_NEGATIVE_ZERO)
+                );
+#endif
+        }
+
+        LOQUAT_CPU_GPU
+        bool operator!=(const Half& v) const
+        {
+            return !(*this == v);
+        }
+
+        LOQUAT_CPU_GPU
+        Half operator-() const 
+        {
+            return from_bits(h ^ (1 << 15));
+        }
+
+        LOQUAT_CPU_GPU
+        uint16_t bits() const
+        {
+            return h;
+        }
+
+        LOQUAT_CPU_GPU
+        int sign()
+        {
+            return (h >> 15) ? -1 : 1;
+        }
+
+        LOQUAT_CPU_GPU
+        bool is_inf()
+        {
+            return h == HALF_POSITIVE_INFINITY || h == HALF_NEGATIVE_INFINITY;
+        }
+
+        LOQUAT_CPU_GPU
+        bool is_NaN()
+        {
+            return (
+                (h & HALF_EXPONENT_MASK) == HALF_EXPONENT_MASK &&
+                (h & HALF_SIGNIFICAND_MASK) != 0
+                );
+        }
+
+        LOQUAT_CPU_GPU
+        Half next_up()
+        {
+            if (is_inf() && sign() == 1)
+            {
+                return *this;
+            }
+
+            Half up = *this;
+            if (up.h == HALF_NEGATIVE_ZERO)
+            {
+                up.h = HALF_POSITIVE_ZERO;
+            }
+            // Advance _v_ to next higher float
+            if (up.sign() >= 0)
+            {
+                ++up.h;
+            }
+            else
+            {
+                --up.h;
+            }
+            return up;
+        }
+
+        LOQUAT_CPU_GPU
+        Half next_down()
+        {
+            if (is_inf() && sign() == -1)
+            {
+                return *this;
+            }
+
+            Half down = *this;
+            if (down.h == HALF_POSITIVE_ZERO)
+            {
+                down.h = HALF_NEGATIVE_ZERO;
+            }
+            if (down.sign() >= 0)
+            {
+                --down.h;
+            }
+            else
+            {
+                ++down.h;
+            }
+            return down;
+        }
+
+        [[nodiscard]]
+        std::string to_string() const noexcept;
+        
+    private:
+        LOQUAT_CPU_GPU
+        explicit Half(uint16_t h)
+            : h(h)
+        {}
+
+        uint16_t h;
+    };
 }
