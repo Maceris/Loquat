@@ -16,19 +16,26 @@ namespace loquat
 	{
 	public:
 		constexpr Interval() = default;
+		LOQUAT_CPU_GPU
 		constexpr explicit Interval(const Float value) noexcept
-			: range{ value, value }
+			: low{ value }
+			, high{ value }
 		{}
+		LOQUAT_CPU_GPU
 		constexpr Interval(const Float low, const Float high) noexcept
-			: range{ std::min(low, high), std::max(low, high) }
+			: low{ std::min(low, high) }
+			, high{ std::max(low, high) }
 		{}
+		LOQUAT_CPU_GPU
 		Interval& operator=(const Float value)
 		{
-			range = { value, value };
+			low = value;
+			high = value;
 			return *this;
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		static Interval from_value_and_error(const Float value, 
 			const Float error) noexcept
 		{
@@ -36,102 +43,115 @@ namespace loquat
 
 			if (error == 0)
 			{
-				result.range = { value, value };
+				result.low = value;
+				result.high = value;
 			}
 			else
 			{
-				result.range.x = sub_round_down(value, error);
-				result.range.y = add_round_up(value, error);
+				result.low = sub_round_down(value, error);
+				result.high = add_round_up(value, error);
 			}
 			return result;
 		}
 
 		[[nodiscard]]
-		constexpr Float low() const noexcept
+		LOQUAT_CPU_GPU
+		constexpr Float lower_bound() const noexcept
 		{
-			return range.x;
+			return low;
 		}
 
 		[[nodiscard]]
-		constexpr Float high() const noexcept
+		LOQUAT_CPU_GPU
+		constexpr Float upper_bound() const noexcept
 		{
-			return range.y;
+			return high;
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		constexpr Float midpoint() const noexcept
 		{
-			return (range.x + range.y) / 2;
+			return (low + high) / 2;
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		constexpr Float width() const noexcept
 		{
-			return (range.y - range.x);
+			return (high - low);
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Float operator[](int i) const
 		{
 			LOG_ASSERT(i == 0 || i == 1 && "Invalid range on interval");
-			return range[i];
+			return (i == 0) ? low : high;
 		}
 
+		LOQUAT_CPU_GPU
 		explicit operator Float() const noexcept
 		{
 			return midpoint();
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		bool exactly(Float value) const noexcept
 		{
-			return range.x == value && range.y == value;
+			return low == value && high == value;
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		bool operator==(Float value) const noexcept
 		{
 			return exactly(value);
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Interval operator-() const noexcept
 		{
-			return { -range.x, -range.y };
+			return { -low, -high };
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Interval operator+(Interval i) const noexcept
 		{
 			return {
-				add_round_down(low(),i.low()), 
-				add_round_up(high(), i.high())
+				add_round_down(low, i.low), 
+				add_round_up(high, i.high)
 			};
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Interval operator-(Interval i) const noexcept
 		{
 			return {
-				sub_round_down(low(), i.low()),
-				sub_round_up(high(), i.high())
+				sub_round_down(low, i.low),
+				sub_round_up(high, i.high)
 			};
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Interval operator*(Interval i) const noexcept
 		{
 			Float lp[4] = { 
-				mul_round_down(low(), i.low()),
-				mul_round_down(high(), i.low()),
-				mul_round_down(low(), i.high()),
-				mul_round_down(high(), i.high())
+				mul_round_down(low, i.low),
+				mul_round_down(high, i.low),
+				mul_round_down(low, i.high),
+				mul_round_down(high, i.high)
 			};
 			Float hp[4] = {
-				mul_round_up(low(), i.low()),
-				mul_round_up(high(), i.low()),
-				mul_round_up(low(), i.high()),
-				mul_round_up(high(), i.high())
+				mul_round_up(low, i.low),
+				mul_round_up(high, i.low),
+				mul_round_up(low, i.high),
+				mul_round_up(high, i.high)
 			};
 			return {
 				std::min({lp[0], lp[1], lp[2], lp[3]}),
@@ -140,98 +160,118 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Interval operator/(Interval i) const noexcept;
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		bool operator==(Interval i) const noexcept
 		{
-			return low() == i.low() && high() == i.high();
+			return low == i.low && high == i.high;
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		bool operator!=(Float f) const noexcept
 		{
-			return f < range.x || f > range.y;
+			return f < low || f > high;
 		}
 
 		[[nodiscard]]
 		std::string to_string() const;
 
+		LOQUAT_CPU_GPU
 		Interval& operator+=(Interval i) noexcept
 		{
-			this->range += i.range;
+			*this = Interval(*this + i);
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		Interval& operator-=(Interval i) noexcept
 		{
-			this->range -= i.range;
+			*this = Interval(*this - i);
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		Interval& operator*=(Interval i) noexcept
 		{
-			this->range *= i.range;
+			*this = Interval(*this * i);
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		Interval& operator/=(Interval i) noexcept
 		{
-			this->range /= i.range;
+			*this = Interval(*this / i);
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		Interval& operator+=(Float f) noexcept
 		{
-			this->range += Vec2f{ f, f };
+			this->low += f;
+			this->high += f;
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		Interval& operator-=(Float f) noexcept
 		{
-			this->range -= Vec2f{ f, f };
+			this->low -= f;
+			this->high -= f;
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		Interval& operator*=(Float f) noexcept
 		{
 			if (f > 0)
 			{
-				this->range = { 
-					mul_round_down(low(), f),
-					mul_round_up(high(), f)
+				*this = { 
+					mul_round_down(low, f),
+					mul_round_up(high, f)
 				};
 			}
 			else
 			{
-				this->range = {
-					mul_round_down(high(), f),
-					mul_round_up(low(), f)
+				*this = {
+					mul_round_down(high, f),
+					mul_round_up(low, f)
 				};
 			}
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		Interval& operator/=(Float f) noexcept
 		{
 			if (f > 0)
 			{
-				this->range = {
-					div_round_down(low(), f),
-					div_round_up(high(), f)
+				*this = {
+					div_round_down(low, f),
+					div_round_up(high, f)
 				};
 			}
 			else
 			{
-				this->range = {
-					div_round_down(high(), f),
-					div_round_up(low(), f)
+				*this = {
+					div_round_down(high, f),
+					div_round_up(low, f)
 				};
 			}
 			return *this;
 		}
 
+#ifndef LOQUAT_IS_GPU_CODE
+		static const Interval Pi;
+#endif
+
 	private:
-		Vec2f range;
+		//friend struct SOA<Interval>;
+		//TODO(ches) handle SOA generation
+		Float low;
+		Float high;
 	};
 }

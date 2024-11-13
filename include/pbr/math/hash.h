@@ -22,6 +22,7 @@ namespace loquat
     /// <param name="len">The length of the key.</param>
     /// <param name="seed">The hash seed.</param>
     /// <returns></returns>
+    LOQUAT_CPU_GPU
     inline uint64_t murmur_hash_64A(const unsigned char* key, size_t len,
         uint64_t seed) noexcept
     {
@@ -84,6 +85,7 @@ namespace loquat
     /// </summary>
     /// <param name="v">The bits to mix.</param>
     /// <returns>The bits, after mixing.</returns>
+    LOQUAT_CPU_GPU
     inline uint64_t mix_bits(uint64_t v) noexcept
     {
         v ^= (v >> 31);
@@ -95,6 +97,7 @@ namespace loquat
     }
 
     template <typename T>
+    LOQUAT_CPU_GPU
     inline uint64_t hash_buffer(const T* ptr, size_t size, uint64_t seed = 0)
         noexcept
     {
@@ -102,15 +105,19 @@ namespace loquat
     }
 
     template <typename... Args>
+    LOQUAT_CPU_GPU
     inline uint64_t hash(Args... args) noexcept;
 
     template <typename... Args>
+    LOQUAT_CPU_GPU
     inline void hash_recursive_copy(char* buf, Args...) noexcept;
 
     template <>
+    LOQUAT_CPU_GPU
     inline void hash_recursive_copy(char* buf) noexcept {}
 
     template <typename T, typename... Args>
+    LOQUAT_CPU_GPU
     inline void hash_recursive_copy(char* buf, T v, Args... args) noexcept
     {
         memcpy(buf, &v, sizeof(T));
@@ -118,6 +125,7 @@ namespace loquat
     }
 
     template <typename... Args>
+    LOQUAT_CPU_GPU
     inline uint64_t hash(Args... args) noexcept
     {
         constexpr size_t sz = (sizeof(Args) + ... + 0);
@@ -128,6 +136,7 @@ namespace loquat
     }
 
     template <typename... Args>
+    LOQUAT_CPU_GPU
     inline Float hash_float(Args... args) noexcept
     {
         return uint32_t(hash(args...)) * 0x1p-32f;
