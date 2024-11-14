@@ -50,6 +50,7 @@ namespace loquat
             }
         }
         
+        LOQUAT_CPU_GPU
         int permute(int digit_index, int digit_value) const noexcept
         {
             LOG_ASSERT(digit_index < digit_count && "Invalid digit index");
@@ -66,16 +67,26 @@ namespace loquat
         uint16_t* permutations;
     };
 
+    LOQUAT_CPU_GPU
     inline uint64_t sobol_interval_to_index(int32_t log2_scale,
         uint64_t sample_index, Point2i point) noexcept;
 
+    LOQUAT_CPU_GPU
     inline Float blue_noise_sample(Point2i point, int instance);
 
+    LOQUAT_CPU_GPU
+    Float radical_inverse(int base_index, uint64_t a);
+
+    std::vector<DigitPermutation>* compute_radical_inverse_permutations(
+        uint64_t seed, Allocator allocator = {});
+
+    LOQUAT_CPU_GPU
     Float scrambled_radical_inverse(int base_index, uint64_t a,
         const DigitPermutation& permutation) noexcept;
 
     struct NoRandomizer
     {
+        LOQUAT_CPU_GPU
         uint32_t operator()(uint32_t v) const noexcept
         {
             return v;
@@ -88,6 +99,7 @@ namespace loquat
         { r(i) } -> std::convertible_to<uint32_t>;
     };
 
+    LOQUAT_CPU_GPU
     inline Float radical_inverse(int base_index, uint64_t a) noexcept
     {
         unsigned int base = primes[base_index];
@@ -107,6 +119,7 @@ namespace loquat
         return std::min(reversed_digits * inverse_base_m, ONE_MINUS_EPSILON);
     }
 
+    LOQUAT_CPU_GPU
     inline uint64_t inverse_radical_inverse(uint64_t inverse, int base,
         int digit_count) noexcept
     {
@@ -120,6 +133,7 @@ namespace loquat
         return index;
     }
 
+    LOQUAT_CPU_GPU
     inline Float scrambled_radical_inverse(int base_index, uint64_t a,
         const DigitPermutation& permutation) noexcept
     {
@@ -143,6 +157,7 @@ namespace loquat
         return std::min(inverse_base_m * reversed_digits, ONE_MINUS_EPSILON);
     }
 
+    LOQUAT_CPU_GPU
     inline Float owen_scrambled_radical_inverse(int base_index, uint64_t a,
         uint32_t hash) noexcept
     {
@@ -167,6 +182,7 @@ namespace loquat
         return std::min(inverse_base_m * reversed_digits, ONE_MINUS_EPSILON);
     }
 
+    LOQUAT_CPU_GPU
     inline uint32_t multiply_generator(std::span<const uint32_t> C,
         uint32_t a) noexcept
     {
@@ -182,6 +198,7 @@ namespace loquat
     }
 
     template <randomizer R>
+    LOQUAT_CPU_GPU
     inline Float sobol_sample(int64_t a, int dimension, R randomizer) noexcept
     {
         LOG_ASSERT(dimension < SOBOL_DIMENSIONS);
@@ -199,6 +216,7 @@ namespace loquat
         return std::min(v * 0x1p-32f, ONE_MINUS_EPSILON_FLOAT);
     }
 
+    LOQUAT_CPU_GPU
     inline Float blue_noise_sample(Point2i point, int instance) noexcept
     {
         auto hash_permutation = [&](uint64_t index) -> int
@@ -238,9 +256,11 @@ namespace loquat
 
     struct BinaryPermuteScrambler
     {
+        LOQUAT_CPU_GPU
         BinaryPermuteScrambler(uint32_t permutation) noexcept
             : permutation{ permutation }
         {}
+        LOQUAT_CPU_GPU
         uint32_t operator()(uint32_t v) const noexcept
         {
             return permutation ^ v;
@@ -250,10 +270,12 @@ namespace loquat
 
     struct FastOwenScrambler
     {
+        LOQUAT_CPU_GPU
         FastOwenScrambler(uint32_t seed) noexcept
             : seed{ seed }
         {}
 
+        LOQUAT_CPU_GPU
         uint32_t operator()(uint32_t v) const noexcept
         {
             v = reverse_bits_32(v);
@@ -270,10 +292,12 @@ namespace loquat
 
     struct OwenScrambler
     {
+        LOQUAT_CPU_GPU
         OwenScrambler(uint32_t seed) noexcept
             : seed{ seed }
         {}
 
+        LOQUAT_CPU_GPU
         uint32_t operator()(uint32_t v) const noexcept
         {
             if (seed & 1)
@@ -305,6 +329,7 @@ namespace loquat
     [[nodiscard]]
     std::string to_string(RandomizeStrategy r) noexcept;
 
+    LOQUAT_CPU_GPU
     inline uint64_t sobol_interval_to_index(uint32_t m, uint64_t frame,
         Point2i point) noexcept
     {
