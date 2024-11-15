@@ -10,8 +10,24 @@
 #include <numbers>
 #include <utility>
 
+#ifdef LOQUAT_HAS_INTRIN_H
+#include <intrin.h>
+#endif
+
 namespace loquat
 {
+
+#ifdef LOQUAT_IS_GPU_CODE
+	
+	#define SHADOW_EPSILON = 0.0001f;
+	#define PI = Float(3.14159265358979323846);
+	#define INV_PI = Float(0.31830988618379067154);
+	#define INV_2PI = Float(0.15915494309189533577);
+	#define INV_4PI = Float(0.07957747154594766788);
+	#define PI_OVER_2 = Float(1.57079632679489661923);
+	#define PI_OVER_4 = Float(0.78539816339744830961);
+	#define SQRT2 = Float(1.41421356237309504880);
+#else
 	/// <summary>
 	/// To avoid incorrect intersections with surfaces due to floating point
 	/// errors, this is used to set t_max just under 1 to stop before 
@@ -54,6 +70,8 @@ namespace loquat
 	/// </summary>
 	constexpr Float SQRT2 = static_cast<Float>(std::numbers::sqrt2);
 
+#endif
+
 	/// <summary>
 	/// A concept for checking if a type is either an integral or a
 	/// floating point value.
@@ -62,7 +80,6 @@ namespace loquat
 	concept number = std::integral<T> || std::floating_point<T>;
 
 	// Forward declarations
-
 
 	inline uint64_t left_shift_2(uint64_t x) noexcept;
 
@@ -73,6 +90,7 @@ namespace loquat
 	// Regular declarations
 
 	template <number T, number U, number V>
+	LOQUAT_CPU_GPU
 	inline constexpr T clamp(T value, U low, V high) noexcept
 	{
 		if (value < low)
@@ -89,13 +107,18 @@ namespace loquat
 		}
 	}
 
+	LOQUAT_CPU_GPU
 	inline uint64_t encode_morton_2(uint32_t x, uint32_t y) noexcept
 	{
 		return (left_shift_2(y) << 1) | left_shift_2(x);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float error_function_inverse(Float a) noexcept
 	{
+#ifdef LOQUAT_IS_GPU_CODE
+		return efrinv(a);
+#else
 		// https://stackoverflow.com/a/49743348
 		float p;
 		float t = std::log(
@@ -129,15 +152,18 @@ namespace loquat
 			p = FMA(p, t, 8.86226892e-1f);  //  0x1.c5bf88p-1
 		}
 		return a * p;
+#endif
 	}
 	
 	template <typename Float, typename C>
+	LOQUAT_CPU_GPU
 	inline constexpr Float evaluate_polynomial(Float t, C c) noexcept
 	{
 		return c;
 	}
 
 	template <typename Float, typename C, typename... Args>
+	LOQUAT_CPU_GPU
 	inline constexpr Float evaluate_polynomial(Float t, C c,
 		Args... remaining) noexcept
 	{
@@ -149,6 +175,7 @@ namespace loquat
 	/// </summary>
 	/// <param name="x">The exponent.</param>
 	/// <returns>e to the power of the provided x.</returns>
+	LOQUAT_CPU_GPU
 	inline float fast_e(float x) noexcept
 	{
 		// Compute x' such that e^x = 2^x'
@@ -180,6 +207,7 @@ namespace loquat
 	}
 
 	template <std::predicate<size_t> Predicate>
+	LOQUAT_CPU_GPU
 	inline size_t find_interval(size_t size, const Predicate& predicate) noexcept
 	{
 		using ssize_t = std::make_signed_t<size_t>;
@@ -196,6 +224,7 @@ namespace loquat
 		return static_cast<size_t>(clamp(static_cast<size_t>(first) + 1, 0, size - 2));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float gaussian(Float x, Float mu = 0, Float sigma = 1) noexcept
 	{
 		return 1 / std::sqrt(2 * PI * square(sigma))
@@ -203,11 +232,13 @@ namespace loquat
 	}
 
 	template <std::integral T>
+	LOQUAT_CPU_GPU
 	inline constexpr bool is_power_of_2(T v) noexcept
 	{
 		return v && !(v & (v - 1));
 	}
 
+	LOQUAT_CPU_GPU
 	inline uint64_t left_shift_2(uint64_t x) noexcept
 	{
 		x &= 0xffffffff;
@@ -219,17 +250,20 @@ namespace loquat
 		return x;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float lerp(Float x, Float a, Float b) noexcept
 	{
 		return (1 - x) * a + x * b;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float log2(Float x) noexcept
 	{
 		const double inv_log2 = 1.442695040888963387004650940071;
 		return std::log(x) * inv_log2;
 	}
 
+	LOQUAT_CPU_GPU
 	inline int log2_int(float v) noexcept
 	{
 		LOG_ASSERT(v > 0);
@@ -247,6 +281,7 @@ namespace loquat
 		return exponent(v) + ((significand(v) >= midsignif) ? 1 : 0);
 	}
 
+	LOQUAT_CPU_GPU
 	inline int log2_int(double v) noexcept
 	{
 		LOG_ASSERT(v > 0);
@@ -266,36 +301,32 @@ namespace loquat
 
 	inline int log2_int(uint32_t v) noexcept
 	{
-#if __GNUC__
-		return 31 - __builtin_clz(v);
-#else
+#ifdef LOQUAT_IS_GPU_CODE
+		return 31 - __clz(v);
+#elseif defined(LOQUAT_HAS_INTRIN_H)
 		unsigned long lz = 0;
-#if defined(_WIN64)
-		_BitScanReverse64(&lz, v);
+		if (_BitScanReverse(&lz, v))
+		{
+			return lz;
+		}
+		return 0;
 #else
-		if (_BitScanReverse(&lz, v >> 32))
-		{
-			lz += 32;
-		}
-		else
-		{
-			_BitScanReverse(&lz, v & 0xffffffff);
-		}
-#endif // _WIN64
-		return lz;
-#endif // __GNUC__
+		return 31 - __builtin_clz(v);
+#endif
 	}
 
+	LOQUAT_CPU_GPU
 	inline int log2_int(int32_t v) noexcept
 	{
 		return log2_int(static_cast<uint32_t>(v));
 	}
 
+	LOQUAT_CPU_GPU
 	inline int log2_int(uint64_t v) noexcept
 	{
-#ifdef __GNUC__
-		return 63 - __builtin_clzll(v);
-#else
+#ifdef LOQUAT_IS_GPU_CODE
+		return 64 - __clzll(v);
+#elif defined(LOQUAT_HAS_INTRIN_H)
 		unsigned long lz = 0;
 #if defined(_WIN64)
 		_BitScanReverse64(&lz, v);
@@ -308,11 +339,14 @@ namespace loquat
 		{
 			_BitScanReverse(&lz, v & 0xffffffff);
 		}
-#endif // _WIN64
+#endif
 		return lz;
-#endif // __GNUC__
+#else
+		return 63 - __builtin_clzll(v);
+#endif
 	}
 
+	LOQUAT_CPU_GPU
 	inline int log2_int(int64_t v) noexcept
 	{
 		return log2_int(static_cast<uint64_t>(v));
@@ -320,11 +354,13 @@ namespace loquat
 
 	template <typename T>
 		requires std::integral<T> || std::floating_point<T>
+	LOQUAT_CPU_GPU
 	inline int log4_int(T v) noexcept
 	{
 		return log2_int(v) / 2;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float logistic(Float x, Float s) noexcept
 	{
 		Float abs_x = std::abs(x);
@@ -335,6 +371,7 @@ namespace loquat
 		requires requires (Func f, Float x) {
 			{ f(x) } -> std::convertible_to<std::pair<Float, Float>>;
 		}
+	LOQUAT_CPU_GPU
 	inline Float newton_bisection(Float x0, Float x1, Func f,
 		Float x_eps = 1e-6f, Float f_eps = 1e-6f)
 	{
@@ -385,6 +422,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
     inline int permutation_element(uint32_t i, uint32_t l, uint32_t p) noexcept
     {
         uint32_t w = l - 1;
@@ -418,6 +456,7 @@ namespace loquat
     }
 
 	template <int n>
+	LOQUAT_CPU_GPU
 	constexpr float pow(const float v) noexcept
 	{
 		if constexpr (n < 0)
@@ -429,18 +468,21 @@ namespace loquat
 	}
 
 	template <>
+	LOQUAT_CPU_GPU
 	constexpr float pow<1>(const float v) noexcept
 	{
 		return v;
 	}
 
 	template <>
+	LOQUAT_CPU_GPU
 	constexpr float pow<0>(const float v) noexcept
 	{
 		return 1;
 	}
 
 	template <int n>
+	LOQUAT_CPU_GPU
 	constexpr float pow(const double v) noexcept
 	{
 		if constexpr (n < 0)
@@ -452,37 +494,50 @@ namespace loquat
 	}
 
 	template <>
+	LOQUAT_CPU_GPU
 	constexpr float pow<1>(const double v) noexcept
 	{
 		return v;
 	}
 
 	template <>
+	LOQUAT_CPU_GPU
 	constexpr float pow<0>(const double v) noexcept
 	{
 		return 1;
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline uint32_t reverse_bits_32(uint32_t n) noexcept
 	{
+#ifdef LOQUAT_IS_GPU_CODE
+		return __brev(n);
+#else
 		n = (n << 16) | (n >> 16);
 		n = ((n & 0x00ff00ff) << 8) | ((n & 0xff00ff00) >> 8);
 		n = ((n & 0x0f0f0f0f) << 4) | ((n & 0xf0f0f0f0) >> 4);
 		n = ((n & 0x33333333) << 2) | ((n & 0xcccccccc) >> 2);
 		n = ((n & 0x55555555) << 1) | ((n & 0xaaaaaaaa) >> 1);
 		return n;
+#endif
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline uint64_t reverse_bits_64(uint64_t n) noexcept
 	{
+#ifdef LOQUAT_IS_GPU_CODE
+		return __brevll(n);
+#else
 		uint64_t n0 = reverse_bits_32((uint32_t) n);
 		uint64_t n1 = reverse_bits_32((uint32_t)(n >> 32));
 		return (n0 << 32) | n1;
+#endif
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline constexpr int32_t round_up_pow2(int32_t v) noexcept
 	{
 		--v;
@@ -495,6 +550,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline constexpr int64_t round_up_pow2(int64_t v) noexcept
 	{
 		--v;
@@ -510,6 +566,7 @@ namespace loquat
 	template <typename T>
 		requires std::integral<T> || std::floating_point<T>
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline T round_up_pow4(T v) noexcept
 	{
 		return is_power_of_4(v) ? v : (1 << (2 * (1 + log4_int(v))));
@@ -517,12 +574,14 @@ namespace loquat
 
 	template <typename T>
 		requires std::integral<T> || std::floating_point<T>
+	LOQUAT_CPU_GPU
 	constexpr T square(T value) noexcept
 	{
 		return value * value;
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline float safe_square_root(float x) noexcept
 	{
 		LOG_ASSERT(x >= -1e-3f 
@@ -531,6 +590,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline float safe_square_root(double x) noexcept
 	{
 		LOG_ASSERT(x >= -1e-3f
@@ -538,6 +598,7 @@ namespace loquat
 		return std::sqrt(std::max(0.0, x));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float smooth_step(Float x, Float a, Float b) noexcept
 	{
 		if (a == b)
