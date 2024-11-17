@@ -24,29 +24,36 @@ namespace loquat
 	class RNG
 	{
 	public:
+		LOQUAT_CPU_GPU
 		RNG() noexcept
 			: state{ PCG32_DEFAULT_STATE }
 			, inc{ PCG32_DEFAULT_STREAM }
 		{}
+		LOQUAT_CPU_GPU
 		RNG(uint64_t sequence_index, uint64_t offset) noexcept
 		{
 			set_sequence(sequence_index, offset);
 		}
+		LOQUAT_CPU_GPU
 		RNG(uint64_t sequence_index) noexcept
 		{
 			set_sequence(sequence_index);
 		}
 
+		LOQUAT_CPU_GPU
 		void set_sequence(uint64_t sequence_index, uint64_t offset) noexcept;
+		LOQUAT_CPU_GPU
 		void set_sequence(uint64_t sequence_index) noexcept
 		{
 			set_sequence(sequence_index, mix_bits(sequence_index));
 		}
 
 		template <typename T>
+		LOQUAT_CPU_GPU
 		T uniform() noexcept;
 
 		template <std::integral T>
+		LOQUAT_CPU_GPU
 		T uniform(T b) noexcept
 		{
 			T threshold = (~b + 1u) % b;
@@ -60,7 +67,9 @@ namespace loquat
 			}
 		}
 
+		LOQUAT_CPU_GPU
 		void advance(int64_t delta) noexcept;
+		LOQUAT_CPU_GPU
 		int64_t operator-(const RNG& other) const noexcept;
 
 		[[nodiscard]]
@@ -72,3 +81,4 @@ namespace loquat
 	};
 
 }
+//TODO(ches) finish this

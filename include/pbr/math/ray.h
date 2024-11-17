@@ -22,6 +22,7 @@ namespace loquat
 			, time{ 0.0f }
 			, medium{ nullptr }
 		{}
+		LOQUAT_CPU_GPU
 		Ray(const Point3f& origin, const Vec3f& direction,
 			Float time = 0.0f, Medium medium = nullptr)
 			: origin{ origin }
@@ -29,18 +30,22 @@ namespace loquat
 			, time{ time }
 			, medium{ medium }
 		{}
+		LOQUAT_CPU_GPU
 		Ray(const Ray& ray)
 			: origin{ ray.origin }
 			, direction{ ray.direction }
 			, time{ ray.time }
 			, medium{ ray.medium }
 		{}
+		LOQUAT_CPU_GPU
 		Ray(Ray&& ray)
 			: origin{ std::move(ray.origin) }
 			, direction{ std::move(ray.direction) }
 			, time{ std::move(ray.time) }
 			, medium{ std::move(ray.medium) }
 		{}
+
+		LOQUAT_CPU_GPU
 		Ray& operator=(const Ray& ray)
 		{
 			this->origin = ray.origin;
@@ -49,6 +54,7 @@ namespace loquat
 			this->medium = ray.medium;
 			return *this;
 		}
+		LOQUAT_CPU_GPU
 		Ray& operator=(Ray&& ray)
 		{
 			this->origin = std::move(ray.origin);
@@ -59,6 +65,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		bool has_NaN() const noexcept
 		{
 			return vector::has_NaN(origin) || vector::has_NaN(direction);
@@ -66,6 +73,7 @@ namespace loquat
 
 		template<typename A>
 			requires std::convertible_to<A, Float>
+		LOQUAT_CPU_GPU
 		constexpr Ray& operator+=(A scalar)
 		{
 			this->origin += static_cast<Float>(scalar);
@@ -73,6 +81,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, Float>
+		LOQUAT_CPU_GPU
 		constexpr Ray& operator-=(A scalar)
 		{
 			this->origin -= static_cast<Float>(scalar);
@@ -80,6 +89,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, Float>
+		LOQUAT_CPU_GPU
 		constexpr Ray& operator*=(A scalar)
 		{
 			this->direction *= static_cast<Float>(scalar);
@@ -87,6 +97,7 @@ namespace loquat
 		}
 		template<typename A>
 			requires std::convertible_to<A, Float>
+		LOQUAT_CPU_GPU
 		constexpr Ray& operator/=(A scalar)
 		{
 			this->direction /= static_cast<Float>(scalar);
@@ -95,6 +106,7 @@ namespace loquat
 	};
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline Point3f offset_ray_origin(Point3fi point_interval, Normal3f normal,
 		Vec3f direction)
 	{
@@ -121,6 +133,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline Ray spawn_ray(Point3fi point_interval, Normal3f normal, Float time,
 		Vec3f direction) noexcept
 	{
@@ -129,6 +142,7 @@ namespace loquat
 	}
 	
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline Ray spawn_ray_to(Point3fi from, Normal3f normal, Float time, 
 		Point3f to)
 	{
@@ -137,6 +151,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline Ray spawn_ray_to(Point3fi from, Normal3f normal_from, Float time,
 		Point3fi to, Normal3f normal_to)
 	{
@@ -151,10 +166,12 @@ namespace loquat
 	{
 	public:
 		RayDifferential() = default;
+		LOQUAT_CPU_GPU
 		RayDifferential(Point3f origin, Vec3f direction, Float time = 0.0f,
 			Medium medium = nullptr)
 			: Ray(origin, direction, time, medium)
 		{}
+		LOQUAT_CPU_GPU
 		explicit RayDifferential(const Ray& ray)
 			: Ray(ray)
 		{}
@@ -170,6 +187,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		bool has_NaN() const noexcept
 		{
 			return Ray::has_NaN() || (has_differentials &&
@@ -178,6 +196,8 @@ namespace loquat
 					|| vector::has_NaN(x_offset_direction)
 					|| vector::has_NaN(y_offset_direction)));
 		}
+
+		[[nodiscard]]
 		std::string to_string() const noexcept;
 
 		bool has_differentials = false;
