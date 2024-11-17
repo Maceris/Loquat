@@ -301,17 +301,19 @@ namespace loquat
 
 	inline int log2_int(uint32_t v) noexcept
 	{
-#ifdef LOQUAT_IS_GPU_CODE
+#if defined(LOQUAT_IS_GPU_CODE)
 		return 31 - __clz(v);
-#elseif defined(LOQUAT_HAS_INTRIN_H)
+#elif defined(LOQUAT_HAS_INTRIN_H)
 		unsigned long lz = 0;
 		if (_BitScanReverse(&lz, v))
 		{
 			return lz;
 		}
 		return 0;
-#else
+#elif defined(__GNUC__)
 		return 31 - __builtin_clz(v);
+#else
+		static_assert(false && "No equivalent to CLZ found");
 #endif
 	}
 
