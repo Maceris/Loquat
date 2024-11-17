@@ -17,14 +17,23 @@ namespace loquat
 	extern const uint32_t pmj02bn_samples
 		[PMJ02BN_SET_COUNT][PMJ02BN_SAMPLES][2];
 
+	LOQUAT_CPU_GPU
 	inline Point2f get_PMJ02BN_sample(int set_index, int sample_index) noexcept
 	{
 		set_index %= PMJ02BN_SET_COUNT;
 		LOG_ASSERT(sample_index < PMJ02BN_SAMPLES);
 		sample_index %= PMJ02BN_SAMPLES;
+
+#if LOQUAT_IS_GPU_CODE
+		return Point2f{
+			pmj02bn_samples[set_index][sample_index][0] * 0x1p-32f,
+			pmj02bn_samples[set_index][sample_index][1] * 0x1p-32f
+	};
+#else
 		return Point2f {
 			pmj02bn_samples[set_index][sample_index][0] * 0x1p-32,
 			pmj02bn_samples[set_index][sample_index][1] * 0x1p-32
 		};
+#endif
 	}
 }

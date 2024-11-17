@@ -36,6 +36,7 @@ namespace loquat
 	{
 		template <unsigned int Size>
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		std::optional<SquareMatrix<Size>> invert(
 			const SquareMatrix<Size>& matrix) noexcept;
         
