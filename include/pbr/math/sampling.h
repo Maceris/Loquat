@@ -12,10 +12,12 @@
 
 namespace loquat
 {
+    LOQUAT_CPU_GPU
 	inline Vec3f sample_uniform_sphere(Point2f sample_2D) {
         Float z = 1 - 2 * sample_2D[0];
         Float r = safe_square_root(1 - square(z));
         Float phi = 2 * PI * sample_2D[1];
         return { r * std::cos(phi), r * std::sin(phi), z };
     }
+    //TODO(ches) finish this
 }
