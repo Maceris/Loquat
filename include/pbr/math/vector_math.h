@@ -23,6 +23,7 @@ namespace loquat
 	/// <param name="v2">An out parameter for the second vector.</param>
 	/// <param name="v3">An out parameter for the third vector.</param>
 	template <typename T>
+	LOQUAT_CPU_GPU
 	inline void coordinate_system(Vec3<T> v1, Vec3<T>* v2, Vec3<T>* v3)
 		noexcept
 	{
@@ -37,23 +38,28 @@ namespace loquat
 	{
 	public:
 
+		LOQUAT_CPU_GPU
 		Frame()
 			: x{ 1, 0, 0 }
 			, y{ 0, 1, 0 }
 			, z{ 0, 0, 1 }
 		{}
+		LOQUAT_CPU_GPU
 		Frame(Vec3f x, Vec3f y, Vec3f z);
 
+		LOQUAT_CPU_GPU
 		static Frame from_XZ(Vec3f x, Vec3f z) noexcept
 		{
 			return Frame{ x, glm::cross(z, x), z };
 		}
 
+		LOQUAT_CPU_GPU
 		static Frame from_XY(Vec3f x, Vec3f y) noexcept
 		{
 			return Frame{ x, y, glm::cross(x, y) };
 		}
 
+		LOQUAT_CPU_GPU
 		static Frame from_X(Vec3f x) noexcept
 		{
 			Vec3f y;
@@ -62,6 +68,7 @@ namespace loquat
 			return Frame{ x, y, z };
 		}
 
+		LOQUAT_CPU_GPU
 		static Frame from_Y(Vec3f y) noexcept
 		{
 			Vec3f x;
@@ -70,6 +77,7 @@ namespace loquat
 			return Frame{ x, y, z };
 		}
 
+		LOQUAT_CPU_GPU
 		static Frame from_Z(Vec3f z) noexcept
 		{
 			Vec3f x;
@@ -78,12 +86,14 @@ namespace loquat
 			return Frame{ x, y, z };
 		}
 
+		LOQUAT_CPU_GPU
 		Vec3f to_local(Vec3f vector) const noexcept
 		{
 			return Vec3f{ glm::dot(vector, x), glm::dot(vector, y),
 				glm::dot(vector, z) };
 		}
 
+		LOQUAT_CPU_GPU
 		Vec3f from_local(Vec3f vector) const noexcept
 		{
 			return vector.x * x + vector.y * y + vector.z * z;
@@ -103,6 +113,7 @@ namespace loquat
 
 	template <typename T>
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline T absolute_dot(Vec2<T> v1, Vec2<T> v2)
 	{
 		LOG_ASSERT(!has_NaN(v1) && !has_NaN(v1) 
@@ -112,6 +123,7 @@ namespace loquat
 
 	template <typename T>
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline T absolute_dot(Vec3<T> v1, Vec3<T> v2)
 	{
 		LOG_ASSERT(!vector::has_NaN(v1) && !vector::has_NaN(v1)
@@ -121,6 +133,7 @@ namespace loquat
 
 	template <typename T>
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline Normal3<T> face_forward(Normal3<T> normal, Vec3<T> vector)
 	{
 		return glm::dot(normal, vector) < 0.0f ? -normal : normal;
@@ -131,20 +144,24 @@ namespace loquat
 	public:
 		DirectionCone() = default;
 
+		LOQUAT_CPU_GPU
 		DirectionCone(Vec3f direction, Float cos_theta) noexcept
 			: direction{ glm::normalize(direction) }
 			, cos_theta{ cos_theta }
 		{}
 
+		LOQUAT_CPU_GPU
 		explicit DirectionCone(Vec3f direction) noexcept
 			: DirectionCone(direction, 1)
 		{}
 
+		LOQUAT_CPU_GPU
 		bool is_empty() const noexcept
 		{
 			return cos_theta == FLOAT_INFINITY;
 		}
 
+		LOQUAT_CPU_GPU
 		static DirectionCone entire_sphere()
 		{
 			return DirectionCone{ Vec3f(0,0,1), -1 };
@@ -153,6 +170,7 @@ namespace loquat
 		[[nodiscard]]
 		std::string to_string() const noexcept;
 
+		LOQUAT_CPU_GPU
 		Vec3f closest_vector_in_cone(Vec3f vec) const noexcept;
 
 		Vec3f direction;
@@ -160,6 +178,7 @@ namespace loquat
 	};
 
 	template <typename T>
+	LOQUAT_CPU_GPU
 	inline bool inside_exclusive(Point2<T> point,
 		const AABB<Point2, T>& bounds)
 	{
@@ -170,6 +189,7 @@ namespace loquat
 	}
 
 	template <typename T>
+	LOQUAT_CPU_GPU
 	inline bool inside_exclusive(Point3<T> point,
 		const AABB<Point3, T>& bounds)
 	{
@@ -181,6 +201,7 @@ namespace loquat
 			&& point.z < bounds.min.z;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Vec3f spherical_direction(Float sin_theta, Float cos_theta,
 		Float phi) noexcept
 	{
@@ -200,10 +221,11 @@ namespace loquat
 	/// <param name="v">The dimensional vector, whose x and y coordinates
 	/// will be used to return the phi angle.</param>
 	/// <returns>The spherical angle phi.</returns>
+	LOQUAT_CPU_GPU
 	inline Float spherical_phi(Vec3f v) noexcept
 	{
 		Float phi = std::atan2(v.y, v.x);
 		return (phi < 0) ? (phi + 2 * PI) : phi;
 	}
-
+	//TODO(ches) finish this
 }

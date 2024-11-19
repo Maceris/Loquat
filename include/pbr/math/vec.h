@@ -66,6 +66,7 @@ namespace loquat
 	{
 		template<typename T>
 			requires is_vec<T>
+		LOQUAT_CPU_GPU
 		bool has_NaN(T vector) noexcept
 		{
 			for (glm::length_t i = 0; i < vector.length(); ++i)
@@ -79,6 +80,7 @@ namespace loquat
 		}
 
 		template <typename T>
+		LOQUAT_CPU_GPU
 		inline T length_squared(Vec3<T> vector)
 		{
 			return square(vector.x) + square(vector.y) + square(vector.z);
