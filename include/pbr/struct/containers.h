@@ -143,6 +143,7 @@ namespace loquat
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
 		T& operator[](Point2i point) noexcept
 		{
 			LOG_ASSERT(inside_exclusive(point, extent)
@@ -153,16 +154,19 @@ namespace loquat
 			return values[point.x + (extent.max.x - extent.min.x) * point.y];
 		}
 
+		LOQUAT_CPU_GPU
 		T& operator()(int x, int y) noexcept
 		{
 			return (*this)[{x, y}];
 		}
 
+		LOQUAT_CPU_GPU
 		const T& operator()(int x, int y) const noexcept
 		{
 			return (*this)[{x, y}];
 		}
 
+		LOQUAT_CPU_GPU
 		const T& operator[](Point2i point) const noexcept
 		{
 			LOG_ASSERT(inside_exclusive(point, extent)
@@ -173,46 +177,55 @@ namespace loquat
 			return values[point.x + (extent.max.x - extent.min.x) * point.y];
 		}
 
+		LOQUAT_CPU_GPU
 		int size() const noexcept
 		{
 			return extent.area();
 		}
 
+		LOQUAT_CPU_GPU
 		int size_x() const noexcept
 		{
 			return extent.max.x - extent.min.x;
 		}
 
+		LOQUAT_CPU_GPU
 		int size_y() const noexcept
 		{
 			return extent.max.y - extent.min.y;
 		}
 
+		LOQUAT_CPU_GPU
 		iterator begin() noexcept
 		{
 			return values;
 		}
 
+		LOQUAT_CPU_GPU
 		iterator end() noexcept
 		{
 			return begin() + size();
 		}
 
+		LOQUAT_CPU_GPU
 		const_iterator begin() const noexcept
 		{
 			return values;
 		}
 
+		LOQUAT_CPU_GPU
 		const_iterator end() const noexcept
 		{
 			return begin() + size();
 		}
 
+		LOQUAT_CPU_GPU
 		operator std::span<T>() noexcept
 		{
 			return std::span<T>(values, size());
 		}
 
+		LOQUAT_CPU_GPU
 		operator std::span<const T>() const noexcept
 		{
 			return std::span<const T>(values, size());
@@ -466,43 +479,61 @@ namespace loquat
 			allocator.deallocate_object(pointer, allocated_count);
 		}
 
+		LOQUAT_CPU_GPU
 		iterator begin() noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
+
+		LOQUAT_CPU_GPU
 		iterator end() noexcept
 		{
 			return begin() + stored_count;
 		}
+
+		LOQUAT_CPU_GPU
 		const_iterator begin() const noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
+
+		LOQUAT_CPU_GPU
 		const_iterator end() const noexcept
 		{
 			return begin() + stored_count;
 		}
+
+		LOQUAT_CPU_GPU
 		const_iterator cbegin() const noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
+
+		LOQUAT_CPU_GPU
 		const_iterator cend() const noexcept
 		{
 			return begin() + stored_count;
 		}
 
+		LOQUAT_CPU_GPU
 		reverse_iterator rbegin() noexcept
 		{
 			return reverse_iterator{ end() };
 		}
+
+		LOQUAT_CPU_GPU
 		reverse_iterator rend() noexcept
 		{
 			return reverse_iterator{ begin() };
 		}
+
+		LOQUAT_CPU_GPU
 		const_reverse_iterator rbegin() const noexcept
 		{
 			return const_reverse_iterator{ end() };
 		}
+
+		LOQUAT_CPU_GPU
 		const_reverse_iterator rend() const noexcept
 		{
 			return const_reverse_iterator{ begin() };
@@ -512,18 +543,26 @@ namespace loquat
 		{
 			return allocator;
 		}
+
+		LOQUAT_CPU_GPU
 		size_t size() const noexcept
 		{
 			return stored_count;
 		}
+
+		LOQUAT_CPU_GPU
 		bool empty() const noexcept
 		{
 			return size() == 0;
 		}
+
+		LOQUAT_CPU_GPU
 		size_t max_size() const noexcept
 		{
 			return (size_t)-1;
 		}
+
+		LOQUAT_CPU_GPU
 		size_t capacity() const noexcept
 		{
 			return pointer ? allocated_count : N;
@@ -572,38 +611,51 @@ namespace loquat
 			pointer = reserved;
 		}
 
+		LOQUAT_CPU_GPU
 		T& operator[](size_t index) noexcept
 		{
 			LOG_ASSERT(index <= size() && "Index out of bounds");
 			return begin()[index];
 		}
 
+		LOQUAT_CPU_GPU
 		const T& operator[](size_t index) const noexcept
 		{
 			LOG_ASSERT(index <= size() && "Index out of bounds");
 			return begin()[index];
 		}
 
+		LOQUAT_CPU_GPU
 		T& front() noexcept
 		{
 			return *begin();
 		}
+
+		LOQUAT_CPU_GPU
 		const T& front() const noexcept
 		{
 			return *begin();
 		}
+
+		LOQUAT_CPU_GPU
 		T& back() noexcept
 		{
 			return *(begin() + stored_count - 1);
 		}
+
+		LOQUAT_CPU_GPU
 		const T& back() const noexcept
 		{
 			return *(begin() + stored_count - 1);
 		}
+
+		LOQUAT_CPU_GPU
 		T* data() noexcept
 		{
 			return pointer ? pointer : fixed;
 		}
+
+		LOQUAT_CPU_GPU
 		const T* data() const noexcept
 		{
 			return pointer ? pointer : fixed;
@@ -773,6 +825,8 @@ namespace loquat
 		class Iterator
 		{
 		public:
+
+			LOQUAT_CPU_GPU
 			Iterator& operator++() noexcept
 			{
 				while (++pointer < end && !pointer->has_value())
@@ -782,6 +836,7 @@ namespace loquat
 				return *this;
 			}
 
+			LOQUAT_CPU_GPU
 			Iterator operator++(int) noexcept
 			{
 				Iterator old = *this;
@@ -789,31 +844,37 @@ namespace loquat
 				return old;
 			}
 
+			LOQUAT_CPU_GPU
 			bool operator==(const Iterator& other) const noexcept
 			{
 				return pointer == other.pointer;
 			}
 
+			LOQUAT_CPU_GPU
 			bool operator!=(const Iterator& other) const noexcept
 			{
 				return pointer != other.pointer;
 			}
 
+			LOQUAT_CPU_GPU
 			std::pair<Key, Value>& operator*() noexcept
 			{
 				return pointer->value();
 			}
 
+			LOQUAT_CPU_GPU
 			const std::pair<Key, Value>& operator*() const noexcept
 			{
 				return pointer->value();
 			}
 
+			LOQUAT_CPU_GPU
 			std::pair<Key, Value>* operator->() noexcept
 			{
 				return &pointer->value();
 			}
 
+			LOQUAT_CPU_GPU
 			const std::pair<Key, Value>* operator->() const noexcept
 			{
 				return &pointer->value();
@@ -832,11 +893,13 @@ namespace loquat
 		using iterator = Iterator;
 		using const_iterator = const iterator;
 
+		LOQUAT_CPU_GPU
 		size_t size() const noexcept
 		{
 			return stored_count;
 		}
 
+		LOQUAT_CPU_GPU
 		size_t capacity() const noexcept
 		{
 			return table.size();
@@ -869,11 +932,13 @@ namespace loquat
 			table[offset] = std::make_pair(key, value);
 		}
 
+		LOQUAT_CPU_GPU
 		bool has_key(const Key& key) const noexcept
 		{
 			return table[find_offset(key)].has_value();
 		}
 
+		LOQUAT_CPU_GPU
 		const Value& operator[](const Key& key) const noexcept
 		{
 			size_t offset = find_offset(key);
@@ -881,6 +946,7 @@ namespace loquat
 			return table[offset]->second;
 		}
 
+		LOQUAT_CPU_GPU
 		iterator begin() noexcept
 		{
 			Iterator iterator{ table.data(), table.data() + capacity() };
@@ -892,8 +958,15 @@ namespace loquat
 			return iterator;
 		}
 
+		LOQUAT_CPU_GPU
+		iterator end() noexcept
+		{
+			return Iterator(table.data() + capacity(), table.data() + capacity());
+		}
+
 	private:
 
+		LOQUAT_CPU_GPU
 		size_t find_offset(const Key& key) const noexcept
 		{
 			size_t base_offset = hash()(key) & (capacity() - 1);
@@ -962,18 +1035,25 @@ namespace loquat
 			LOG_ASSERT(nx * ny * nz == values.size());
 		}
 
+		LOQUAT_CPU_GPU
 		size_t bytes_allocated() const noexcept
 		{
 			return values.size() * sizeof(T);
 		}
+
+		LOQUAT_CPU_GPU
 		int size_x() const noexcept
 		{
 			return nx;
 		}
+
+		LOQUAT_CPU_GPU
 		int size_y() const noexcept
 		{
 			return ny;
 		}
+
+		LOQUAT_CPU_GPU
 		int size_z() const noexcept
 		{
 			return nz;
@@ -989,6 +1069,7 @@ namespace loquat
 		}
 
 		template <std::invocable<Float> F>
+		LOQUAT_CPU_GPU
 		auto lookup(Point3f point, F convert) const noexcept
 		{
 			Point3f samples{ point.x * nx - 0.5f, point.y * ny - 0.5f, 
@@ -1009,6 +1090,7 @@ namespace loquat
 			return lerp(d.z, lerp(d.y, d00, d10), lerp(d.y, d01, d11));
 		}
 
+		LOQUAT_CPU_GPU
 		T lookup(Point3f point) const noexcept
 		{
 			Point3f samples{ point.x * nx - 0.5f, point.y * ny - 0.5f,
@@ -1029,6 +1111,7 @@ namespace loquat
 		}
 
 		template <std::invocable<Float> F>
+		LOQUAT_CPU_GPU
 		auto lookup(const Point3i point, F convert) const noexcept
 		{
 			AABB3i sample_bounds{ Point3i{0,0,0}, Point3i{nx, ny, nz} };
@@ -1039,6 +1122,7 @@ namespace loquat
 			return convert(values[(point.z * ny + point.y) * nx + point.x]);
 		}
 
+		LOQUAT_CPU_GPU
 		T lookup(const Point3i point) const noexcept
 		{
 			AABB3i sample_bounds{ Point3i{0,0,0}, Point3i{nx, ny, nz} };
