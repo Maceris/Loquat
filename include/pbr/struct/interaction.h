@@ -24,6 +24,8 @@ namespace loquat
 	{
 	public:
 		Interaction() = default;
+
+		LOQUAT_CPU_GPU
 		Interaction(Point3fi point, Normal3f normal, Point2f uv,
 			Vec3f outgoing, Float time)
 			: point{ point }
@@ -34,24 +36,28 @@ namespace loquat
 		{}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point3f p() const noexcept
 		{
 			return point.to_vec();
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		bool is_surface_interaction() const noexcept
 		{
 			return normal != Normal3f{ 0, 0, 0 };
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		bool is_medium_interaction() const noexcept
 		{
 			return !is_surface_interaction();
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		const SurfaceInteraction& as_surface() const noexcept
 		{
 			LOG_ASSERT(is_surface_interaction()
@@ -60,6 +66,7 @@ namespace loquat
 		}
 		
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		SurfaceInteraction& as_surface() noexcept
 		{
 			LOG_ASSERT(is_surface_interaction()
@@ -67,6 +74,7 @@ namespace loquat
 			return (SurfaceInteraction&)*this;
 		}
 
+		LOQUAT_CPU_GPU
 		Interaction(Point3f point, Vec3f outgoing, Float time, Medium medium)
 			: point{ point }
 			, time{ time }
@@ -74,11 +82,13 @@ namespace loquat
 			, medium{ medium }
 		{}
 
+		LOQUAT_CPU_GPU
 		Interaction(Point3f point, Point2f uv)
 			: point{ point }
 			, uv{ uv }
 		{}
 
+		LOQUAT_CPU_GPU
 		Interaction(const Point3fi& point, Normal3f normal, Float time = 0,
 			Point2f uv = {})
 			: point{ point }
@@ -87,24 +97,28 @@ namespace loquat
 			, time{ time }
 		{}
 
+		LOQUAT_CPU_GPU
 		Interaction(const Point3fi& point, Normal3f normal, Point2f uv)
 			: point{ point }
 			, time{ time }
 			, uv{ uv }
 		{}
 
+		LOQUAT_CPU_GPU
 		Interaction(Point3f point, Float time, Medium medium)
 			: point{ point }
 			, time{ time }
 			, medium{ medium }
 		{}
 
+		LOQUAT_CPU_GPU
 		Interaction(Point3f point, const MediumInterface* medium_interface)
 			: point{ point }
 			, medium_interface{ medium_interface }
 		{}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		const MediumInteraction& as_medium() const noexcept
 		{
 			LOG_ASSERT(is_medium_interaction()
@@ -113,6 +127,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		MediumInteraction& as_medium() noexcept
 		{
 			LOG_ASSERT(is_medium_interaction()
@@ -124,18 +139,21 @@ namespace loquat
 		std::string to_string() const noexcept;
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point3f offset_ray_origin(Vec3f direction) const noexcept
 		{
 			return loquat::offset_ray_origin(point, normal, direction);
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point3f offset_ray_origin_dest(Point3f destination) const noexcept
 		{
 			return offset_ray_origin(Vec3f(destination) - p());
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		RayDifferential spawn_ray(Vec3f direction) const noexcept
 		{
 			return RayDifferential(offset_ray_origin(direction), direction, 
@@ -143,6 +161,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Ray spawn_ray_to(Point3f destination) const noexcept
 		{
 			Ray ray = loquat::spawn_ray_to(point, normal, time, destination);
@@ -151,6 +170,7 @@ namespace loquat
 		}
 		
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Ray spawn_ray_to(const Interaction& target) const noexcept
 		{
 			Ray ray = loquat::spawn_ray_to(point, normal, time, 
@@ -160,6 +180,7 @@ namespace loquat
 		}
 		
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Medium get_medium(Vec3f direction) const noexcept
 		{
 			if (medium_interface)
@@ -174,6 +195,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Medium get_medium() const {
 			if (medium_interface)
 			{
@@ -198,6 +220,7 @@ namespace loquat
 	public:
 		SurfaceInteraction() = default;
 
+		LOQUAT_CPU_GPU
 		SurfaceInteraction(Point3fi point, Point2f uv, Vec3f outgoing,
 			Vec3f dpdu, Vec3f dpdv, Normal3f dndu, Normal3f dndv, Float time,
 			bool flip_normal)
@@ -222,6 +245,7 @@ namespace loquat
 			}
 		}
 
+		LOQUAT_CPU_GPU
 		SurfaceInteraction(Point3fi point, Point2f uv, Vec3f outgoing,
 			Vec3f dpdu, Vec3f dpdv, Normal3f dndu, Normal3f dndv, Float time,
 			bool flip_normal, int face_index)
@@ -231,6 +255,7 @@ namespace loquat
 			this->face_index = face_index;
 		}
 
+		LOQUAT_CPU_GPU
 		void set_shading_geometry(Normal3f normal, Vec3f dpdu, Vec3f dpdv,
 			Normal3f dndu, Normal3f dndv, bool is_orientation_authoritative)
 			noexcept
@@ -280,13 +305,16 @@ namespace loquat
 			}
 		}
 
+		LOQUAT_CPU_GPU
 		void compute_differentials(const RayDifferential& ray, Camera camera,
 			int samples_per_pixel);
 
+		LOQUAT_CPU_GPU
 		void skip_intersection(RayDifferential* ray, Float t) const noexcept;
 
 		using Interaction::spawn_ray;
 
+		LOQUAT_CPU_GPU
 		RayDifferential spawn_ray(const RayDifferential& ray,
 			const BSDF& bsdf, Vec3f incoming, int flags, Float eta)
 			const noexcept;
@@ -298,6 +326,7 @@ namespace loquat
 			SampledWavelengths& lambda, Camera camera,
 			ScratchBuffer& scratch_buffer, Sampler sampler) noexcept;
 
+		LOQUAT_CPU_GPU
 		SampledSpectrum emitted_radiance(Vec3f direction, 
 			const SampledWavelengths& lambda) const noexcept;
 
@@ -328,10 +357,12 @@ namespace loquat
 	class MediumInteraction : Interaction
 	{
 	public:
+		LOQUAT_CPU_GPU
 		MediumInteraction()
 			: phase{ nullptr }
 		{}
 
+		LOQUAT_CPU_GPU
 		MediumInteraction(Point3f point, Vec3f outgoing, Float time,
 			Medium medium, PhaseFunction phase)
 			: Interaction{ point, outgoing, time, medium }
