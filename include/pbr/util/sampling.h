@@ -24,33 +24,40 @@
 
 namespace loquat
 {
-	
+	LOQUAT_CPU_GPU
 	std::array<Float, 3> sample_spherical_triangle(
 		const std::array<Point3f, 3>& v, Point3f p, Point2f u,
 		Float* pdf = nullptr);
 	
+	LOQUAT_CPU_GPU
 	Point2f invert_spherical_triangle_sample(
 		const std::array<Point3f, 3>& v, Point3f p, Vec3f w);
 	
+	LOQUAT_CPU_GPU
 	Point3f sample_spherical_rectangle(Point3f p, Point3f v00, Vec3f eu,
 		Vec3f ev, Point2f u, Float* pdf = nullptr);
 	
+	LOQUAT_CPU_GPU
 	Point2f invert_spherical_rectangle_sample(Point3f pRef, Point3f v00,
 		Vec3f eu, Vec3f ev, Point3f pRect);
 	
+	LOQUAT_CPU_GPU
 	Vec3f sample_henyey_greenstein(Vec3f wo, Float g, Point2f u,
 		Float* pdf = nullptr);
 
+	LOQUAT_CPU_GPU
 	Float sample_catmull_rom(std::span<const Float> nodes,
 		std::span<const Float> f, std::span<const Float> cdf, Float sample,
 		Float* fval = nullptr,
 		Float* pdf = nullptr);
 	
+	LOQUAT_CPU_GPU
 	Float sample_catmull_rom_2D(std::span<const Float> nodes1,
 		std::span<const Float> nodes2, std::span<const Float> values,
 		std::span<const Float> cdf, Float alpha, Float sample,
 		Float* fval = nullptr, Float* pdf = nullptr);
 
+	LOQUAT_CPU_GPU
 	inline Float balance_heuristic(int sample_count1, Float sample1, 
 		int sample_count2, Float sample2)
 	{
@@ -58,6 +65,7 @@ namespace loquat
 			/ (sample_count1 * sample1 + sample_count2 * sample2);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float power_heuristic(int sample_count1, Float sample1,
 		int sample_count2, Float sample2)
 	{
@@ -70,6 +78,7 @@ namespace loquat
 		return square(f) / (square(f) + square(g));
 	}
 
+	LOQUAT_CPU_GPU
 	inline int sample_discrete(std::span<const Float> weights, Float u,
 		Float* pmf = nullptr, Float* u_remapped = nullptr)
 	{
@@ -114,6 +123,7 @@ namespace loquat
 		return offset;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float linear_PDF(Float x, Float a, Float b)
 	{
 		LOG_ASSERT(a >= 0 && b >= 0);
@@ -126,6 +136,7 @@ namespace loquat
 		return 2 * lerp(x, a, b) / (a + b);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float sample_linear(Float sample, Float a, Float b)
 	{
 		LOG_ASSERT(a >= 0 && b >= 0);
@@ -139,6 +150,7 @@ namespace loquat
 		return std::min(x, ONE_MINUS_EPSILON);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float invert_linear_sample(Float x, Float a, Float b)
 	{
 		return x * (a * (2 - x) + b * x) / (a + b);
@@ -152,6 +164,7 @@ namespace loquat
 	/// <param name="sample">The coordinates we are interested in.</param>
 	/// <param name="values">The valuse at (0, 0), (1, 0), (0, 1), and (1, 1) respectively.</param>
 	/// <returns></returns>
+	LOQUAT_CPU_GPU
 	inline Float bilinear_PDF(Point2f sample, std::span<const Float> values)
 	{
 		LOG_ASSERT(values.size() == 4 && "Exactly 4 values are required");
@@ -181,6 +194,7 @@ namespace loquat
 	/// <param name="sample">The coordinates we are interested in.</param>
 	/// <param name="values">The valuse at (0, 0), (1, 0), (0, 1), and (1, 1) respectively.</param>
 	/// <returns></returns>
+	LOQUAT_CPU_GPU
 	inline Point2f sample_bilinear(Point2f sample,
 		std::span<const Float> values)
 	{
@@ -202,6 +216,7 @@ namespace loquat
 		return result;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f invert_bilinear_sample(Point2f sample,
 		std::span<const Float> values)
 	{
@@ -225,6 +240,7 @@ namespace loquat
 	/// <param name="wavelength">The wavelenth, in nanometers.
 	/// Should be between 360 and 830 for nonzero results.</param>
 	/// <returns>The probability of sampling the provided wavelength.</returns>
+	LOQUAT_CPU_GPU
 	inline Float visible_wavelengths_PDF(Float wavelength)
 	{
 		if (wavelength < 360 || wavelength > 830)
@@ -239,11 +255,13 @@ namespace loquat
 	/// </summary>
 	/// <param name="sample">The sample value, in the range [0, 1).</param>
 	/// <returns>The wavelength, in nm, between 360 and 830.</returns>
+	LOQUAT_CPU_GPU
 	inline Float sample_visible_wavelengths(Float sample)
 	{
 		return 538 - 138.888889f * std::atanh(0.85691062f - 1.82750197f * sample);
 	}
 
+	LOQUAT_CPU_GPU
 	inline std::array<Float, 3> sample_uniform_triangle(Point2f sample)
 	{
 		Float b0;
@@ -262,6 +280,7 @@ namespace loquat
 		return { b0, b1, 1 - b0 - b1 };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f invert_uniform_triangle_sample(const std::array<Float, 3>& b)
 	{
 		if (b[0] > b[1])
@@ -271,6 +290,7 @@ namespace loquat
 		return { 2 * b[0], b[1] + b[0] };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float tent_PDF(Float x, Float r)
 	{
 		if (std::abs(x) >= r)
@@ -280,6 +300,7 @@ namespace loquat
 		return 1 / r - std::abs(x) / square(r);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float invert_tent_sample(Float x, Float r)
 	{
 		if (x <= 0)
@@ -289,39 +310,46 @@ namespace loquat
 		return 0.5f + invert_linear_sample(x / r, 1, 0) / 2;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float exponential_PDF(Float x, Float a)
 	{
 		LOG_ASSERT(a > 0);
 		return a * std::exp(-1 * x);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float sample_exponential(Float u, Float a)
 	{
 		LOG_ASSERT(a > 0);
 		return -std::log(1 - u) / a;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float invert_exponential_sample(Float x, Float a)
 	{
 		LOG_ASSERT(a > 0);
 		return 1 - std::exp(-a * x);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float normal_PDF(Float x, Float mu = 0, Float sigma = 1)
 	{
 		return gaussian(x, mu, sigma);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float sample_normal(Float u, Float mu = 0, Float sigma = 1)
 	{
 		return mu + SQRT2 * sigma * error_function_inverse(2 * u - 1);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float invert_normal_sample(Float x, Float mu = 0, Float sigma = 1)
 	{
 		return 0.5f * (1 + std::erf((x - mu) / (sigma * SQRT2)));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f sample_two_normal(Point2f u, Float mu = 0, Float sigma = 1)
 	{
 		Float r2 = -2 * std::log(1 - u[0]);
@@ -331,22 +359,26 @@ namespace loquat
 		};
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float logistic_PDF(Float x, Float s)
 	{
 		Float abs_x = std::abs(x);
 		return std::exp(-abs_x / s) / (s * square(1 + std::expint(-abs_x / s)));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float sample_logistic(Float u, Float s)
 	{
 		return -s * std::log(1 / u - 1);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float invert_logistic_sample(Float x, Float s)
 	{
 		return 1 / (1 + std::exp(-x / s));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float trimmed_logistic_PDF(Float x, Float s, Float a, Float b)
 	{
 		if (x < a || x > b)
@@ -357,6 +389,7 @@ namespace loquat
 		return logistic(x, s) / (p(b) - p(a));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float sample_trimmed_logistic(Float u, Float s, Float a, Float b)
 	{
 		LOG_ASSERT(a < b);
@@ -367,6 +400,7 @@ namespace loquat
 		return clamp(x, a, b);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float invert_trimmed_logistic_sample(Float x, Float s, Float a,
 		Float b)
 	{
@@ -375,6 +409,7 @@ namespace loquat
 		return (p(x) - p(a)) / (p(b) - p(a));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float smooth_step_PDF(Float x, Float a, Float b)
 	{
 		if (x < a || x > b)
@@ -385,6 +420,7 @@ namespace loquat
 		return (2 / (b - a)) * smooth_step(x, a, b);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float sample_smooth_step(Float sample, Float a, Float b)
 	{
 		LOG_ASSERT(a < b);
@@ -395,9 +431,9 @@ namespace loquat
 			return { p - sample, p_deriv };
 		};
 		return newton_bisection(a, b, cdf_minus_u);
-
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float invert_smooth_step_sample(Float x, Float a, Float b)
 	{
 		Float t = (x - a) / (b - a);
@@ -405,6 +441,7 @@ namespace loquat
 		return (p(x) - p(a)) / (p(b) - p(a));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f sample_uniform_disk_polar(Point2f sample)
 	{
 		Float r = std::sqrt(sample[0]);
@@ -412,6 +449,7 @@ namespace loquat
 		return { r * std::cos(theta), r * std::sin(theta) };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f invert_uniform_disk_polar_sample(Point2f p)
 	{
 		Float phi = std::atan2(p.y, p.x);
@@ -422,6 +460,7 @@ namespace loquat
 		return { square(p.x) + square(p.y), phi / (2 * PI) };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f sample_uniform_disk_concentric(Point2f sample)
 	{
 		Point2f offset = 2.0f * sample - Vec2f(1, 1);
@@ -448,6 +487,7 @@ namespace loquat
 		return r * Point2f(std::cos(theta), std::sin(theta));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f invert_uniform_disk_concentric_sample(Point2f p)
 	{
 		Float theta = std::atan2(p.y, p.x);
@@ -479,6 +519,7 @@ namespace loquat
 		return { (uo.x + 1) / 2, (uo.y + 1) / 2 };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Vec3f sample_uniform_hemisphere(Point2f sample)
 	{
 		Float z = sample[0];
@@ -488,11 +529,13 @@ namespace loquat
 		return { r * std::cos(phi), r * std::sin(phi), z };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float uniform_hemisphere_PDF()
 	{
 		return INV_2PI;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f invert_uniform_hemisphere_sample(Vec3f w)
 	{
 		Float phi = std::atan2(w.y, w.x);
@@ -504,6 +547,7 @@ namespace loquat
 		return Point2f(w.z, phi / (2 * PI));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Vec3f sample_uniform_sphere(Point2f sample)
 	{
 		Float z = 1 - 2 * sample[0];
@@ -513,11 +557,13 @@ namespace loquat
 		return { r * std::cos(phi), r * std::sin(phi), z };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float uniform_sphere_PDF()
 	{
 		return INV_4PI;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f invert_uniform_sphere_sample(Vec3f w)
 	{
 		Float phi = std::atan2(w.y, w.x);
@@ -529,6 +575,7 @@ namespace loquat
 		return { (1 - w.z) / 2, phi / (2 * PI) };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Vec3f sample_cosine_hemisphere(Point2f sample)
 	{
 		Point2f d = sample_uniform_disk_concentric(sample);
@@ -537,21 +584,25 @@ namespace loquat
 		return { d.x, d.y, z };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float cosine_hemisphere_PDF(Float cos_theta)
 	{
 		return cos_theta * INV_PI;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f invert_cosine_hemisphere_sample(Vec3f w)
 	{
 		return invert_uniform_disk_concentric_sample({ w.x, w.y });
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float uniform_cone_PDF(Float cos_theta_max)
 	{
 		return 1 / (2 * PI * (1 - cos_theta_max));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Vec3f sample_uniform_cone(Point2f sample, Float cos_theta_max)
 	{
 		Float cos_theta = (1 - sample[0]) + sample[0] * cos_theta_max;
@@ -561,6 +612,7 @@ namespace loquat
 		return spherical_direction(sin_theta, cos_theta, phi);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Point2f invert_uniform_cone_sample(Vec3f w, Float cos_theta_max)
 	{
 		Float cos_theta = w.z;
@@ -568,11 +620,13 @@ namespace loquat
 		return { (cos_theta - 1) / (cos_theta_max - 1), phi / (2 * PI) };
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float sample_trimmed_exponential(Float sample, Float c, Float x_max)
 	{
 		return std::log(1 - sample * (1 - std::exp(-c * x_max))) / -c;
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float trimmed_exponential_PDF(Float x, Float c, Float x_max)
 	{
 		if (x < 0 || x > x_max)
@@ -582,6 +636,7 @@ namespace loquat
 		return c / (1 - std::exp(-c * x_max)) * std::exp(-c * x);
 	}
 
+	LOQUAT_CPU_GPU
 	inline Float invert_trimmed_exponential_sample(Float x, Float c,
 		Float x_max)
 	{
@@ -589,6 +644,7 @@ namespace loquat
 		return (1 - std::exp(-c * x)) / (1 - std::exp(-c * x_max));
 	}
 
+	LOQUAT_CPU_GPU
 	inline Vec3f sample_uniform_hemisphere_concentric(Point2f sample)
 	{
 		Point2f u_offset = 2.0f * sample - Vec2f(1, 1);
@@ -624,6 +680,7 @@ namespace loquat
 	{
 	public:
 
+		LOQUAT_CPU_GPU
 		void add(Element x) noexcept
 		{
 			++count;
@@ -633,26 +690,31 @@ namespace loquat
 			s += delta * delta2;
 		}
 
+		LOQUAT_CPU_GPU
 		Element mean() const noexcept
 		{
 			return mean;
 		}
 
+		LOQUAT_CPU_GPU
 		Element variance() const noexcept
 		{
 			return (count > 1) ? s / (count - 1) : 0;
 		}
 
+		LOQUAT_CPU_GPU
 		int64_t count() const noexcept
 		{
 			return count;
 		}
 
+		LOQUAT_CPU_GPU
 		Element relative_variance() const noexcept
 		{
 			return (count < 1 || mean == 0) ? 0 : variance() / mean();
 		}
 
+		LOQUAT_CPU_GPU
 		void merge(const VarianceEstimator& other) noexcept
 		{
 			if (other.count == 0)
@@ -684,15 +746,18 @@ namespace loquat
 
 		WeightedReservoirSampler() noexcept = default;
 
+		LOQUAT_CPU_GPU
 		WeightedReservoirSampler(uint64_t rng_seed)
 			: rng{ rng_seed }
 		{}
 
+		LOQUAT_CPU_GPU
 		void seed(uint64_t seed) noexcept
 		{
 			rng.set_sequence(seed);
 		}
 
+		LOQUAT_CPU_GPU
 		bool add(const T& sample, Float weight) noexcept
 		{
 			weight_sum += weight;
@@ -710,7 +775,8 @@ namespace loquat
 		}
 
 		template <typename F>
-		requires requires(F f) { f() -> std::convertible_to<T> }
+			requires requires(F f) { f() -> std::convertible_to<T> }
+		LOQUAT_CPU_GPU
 		bool add(F func, Float weight) noexcept
 		{
 			weight_sum += weight;
@@ -727,6 +793,7 @@ namespace loquat
 			return false;
 		}
 
+		LOQUAT_CPU_GPU
 		void copy(const WeightedReservoirSampler& other) noexcept
 		{
 			weight_sum = other.weight_sum;
@@ -734,32 +801,38 @@ namespace loquat
 			reservoir_weight = other.reservoir_weight;
 		}
 
+		LOQUAT_CPU_GPU
 		int has_sample() const noexcept
 		{
 			return weight_sum > 0;
 		}
 
+		LOQUAT_CPU_GPU
 		const T& get_sample() const noexcept
 		{
 			return reservoir;
 		}
 
+		LOQUAT_CPU_GPU
 		Float sample_probability() const noexcept
 		{
 			return reservoir_weight / weight_sum;
 		}
 
+		LOQUAT_CPU_GPU
 		Float weight_sum() const noexcept
 		{
 			return weight_sum;
 		}
 
+		LOQUAT_CPU_GPU
 		void reset() noexcept
 		{
 			reservoir_weight = 0;
 			weight_sum = 0;
 		}
 
+		LOQUAT_CPU_GPU
 		void merge(const WeightedReservoirSampler& other) noexcept
 		{
 			LOG_ASSERT(weight_sum + other.weight_sum <= 1e80);
@@ -787,6 +860,7 @@ namespace loquat
 	{
 	public:
 
+		LOQUAT_CPU_GPU
 		size_t bytes_used() const noexcept
 		{
 			return (function.capacity() + cdf.capacity()) * sizeof(Float);
@@ -850,16 +924,19 @@ namespace loquat
 			}
 		}
 
+		LOQUAT_CPU_GPU
 		Float integral() const noexcept
 		{
 			return function_integral;
 		}
 
+		LOQUAT_CPU_GPU
 		size_t size() const noexcept
 		{
 			return function.size();
 		}
 
+		LOQUAT_CPU_GPU
 		Float sample(Float u, Float* pdf = nullptr, int* offset = nullptr) const noexcept
 		{
 			int off = find_interval((int)cdf.size(), [&](int index) { return cdf[index] <= u; });
@@ -883,6 +960,7 @@ namespace loquat
 			return lerp((off + du) / size(), min, max);
 		}
 
+		LOQUAT_CPU_GPU
 		std::optional<Float> invert(Float x) const noexcept
 		{
 			if (x < min || x > max)
@@ -961,6 +1039,7 @@ namespace loquat
 				m_domain.min[1], m_domain.max[1], allocator);
 		}
 
+		LOQUAT_CPU_GPU
 		size_t bytes_used() const noexcept
 		{
 			return conditional_densities.size()
@@ -971,11 +1050,13 @@ namespace loquat
 				+ marginal_density.bytes_used();
 		}
 
+		LOQUAT_CPU_GPU
 		AABB2f domain() const noexcept
 		{
 			return m_domain;
 		}
 
+		LOQUAT_CPU_GPU
 		Point2i resolution() const noexcept
 		{
 			return {
@@ -995,11 +1076,13 @@ namespace loquat
 		static void test_compare_distributions(const PiecewiseConstant2D& da,
 			const PiecewiseConstant2D& db, Float eps = 1e-5) noexcept;
 
+		LOQUAT_CPU_GPU
 		Float integral() const noexcept
 		{
 			return marginal_density.integral();
 		}
 
+		LOQUAT_CPU_GPU
 		Point2f sample(Point2f sample_2d, Float* pdf = nullptr,
 			Point2i* offset = nullptr) const noexcept
 		{
@@ -1021,6 +1104,7 @@ namespace loquat
 			return Point2f{ d0, d1 };
 		}
 
+		LOQUAT_CPU_GPU
 		Float PDF(Point2f pr) const noexcept
 		{
 			Point2f p = m_domain.offset(pr);
@@ -1034,6 +1118,7 @@ namespace loquat
 				/ marginal_density.integral();
 		}
 
+		LOQUAT_CPU_GPU
 		std::optional<Point2f> invert(Point2f p) const noexcept
 		{
 			std::optional<Float> m_inv = marginal_density.invert(p[1]);
@@ -1079,17 +1164,20 @@ namespace loquat
 		AliasTable(std::span<const Float> weights,
 			Allocator alloc = {}) noexcept;
 
+		LOQUAT_CPU_GPU
 		int sample(Float sample, Float* pmf = nullptr,
 			Float* u_remapped = nullptr) const noexcept;
 
 		[[nodiscard]]
 		std::string to_string() const noexcept;
 
+		LOQUAT_CPU_GPU
 		size_t size() const noexcept
 		{
 			return bins.size();
 		}
 
+		LOQUAT_CPU_GPU
 		Float PMF(int index) const noexcept
 		{
 			return bins[index].outcome_probability;
