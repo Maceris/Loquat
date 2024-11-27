@@ -18,18 +18,21 @@ namespace loquat
 {
 #pragma region Dispatch helpers
     template <typename F, typename R, typename T>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(0 == index);
         return func((const T*)ptr);
     }
 
     template <typename F, typename R, typename T>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(0 == index);
         return func((T*)ptr);
     }
 
     template <typename F, typename R, typename T0, typename T1>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 2);
@@ -41,6 +44,7 @@ namespace loquat
     }
 
     template <typename F, typename R, typename T0, typename T1>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 2);
@@ -52,6 +56,7 @@ namespace loquat
     }
 
     template <typename F, typename R, typename T0, typename T1, typename T2>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 3);
@@ -67,6 +72,7 @@ namespace loquat
     }
 
     template <typename F, typename R, typename T0, typename T1, typename T2>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 3);
@@ -81,7 +87,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 4);
@@ -98,7 +106,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 4);
@@ -115,8 +125,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 5);
@@ -135,8 +146,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 5);
@@ -155,8 +167,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4, typename T5>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 6);
@@ -177,8 +190,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4, typename T5>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 6);
@@ -199,8 +213,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4, typename T5, typename T6>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 7);
@@ -223,8 +238,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4, typename T5, typename T6>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 7);
@@ -247,8 +263,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4, typename T5, typename T6, typename T7>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6, typename T7>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 8);
@@ -273,8 +290,9 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4, typename T5, typename T6, typename T7>
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6, typename T7>
+    LOQUAT_CPU_GPU
     R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(index >= 0);
         LOG_ASSERT(index < 8);
@@ -299,9 +317,11 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4, typename T5, typename T6, typename T7, typename... Ts,
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6, typename T7,
+        typename... Ts, 
         typename = typename std::enable_if_t<(sizeof...(Ts) > 0)>>
+        LOQUAT_CPU_GPU
         R dispatch(F&& func, const void* ptr, int index) {
         LOG_ASSERT(index >= 0);
 
@@ -327,9 +347,11 @@ namespace loquat
         }
     }
 
-    template <typename F, typename R, typename T0, typename T1, typename T2, typename T3,
-        typename T4, typename T5, typename T6, typename T7, typename... Ts,
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6, typename T7,
+        typename... Ts,
         typename = typename std::enable_if_t<(sizeof...(Ts) > 0)>>
+        LOQUAT_CPU_GPU
         R dispatch(F&& func, void* ptr, int index) {
         LOG_ASSERT(index >= 0);
 
@@ -352,6 +374,350 @@ namespace loquat
             return func((T7*)ptr);
         default:
             return dispatch<F, R, Ts...>(func, ptr, index - 8);
+        }
+    }
+#pragma endregion
+
+#pragma region Dispatch CPU helpers
+    template <typename F, typename R, typename T>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(0 == index);
+        return func((const T*)ptr);
+    }
+
+    template <typename F, typename R, typename T>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(0 == index);
+        return func((T*)ptr);
+    }
+
+    template <typename F, typename R, typename T0, typename T1>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 2);
+
+        if (index == 0)
+            return func((const T0*)ptr);
+        else
+            return func((const T1*)ptr);
+    }
+
+    template <typename F, typename R, typename T0, typename T1>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 2);
+
+        if (index == 0)
+            return func((T0*)ptr);
+        else
+            return func((T1*)ptr);
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 3);
+
+        switch (index) {
+        case 0:
+            return func((const T0*)ptr);
+        case 1:
+            return func((const T1*)ptr);
+        default:
+            return func((const T2*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 3);
+
+        switch (index) {
+        case 0:
+            return func((T0*)ptr);
+        case 1:
+            return func((T1*)ptr);
+        default:
+            return func((T2*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 4);
+
+        switch (index) {
+        case 0:
+            return func((const T0*)ptr);
+        case 1:
+            return func((const T1*)ptr);
+        case 2:
+            return func((const T2*)ptr);
+        default:
+            return func((const T3*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 4);
+
+        switch (index) {
+        case 0:
+            return func((T0*)ptr);
+        case 1:
+            return func((T1*)ptr);
+        case 2:
+            return func((T2*)ptr);
+        default:
+            return func((T3*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 5);
+
+        switch (index) {
+        case 0:
+            return func((const T0*)ptr);
+        case 1:
+            return func((const T1*)ptr);
+        case 2:
+            return func((const T2*)ptr);
+        case 3:
+            return func((const T3*)ptr);
+        default:
+            return func((const T4*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 5);
+
+        switch (index) {
+        case 0:
+            return func((T0*)ptr);
+        case 1:
+            return func((T1*)ptr);
+        case 2:
+            return func((T2*)ptr);
+        case 3:
+            return func((T3*)ptr);
+        default:
+            return func((T4*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 6);
+
+        switch (index) {
+        case 0:
+            return func((const T0*)ptr);
+        case 1:
+            return func((const T1*)ptr);
+        case 2:
+            return func((const T2*)ptr);
+        case 3:
+            return func((const T3*)ptr);
+        case 4:
+            return func((const T4*)ptr);
+        default:
+            return func((const T5*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 6);
+
+        switch (index) {
+        case 0:
+            return func((T0*)ptr);
+        case 1:
+            return func((T1*)ptr);
+        case 2:
+            return func((T2*)ptr);
+        case 3:
+            return func((T3*)ptr);
+        case 4:
+            return func((T4*)ptr);
+        default:
+            return func((T5*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 7);
+
+        switch (index) {
+        case 0:
+            return func((const T0*)ptr);
+        case 1:
+            return func((const T1*)ptr);
+        case 2:
+            return func((const T2*)ptr);
+        case 3:
+            return func((const T3*)ptr);
+        case 4:
+            return func((const T4*)ptr);
+        case 5:
+            return func((const T5*)ptr);
+        default:
+            return func((const T6*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 7);
+
+        switch (index) {
+        case 0:
+            return func((T0*)ptr);
+        case 1:
+            return func((T1*)ptr);
+        case 2:
+            return func((T2*)ptr);
+        case 3:
+            return func((T3*)ptr);
+        case 4:
+            return func((T4*)ptr);
+        case 5:
+            return func((T5*)ptr);
+        default:
+            return func((T6*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6, typename T7>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 8);
+
+        switch (index) {
+        case 0:
+            return func((const T0*)ptr);
+        case 1:
+            return func((const T1*)ptr);
+        case 2:
+            return func((const T2*)ptr);
+        case 3:
+            return func((const T3*)ptr);
+        case 4:
+            return func((const T4*)ptr);
+        case 5:
+            return func((const T5*)ptr);
+        case 6:
+            return func((const T6*)ptr);
+        default:
+            return func((const T7*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6, typename T7>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+        LOG_ASSERT(index < 8);
+
+        switch (index) {
+        case 0:
+            return func((T0*)ptr);
+        case 1:
+            return func((T1*)ptr);
+        case 2:
+            return func((T2*)ptr);
+        case 3:
+            return func((T3*)ptr);
+        case 4:
+            return func((T4*)ptr);
+        case 5:
+            return func((T5*)ptr);
+        case 6:
+            return func((T6*)ptr);
+        default:
+            return func((T7*)ptr);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6, typename T7,
+        typename... Ts,
+        typename = typename std::enable_if_t<(sizeof...(Ts) > 0)>>
+        R dispatchCPU(F&& func, const void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+
+        switch (index) {
+        case 0:
+            return func((const T0*)ptr);
+        case 1:
+            return func((const T1*)ptr);
+        case 2:
+            return func((const T2*)ptr);
+        case 3:
+            return func((const T3*)ptr);
+        case 4:
+            return func((const T4*)ptr);
+        case 5:
+            return func((const T5*)ptr);
+        case 6:
+            return func((const T6*)ptr);
+        case 7:
+            return func((const T7*)ptr);
+        default:
+            return dispatchCPU<F, R, Ts...>(func, ptr, index - 8);
+        }
+    }
+
+    template <typename F, typename R, typename T0, typename T1, typename T2,
+        typename T3, typename T4, typename T5, typename T6, typename T7,
+        typename... Ts,
+        typename = typename std::enable_if_t<(sizeof...(Ts) > 0)>>
+        R dispatchCPU(F&& func, void* ptr, int index) {
+        LOG_ASSERT(index >= 0);
+
+        switch (index) {
+        case 0:
+            return func((T0*)ptr);
+        case 1:
+            return func((T1*)ptr);
+        case 2:
+            return func((T2*)ptr);
+        case 3:
+            return func((T3*)ptr);
+        case 4:
+            return func((T4*)ptr);
+        case 5:
+            return func((T5*)ptr);
+        case 6:
+            return func((T6*)ptr);
+        case 7:
+            return func((T7*)ptr);
+        default:
+            return dispatchCPU<F, R, Ts...>(func, ptr, index - 8);
         }
     }
 #pragma endregion
@@ -547,6 +913,7 @@ namespace loquat
 		TaggedPointer() = default;
 
 		template <typename T>
+        LOQUAT_CPU_GPU
 		TaggedPointer(T* pointer)
         {
 			uint64_t iptr = reinterpret_cast<uint64_t>(pointer);
@@ -555,11 +922,17 @@ namespace loquat
 			constexpr unsigned int type = type_index<T>();
 			bits = iptr | (static_cast<uint64_t>(type) << POINTER_BITS);
 		}
+
+        LOQUAT_CPU_GPU
 		TaggedPointer(std::nullptr_t np)
 		{}
+
+        LOQUAT_CPU_GPU
 		TaggedPointer(const TaggedPointer& t)
 			: bits{ t.bits }
 		{}
+
+        LOQUAT_CPU_GPU
 		TaggedPointer& operator=(const TaggedPointer& t)
 		{
 			bits = t.bits;
@@ -567,6 +940,7 @@ namespace loquat
 		}
 
 		template <typename T>
+        LOQUAT_CPU_GPU
 		static constexpr unsigned int type_index()
 		{
 			using Tp = typename std::remove_cv_t<T>;
@@ -580,38 +954,45 @@ namespace loquat
 			}
 		}
 
+        LOQUAT_CPU_GPU
 		unsigned int tag() const
 		{
 			return ((bits & TAG_MASK) >> POINTER_BITS);
 		}
       
 		template <typename T>
+        LOQUAT_CPU_GPU
 		bool is() const
 		{
 			return tag() == type_index<T>();
 		}
 
+        LOQUAT_CPU_GPU
 		static constexpr unsigned int max_tag()
 		{
 			return sizeof...(Ts);
 		}
 
+        LOQUAT_CPU_GPU
 		static constexpr unsigned int num_tags()
 		{
 			return max_tag() + 1;
 		}
 
+        LOQUAT_CPU_GPU
 		explicit operator bool() const
 		{
 			return (bits & POINTER_MASK) != 0;
 		}
 
+        LOQUAT_CPU_GPU
 		bool operator<(const TaggedPointer& tp) const
 		{
 			return bits < tp.bits;
 		}
 
 		template <typename T>
+        LOQUAT_CPU_GPU
 		T* cast()
 		{
 			LOG_ASSERT(is<T>() && "Casting tagged pointer to the wrong type");
@@ -619,6 +1000,7 @@ namespace loquat
 		}
 
 		template <typename T>
+        LOQUAT_CPU_GPU
 		const T* cast() const
 		{
 			LOG_ASSERT(is<T>() && "Casting tagged pointer to the wrong type");
@@ -626,6 +1008,7 @@ namespace loquat
 		}
 
 		template <typename T>
+        LOQUAT_CPU_GPU
 		T* cast_or_nullptr()
 		{
 			if (is<T>())
@@ -636,6 +1019,7 @@ namespace loquat
 		}
 
 		template <typename T>
+        LOQUAT_CPU_GPU
 		const T* cast_or_nullptr() const
 		{
 			if (is<T>())
@@ -651,27 +1035,32 @@ namespace loquat
 				pointer(), tag());
 		}
 
+        LOQUAT_CPU_GPU
 		bool operator==(const TaggedPointer& tp) const
 		{
 			return bits == tp.bits;
 		}
 
+        LOQUAT_CPU_GPU
 		bool operator!=(const TaggedPointer& tp) const
 		{
 			return bits != tp.bits;
 		}
 
+        LOQUAT_CPU_GPU
 		void* pointer()
 		{
 			return reinterpret_cast<void*>(bits & POINTER_MASK);
 		}
 
+        LOQUAT_CPU_GPU
 		const void* pointer() const
 		{
 			return reinterpret_cast<const void*>(bits & POINTER_MASK);
 		}
 
         template <typename F>
+        LOQUAT_CPU_GPU
         decltype(auto) dispatch(F&& func)
         {
             LOG_ASSERT(pointer());
@@ -680,11 +1069,28 @@ namespace loquat
         }
 
         template <typename F>
+        LOQUAT_CPU_GPU
         decltype(auto) dispatch(F&& func) const
         {
             LOG_ASSERT(pointer());
             using R = typename loquat::ReturnType<F, Ts...>::type;
             return loquat::dispatch<F, R, Ts...>(func, pointer(), tag() - 1);
+        }
+
+        template <typename F>
+        decltype(auto) dispatchCPU(F&& func)
+        {
+            LOG_ASSERT(pointer());
+            using R = typename loquat::ReturnType<F, Ts...>::type;
+            return loquat::dispatchCPU<F, R, Ts...>(func, pointer(), tag() - 1);
+        }
+
+        template <typename F>
+        decltype(auto) dispatchCPU(F&& func) const
+        {
+            LOG_ASSERT(pointer());
+            using R = typename loquat::ReturnType<F, Ts...>::type;
+            return loquat::dispatchCPU<F, R, Ts...>(func, pointer(), tag() - 1);
         }
 
 	private:
