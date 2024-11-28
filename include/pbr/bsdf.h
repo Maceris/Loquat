@@ -18,32 +18,38 @@ namespace loquat
 	public:
 		BSDF() noexcept = default;
 
+		LOQUAT_CPU_GPU
 		BSDF(Normal3f ns, Vec3f dpdus, BxDF bxdf) noexcept
 			: bxdf{ bxdf }
 			, shading_frame{ Frame::from_XZ(glm::normalize(dpdus), ns) }
 		{}
 
+		LOQUAT_CPU_GPU
 		operator bool() const noexcept
 		{
 			return (bool) bxdf;
 		}
 
+		LOQUAT_CPU_GPU
 		BxDFFlags get_flags() const noexcept
 		{
 			return bxdf.get_flags();
 		}
 
+		LOQUAT_CPU_GPU
 		Vec3f render_to_local(Vec3f vector) const noexcept
 		{
 			return shading_frame.to_local(vector);
 		}
 
+		LOQUAT_CPU_GPU
 		Vec3f local_to_render(Vec3f vector) const noexcept
 		{
 			return shading_frame.from_local(vector);
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		SampledSpectrum f(Vec3f outgoing_render, Vec3f incoming_render,
 			TransportMode mode = TransportMode::Radiance) const noexcept
 		{
@@ -59,6 +65,7 @@ namespace loquat
 
 		template <is_BxDF BxDF>
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		SampledSpectrum f(Vec3f outgoing_render, Vec3f incoming_render,
 			TransportMode mode = TransportMode::Radiance) const noexcept
 		{
@@ -73,6 +80,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		std::optional<BSDFSample> sample_f(Vec3f outgoing_render,
 			Float sample_1D, Point2f sample_2D,
 			TransportMode mode = TransportMode::Radiance,
@@ -100,6 +108,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		inline Float PDF(Vec3f outgoing, Vec3f incoming, TransportMode mode,
 			BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
 			const noexcept
@@ -113,6 +122,7 @@ namespace loquat
 
 		template<is_BxDF BxDF>
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		std::optional<BSDFSample> sample_f(Vec3f outgoing_render,
 			Float sample_1D, Point2f sample_2D,
 			TransportMode mode = TransportMode::Radiance,
@@ -147,6 +157,7 @@ namespace loquat
 
 		template<is_BxDF BxDF>
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		inline Float PDF(Vec3f outgoing, Vec3f incoming, TransportMode mode,
 			BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
 			const noexcept
@@ -162,6 +173,7 @@ namespace loquat
 		[[nodiscard]]
 		std::string to_string() const noexcept;
 
+		LOQUAT_CPU_GPU
 		SampledSpectrum reflectance(Vec3f outgoing_render,
 			std::span<const Float> sample_1D,
 			std::span<const Point2f> sample_2D) const noexcept
@@ -170,6 +182,7 @@ namespace loquat
 			return bxdf.reflectance(outgoing, sample_1D, sample_2D);
 		}
 
+		LOQUAT_CPU_GPU
 		SampledSpectrum reflectance(std::span<const Point2f> hemisphere_sample,
 			std::span<const Float> sample_1D,
 			std::span<const Point2f> sample_2D) const noexcept
@@ -177,6 +190,7 @@ namespace loquat
 			return bxdf.reflectance(hemisphere_sample, sample_1D, sample_2D);
 		}
 
+		LOQUAT_CPU_GPU
 		void regularize() noexcept
 		{
 			bxdf.regularize();
