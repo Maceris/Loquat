@@ -31,24 +31,29 @@ namespace loquat
 			RandomizeStrategy randomize = RandomizeStrategy::PermuteDigits,
 			int seed = 0, Allocator allocator = {}) noexcept;
 
+		LOQUAT_CPU_GPU
 		static constexpr const char* get_name() noexcept
 		{
 			return "HaltonSampler";
 		}
 
+		LOQUAT_CPU_GPU
 		static HaltonSampler* create(const ParameterDictionary& parameters,
 			Point2i full_resolution, Allocator allocator) noexcept;
 
+		LOQUAT_CPU_GPU
 		int get_samples_per_pixel() const noexcept
 		{
 			return samples_per_pixel;
 		}
 
+		LOQUAT_CPU_GPU
 		RandomizeStrategy get_randomize_strategy() const noexcept
 		{
 			return randomize;
 		}
 
+		LOQUAT_CPU_GPU
 		void start_pixel_sample(Point2i p, int sample_index, int dim)
 			noexcept
 		{
@@ -75,6 +80,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept
 		{
 			if (dimension >= PRIME_TABLE_SIZE)
@@ -85,6 +91,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept
 		{
 			if (dimension +1 >= PRIME_TABLE_SIZE)
@@ -97,6 +104,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept
 		{
 			return {
@@ -137,6 +145,7 @@ namespace loquat
 			*y = xp - (d * yp);
 		}
 
+		LOQUAT_CPU_GPU
 		Float sample_dimension(int dimension) const noexcept
 		{
 			if (randomize == RandomizeStrategy::None)
@@ -169,6 +178,7 @@ namespace loquat
 	class PaddedSobolSampler
 	{
 	public:
+		LOQUAT_CPU_GPU
 		static constexpr const char* get_name() noexcept
 		{
 			return "PaddedSobolSampler";
@@ -192,16 +202,19 @@ namespace loquat
 			}
 		}
 
+		LOQUAT_CPU_GPU
 		int get_samples_per_pixel() const noexcept
 		{
 			return samples_per_pixel;
 		}
 
+		LOQUAT_CPU_GPU
 		RandomizeStrategy get_randomize_strategy() const noexcept
 		{
 			return randomize;
 		}
 
+		LOQUAT_CPU_GPU
 		void start_pixel_sample(Point2i p, int index, int dim) noexcept
 		{
 			pixel = p;
@@ -210,6 +223,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept
 		{
 			const uint64_t hash = loquat::hash(pixel, dimension, seed);
@@ -221,6 +235,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept
 		{
 			const uint64_t hash = loquat::hash(pixel, dimension, seed);
@@ -236,6 +251,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept
 		{
 			return get_2D();
@@ -247,6 +263,7 @@ namespace loquat
 		std::string to_string() const noexcept;
 
 	private:
+		LOQUAT_CPU_GPU
 		Float sample_dimension(int dimension, uint32_t a, uint32_t hash)
 			const noexcept
 		{
@@ -279,6 +296,7 @@ namespace loquat
 		PMJ02BNSampler(int samples_per_pixel, int seed = 0,
 			Allocator allocator = {}) noexcept;
 
+		LOQUAT_CPU_GPU
 		static constexpr const char* get_name() noexcept
 		{
 			return "PMJ02BNSampler";
@@ -288,11 +306,13 @@ namespace loquat
 			const ParameterDictionary& parameters, Allocator allocator)
 			noexcept;
 
+		LOQUAT_CPU_GPU
 		int get_samples_per_pixel() const noexcept
 		{
 			return samples_per_pixel;
 		}
 
+		LOQUAT_CPU_GPU
 		void start_pixel_sample(Point2i p, int index, int dim) noexcept
 		{
 			pixel = p;
@@ -301,6 +321,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept
 		{
 			const uint64_t hash = loquat::hash(pixel, dimension, seed);
@@ -314,6 +335,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept
 		{
 			int index = sample_index;
@@ -347,6 +369,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept
 		{
 			size_t px = pixel.x % pixel_tile_size;
@@ -382,16 +405,19 @@ namespace loquat
 			const ParameterDictionary& parameters, Allocator allocator)
 			noexcept;
 
+		LOQUAT_CPU_GPU
 		static constexpr const char* get_name() noexcept
 		{
 			return "IndependentSampler";
 		}
 
+		LOQUAT_CPU_GPU
 		int get_samples_per_pixel() const noexcept
 		{
 			return samples_per_pixel;
 		}
 
+		LOQUAT_CPU_GPU
 		void start_pixel_sample(Point2i p, int index, int dimension) noexcept
 		{
 			rng.set_sequence(hash(p, seed));
@@ -399,18 +425,21 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept
 		{
 			return rng.uniform<Float>();
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept
 		{
 			return { rng.uniform<Float>(), rng.uniform<Float>() };
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept
 		{
 			return get_2D();
@@ -446,16 +475,19 @@ namespace loquat
 				full_resolution.y));
 		}
 
+		LOQUAT_CPU_GPU
 		static constexpr const char* get_name() noexcept
 		{
 			return "SobolSampler";
 		}
 
+		LOQUAT_CPU_GPU
 		int get_samples_per_pixel() const noexcept
 		{
 			return samples_per_pixel;
 		}
 
+		LOQUAT_CPU_GPU
 		void start_pixel_sample(Point2i p, int index, int dimension) noexcept
 		{
 			pixel = p;
@@ -465,6 +497,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept
 		{
 			if (dimension >= SOBOL_DIMENSIONS) {
@@ -474,6 +507,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept
 		{
 			if (dimension >= SOBOL_DIMENSIONS) {
@@ -488,6 +522,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept
 		{
 			Point2f sample{
@@ -508,6 +543,7 @@ namespace loquat
 		std::string to_string() const noexcept;
 
 	private:
+		LOQUAT_CPU_GPU
 		Float sample_dimension(int dimension) const noexcept
 		{
 			if (randomize == RandomizeStrategy::None)
@@ -547,6 +583,7 @@ namespace loquat
 			, seed{ seed }
 		{}
 
+		LOQUAT_CPU_GPU
 		static constexpr const char* get_name() noexcept
 		{
 			return "StratifiedSampler";
@@ -556,11 +593,13 @@ namespace loquat
 			const ParameterDictionary& parameters, Allocator allocator)
 			noexcept;
 
+		LOQUAT_CPU_GPU
 		int get_samples_per_pixel() const noexcept
 		{
 			return pixel_samples_x * pixel_samples_y;
 		}
 
+		LOQUAT_CPU_GPU
 		void start_pixel_sample(Point2i p, int index, int dim) noexcept
 		{
 			pixel = p;
@@ -571,6 +610,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept
 		{
 			uint64_t hash = loquat::hash(pixel, dimension, seed);
@@ -583,6 +623,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept
 		{
 			uint64_t hash = loquat::hash(pixel, dimension, seed);
@@ -600,6 +641,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept
 		{
 			return get_2D();
@@ -641,6 +683,7 @@ namespace loquat
 			base_4_digit_count = log2_int(res) + log4_samples_per_pixel;
 		}
 
+		LOQUAT_CPU_GPU
 		static constexpr const char* get_name() noexcept
 		{
 			return "ZSobolSampler";
@@ -649,11 +692,13 @@ namespace loquat
 		static ZSobolSampler* create(const ParameterDictionary& parameters,
 			Point2i full_resolution, Allocator allocator) noexcept;
 
+		LOQUAT_CPU_GPU
 		int get_samples_per_pixel() const noexcept
 		{
 			return 1 << log2_samples_per_pixel;
 		}
 
+		LOQUAT_CPU_GPU
 		void start_pixel_sample(Point2i p, int index, int dim) noexcept
 		{
 			dimension = dim;
@@ -663,6 +708,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept
 		{
 			uint64_t sample_index = get_sample_index();
@@ -690,6 +736,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept
 		{
 			uint64_t sample_index = get_sample_index();
@@ -736,6 +783,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept
 		{
 			return get_2D();
@@ -747,6 +795,7 @@ namespace loquat
 		std::string to_string() const noexcept;
 
 		[[nodiscard]]
+		LOQUAT_CPU_GPU
 		uint64_t get_sample_index() const noexcept
 		{
 			static const uint8_t permutations[24][4] =
@@ -806,36 +855,46 @@ namespace loquat
 			, stream_count{ stream_count }
 		{}
 
+		LOQUAT_CPU_GPU
 		void start_iteration() noexcept;
 
+		LOQUAT_CPU_GPU
 		void reject() noexcept;
 
+		LOQUAT_CPU_GPU
 		void start_stream(int index) noexcept;
 
+		LOQUAT_CPU_GPU
 		int get_next_index() noexcept
 		{
 			return stream_index + stream_count * sample_index++;
 		}
 
+		LOQUAT_CPU_GPU
 		int get_samples_per_pixel() const noexcept
 		{
 			return mutations_per_pixel;
 		}
 
+		LOQUAT_CPU_GPU
 		void start_pixel_sample(Point2i p, int sample_index, int dim) noexcept
 		{
 			rng.set_sequence(hash(p));
 			rng.advance(sample_index * 65536 + dim * 8192);
 		}
 
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept;
 
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept;
 
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept;
 
 		Sampler clone(Allocator allocator) noexcept;
 
+		LOQUAT_CPU_GPU
 		void accept() noexcept;
 
 		[[nodiscard]]
@@ -858,11 +917,15 @@ namespace loquat
 	protected:
 		struct PrimarySample {
 			Float value = 0;
+
+			LOQUAT_CPU_GPU
 			void backup() noexcept
 			{
 				value_backup = value;
 				modify_backup = last_modification_iteration;
 			}
+			
+			LOQUAT_CPU_GPU
 			void restore() noexcept
 			{
 				value = value_backup;
@@ -883,6 +946,7 @@ namespace loquat
 			int64_t modify_backup = 0;
 		};
 
+		LOQUAT_CPU_GPU
 		void ensure_ready(int index) noexcept;
 
 		int mutations_per_pixel;
@@ -904,19 +968,25 @@ namespace loquat
 		static DebugMLTSampler create(std::span<const std::string> state,
 			int sample_stream_count) noexcept;
 		
+		LOQUAT_CPU_GPU
 		Float get_1D() noexcept
 		{
 			int index = get_next_index();
-
+#if LOQUAT_IS_GPU_CODE
+			return 0;
+#else
 			LOG_ASSERT(index <= sampler.size());
 			return sampler[index];
+#endif
 		}
 
+		LOQUAT_CPU_GPU
 		Point2f get_2D() noexcept
 		{
 			return { get_1D(), get_1D() };
 		}
 
+		LOQUAT_CPU_GPU
 		Point2f get_pixel_2D() noexcept
 		{
 			return get_2D();
@@ -939,6 +1009,7 @@ namespace loquat
 		std::vector<Float> sampler;
 	};
 
+	LOQUAT_CPU_GPU
 	inline void Sampler::start_pixel_sample(Point2i p, int sample_index,
 		int dimension) noexcept
 	{
@@ -949,6 +1020,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline int Sampler::get_samples_per_pixel() const noexcept
 	{
 		auto spp = [&](auto ptr) { return ptr->get_samples_per_pixel(); };
@@ -956,6 +1028,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline Float Sampler::get_1D() noexcept
 	{
 		auto get = [&](auto ptr) { return ptr->get_1D(); };
@@ -963,6 +1036,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline Point2f Sampler::get_2D() noexcept
 	{
 		auto get = [&](auto ptr) { return ptr->get_2D(); };
@@ -970,6 +1044,7 @@ namespace loquat
 	}
 
 	[[nodiscard]]
+	LOQUAT_CPU_GPU
 	inline Point2f Sampler::get_pixel_2D() noexcept
 	{
 		auto get = [&](auto ptr) { return ptr->get_pixel_2D(); };
@@ -977,6 +1052,7 @@ namespace loquat
 	}
 
 	template <is_sampler S>
+	LOQUAT_CPU_GPU
 	inline CameraSample get_camera_sample(S sampler, Point2i pixel,
 		Filter filter) noexcept
 	{
@@ -995,6 +1071,5 @@ namespace loquat
 		}
 		return camera_sample;
 	}
-
 
 }

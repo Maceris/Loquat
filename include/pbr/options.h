@@ -62,4 +62,20 @@ namespace loquat
 
     extern PBROptions* options;
 
+#if defined(LOQUAT_BUILD_GPU_RENDERER)
+#if defined(__CUDACC__)
+    extern __constant__ BasicPBROptions options_GPU;
+#endif
+    void copy_options_to_gpu();
+#endif
+
+    LOQUAT_CPU_GPU inline const BasicPBROptions& get_options()
+    {
+#if defined(LOQUAT_IS_GPU_CODE)
+        return options_GPU;
+#else
+        return *options;
+#endif
+    }
+
 }

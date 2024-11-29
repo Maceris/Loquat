@@ -29,6 +29,7 @@ namespace loquat
 		[[nodiscard]]
 		std::string to_string() const noexcept;
 
+		LOQUAT_CPU_GPU
 		FilterSample sample(Point2f sample_2d) const noexcept
 		{
 			Float pdf;

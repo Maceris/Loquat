@@ -6,7 +6,6 @@
 
 #pragma once
 
-
 #include "main/loquat.h"
 #include "pbr/base/shape.h"
 #include "pbr/struct/interaction.h"
@@ -22,3 +21,4 @@ namespace loquat
 	};
 
 }
+//TODO(ches) complete this
