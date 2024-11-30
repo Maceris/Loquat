@@ -8,7 +8,6 @@
 
 #include "main/loquat.h"
 
-
 #include <atomic>
 #include <chrono>
 #include <concepts>

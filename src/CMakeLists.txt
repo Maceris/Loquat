@@ -70,6 +70,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/color.h
   ${HEADER_PATH}/pbr/util/color_space.h
   ${HEADER_PATH}/pbr/util/parallel.h
+  ${HEADER_PATH}/pbr/util/pstd.h
   ${HEADER_PATH}/pbr/util/sampling.h
   ${HEADER_PATH}/pbr/util/spectrum.h
   ${HEADER_PATH}/pbr/util/tagged_pointer.h
