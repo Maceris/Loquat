@@ -451,5 +451,18 @@ namespace pstd
                 << "> set: false value: n/a ]";
         }
     }
+
+    namespace span_internal {
+
+        // Wrappers for access to container data pointers.
+        template <typename C>
+        LOQUAT_CPU_GPU
+        inline constexpr auto get_data_impl(C& c, char) noexcept
+            -> decltype(c.data())
+        {
+            return c.data();
+        }
+
+    }
 }
 //TODO(ches) finish this
