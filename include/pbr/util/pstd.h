@@ -463,6 +463,191 @@ namespace pstd
             return c.data();
         }
 
+        template <typename C>
+        LOQUAT_CPU_GPU
+        inline constexpr auto get_data(C& c) noexcept
+            -> decltype(get_data_impl(c, 0))
+        {
+            return get_data_impl(c, 0);
+        }
+
+        template <typename C>
+        using HasSize =
+            std::is_integral<typename std::decay_t<
+            decltype(std::declval<C&>().size())>>;
+
+        template <typename T, typename C>
+        using HasData =
+            std::is_convertible<typename std::decay_t<
+            decltype(get_data(std::declval<C&>()))>*,
+            T* const*>;
     }
+
+    inline constexpr std::size_t dynamic_extent = -1;
+
+    // span implementation partially based on absl::Span from Google's Abseil library.
+    template <typename T>
+    class span
+    {
+    public:
+        template <typename C>
+        using EnableIfConvertibleFrom =
+            typename std::enable_if_t<span_internal::HasData<T, C>::value&&
+            span_internal::HasSize<C>::value>;
+
+        template <typename U>
+        using EnableIfConstView = typename std::enable_if_t<std::is_const_v<T>, U>;
+
+        template <typename U>
+        using EnableIfMutableView = typename std::enable_if_t<!std::is_const_v<T>, U>;
+
+        using value_type = typename std::remove_cv_t<T>;
+        using iterator = T*;
+        using const_iterator = const T*;
+
+        LOQUAT_CPU_GPU
+        span()
+            : ptr{ nullptr }
+            , n{ 0 }
+        {}
+
+        LOQUAT_CPU_GPU
+        span(T* ptr, size_t n)
+            : ptr{ ptr }
+            , n{ n }
+        {}
+
+        template <size_t N>
+        LOQUAT_CPU_GPU span(T(&a)[N])
+            : span(a, N)
+        {}
+
+        LOQUAT_CPU_GPU
+        span(std::initializer_list<value_type> v)
+            : span(v.begin(), v.size())
+        {}
+
+        template <typename V, typename X = EnableIfConvertibleFrom<V>,
+            typename Y = EnableIfMutableView<V>>
+        LOQUAT_CPU_GPU explicit span(V& v) noexcept
+            : span(v.data(), v.size())
+        {}
+
+        template <typename V>
+        span(std::vector<V>& v) noexcept
+            : span(v.data(), v.size())
+        {}
+
+        template <typename V>
+        span(const std::vector<V>& v) noexcept
+            : span(v.data(), v.size())
+        {}
+
+        template <typename V, typename X = EnableIfConvertibleFrom<V>,
+            typename Y = EnableIfConstView<V>>
+        LOQUAT_CPU_GPU
+        constexpr span(const V& v) noexcept
+            : span(v.data(), v.size())
+        {}
+
+        LOQUAT_CPU_GPU
+        iterator begin()
+        {
+            return ptr;
+        }
+
+        LOQUAT_CPU_GPU
+        iterator end()
+        {
+            return ptr + n;
+        }
+
+        LOQUAT_CPU_GPU
+        const_iterator begin() const
+        {
+            return ptr;
+        }
+
+        LOQUAT_CPU_GPU
+        const_iterator end() const 
+        {
+            return ptr + n;
+        }
+
+        LOQUAT_CPU_GPU
+        T& operator[](size_t i)
+        {
+            LOG_ASSERT(i < size());
+            return ptr[i];
+        }
+        LOQUAT_CPU_GPU
+            const T& operator[](size_t i) const
+        {
+            LOG_ASSERT(i < size());
+            return ptr[i];
+        }
+
+        LOQUAT_CPU_GPU
+        size_t size() const
+        {
+            return n;
+        }
+
+        LOQUAT_CPU_GPU
+        bool empty() const
+        {
+            return size() == 0;
+        }
+
+        LOQUAT_CPU_GPU
+        T* data()
+        {
+            return ptr;
+        }
+
+        LOQUAT_CPU_GPU
+        const T* data() const
+        {
+            return ptr;
+        }
+
+        LOQUAT_CPU_GPU
+        T front() const
+        {
+            return ptr[0];
+        }
+
+        LOQUAT_CPU_GPU
+        T back() const
+        {
+            return ptr[n - 1];
+        }
+
+        LOQUAT_CPU_GPU
+        void remove_prefix(size_t count)
+        {
+            ptr += count;
+            n -= count;
+        }
+
+        LOQUAT_CPU_GPU
+        void remove_suffix(size_t count)
+        {
+            n -= count;
+        }
+
+        LOQUAT_CPU_GPU
+        span subspan(size_t pos, size_t count = dynamic_extent)
+        {
+            size_t np = count < (size() - pos) ? count : (size() - pos);
+            return span(ptr + pos, np);
+        }
+
+    private:
+        T* ptr;
+        size_t n;
+    };
+
+
 }
 //TODO(ches) finish this
