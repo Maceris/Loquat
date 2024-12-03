@@ -648,6 +648,75 @@ namespace pstd
         size_t n;
     };
 
+    template <int &...ExplicitArgumentBarrier, typename T>
+    LOQUAT_CPU_GPU
+    inline constexpr span<T> make_span(T* ptr, size_t size) noexcept
+    {
+        return span<T>(ptr, size);
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename T>
+    LOQUAT_CPU_GPU
+    inline span<T> make_span(T* begin, T* end) noexcept
+    {
+        return span<T>(begin, end - begin);
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename T>
+    inline span<T> make_span(std::vector<T>& v) noexcept
+    {
+        return span<T>(v.data(), v.size());
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename C>
+    LOQUAT_CPU_GPU
+    inline constexpr auto make_span(C& c) noexcept
+        -> decltype(make_span(span_internal::get_data(c), c.size()))
+    {
+        return make_span(span_internal::get_data(c), c.size());
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename T, size_t N>
+    LOQUAT_CPU_GPU
+    inline constexpr span<T> make_span(T(&array)[N]) noexcept
+    {
+        return span<T>(array, N);
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename T>
+    LOQUAT_CPU_GPU
+    inline constexpr span<const T> make_const_span(T* ptr, size_t size) noexcept
+    {
+        return span<const T>(ptr, size);
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename T>
+    LOQUAT_CPU_GPU
+    inline span<const T> make_const_span(T* begin, T* end) noexcept
+    {
+        return span<const T>(begin, end - begin);
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename T>
+    inline span<const T> make_const_span(const std::vector<T>& v) noexcept
+    {
+        return span<const T>(v.data(), v.size());
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename C>
+    LOQUAT_CPU_GPU
+    inline constexpr auto make_const_span(const C& c) noexcept
+        -> decltype(make_span(c))
+    {
+        return make_span(c);
+    }
+
+    template <int &...ExplicitArgumentBarrier, typename T, size_t N>
+    LOQUAT_CPU_GPU
+    inline constexpr span<const T> make_const_span(const T(&array)[N]) noexcept
+    {
+        return span<const T>(array, N);
+    }
 
 }
 //TODO(ches) finish this
