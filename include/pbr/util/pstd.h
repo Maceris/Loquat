@@ -718,5 +718,289 @@ namespace pstd
         return span<const T>(array, N);
     }
 
+
+    namespace pmr
+    {
+
+        class memory_resource
+        {
+            static constexpr size_t max_align = alignof(std::max_align_t);
+
+        public:
+            virtual ~memory_resource();
+            void* allocate(size_t bytes, size_t alignment = max_align)
+            {
+                if (bytes == 0)
+                {
+                    return nullptr;
+                }
+                return do_allocate(bytes, alignment);
+            }
+            void deallocate(void* p, size_t bytes, size_t alignment = max_align)
+            {
+                if (!p)
+                {
+                    return;
+                }
+                return do_deallocate(p, bytes, alignment);
+            }
+            bool is_equal(const memory_resource& other) const noexcept
+            {
+                return do_is_equal(other);
+            }
+
+        private:
+            virtual void* do_allocate(size_t bytes, size_t alignment) = 0;
+            virtual void do_deallocate(void* p, size_t bytes, size_t alignment) = 0;
+            virtual bool do_is_equal(const memory_resource& other) const noexcept = 0;
+        };
+
+        inline bool operator==(const memory_resource& a, const memory_resource& b) noexcept
+        {
+            return a.is_equal(b);
+        }
+
+        inline bool operator!=(const memory_resource& a, const memory_resource& b) noexcept
+        {
+            return !(a == b);
+        }
+
+        // TODO(ches)
+        struct pool_options {
+            size_t max_blocks_per_chunk = 0;
+            size_t largest_required_pool_block = 0;
+        };
+        class synchronized_pool_resource;
+        class unsynchronized_pool_resource;
+
+        // global memory resources
+        memory_resource* new_delete_resource() noexcept;
+#if 0
+        // TODO(ches)
+        memory_resource* null_memory_resource() noexcept;
+#endif
+        memory_resource* set_default_resource(memory_resource* r) noexcept;
+        memory_resource* get_default_resource() noexcept;
+
+        class alignas(64) monotonic_buffer_resource : public memory_resource
+        {
+        public:
+            explicit monotonic_buffer_resource(memory_resource* upstream)
+                : upstream(upstream)
+            {
+#ifdef _DEBUG
+                constructTID = std::this_thread::get_id();
+#endif
+            }
+            monotonic_buffer_resource(size_t block_size, memory_resource* upstream)
+                : block_size(block_size), upstream(upstream)
+            {
+#ifdef _DEBUG
+                constructTID = std::this_thread::get_id();
+#endif
+            }
+#if 0
+            // TODO(ches)
+            monotonic_buffer_resource(void* buffer, size_t buffer_size,
+                memory_resource* upstream);
+#endif
+            monotonic_buffer_resource()
+                : monotonic_buffer_resource(get_default_resource())
+            {}
+            explicit monotonic_buffer_resource(size_t initial_size)
+                : monotonic_buffer_resource(initial_size, get_default_resource())
+            {}
+#if 0
+            // TODO(ches)
+            monotonic_buffer_resource(void* buffer, size_t buffer_size)
+                : monotonic_buffer_resource(buffer, buffer_size, get_default_resource())
+            {}
+#endif
+            monotonic_buffer_resource(const monotonic_buffer_resource&) = delete;
+
+            ~monotonic_buffer_resource()
+            {
+                release();
+            }
+
+            monotonic_buffer_resource operator=(const monotonic_buffer_resource&) = delete;
+
+            void release()
+            {
+                block* b = block_list;
+                while (b)
+                {
+                    block* next = b->next;
+                    free_block(b);
+                    b = next;
+                }
+                block_list = nullptr;
+                current = nullptr;
+            }
+
+            memory_resource* upstream_resource() const
+            {
+                return upstream;
+            }
+
+        protected:
+            void* do_allocate(size_t bytes, size_t align) override;
+
+            void do_deallocate(void* p, size_t bytes, size_t alignment) override
+            {
+                if (bytes > block_size)
+                {
+                    upstream->deallocate(p, bytes);
+                }
+            }
+
+            bool do_is_equal(const memory_resource& other) const noexcept override
+            {
+                return this == &other;
+            }
+
+        private:
+            struct block
+            {
+                void* ptr;
+                size_t size;
+                block* next;
+            };
+
+            block* allocate_block(size_t size)
+            {
+                block* b = static_cast<block*>(
+                    upstream->allocate(sizeof(block) + size, alignof(block)));
+
+                b->ptr = reinterpret_cast<char*>(b) + sizeof(block);
+                b->size = size;
+                b->next = block_list;
+                block_list = b;
+
+                return b;
+            }
+            void free_block(block* b)
+            {
+                upstream->deallocate(b, sizeof(block) + b->size);
+            }
+
+#ifdef _DEBUG
+            std::thread::id constructTID;
+#endif
+            memory_resource* upstream;
+            size_t block_size = 256 * 1024;
+            block* current = nullptr;
+            size_t current_pos = 0;
+            block* block_list = nullptr;
+        };
+
+        template <class Tp = std::byte>
+        class polymorphic_allocator
+        {
+        public:
+            using value_type = Tp;
+
+            polymorphic_allocator() noexcept
+            {
+                memoryResource = new_delete_resource();
+            }
+            polymorphic_allocator(memory_resource* r)
+                : memoryResource(r)
+            {}
+            polymorphic_allocator(const polymorphic_allocator& other) = default;
+            template <class U>
+            polymorphic_allocator(const polymorphic_allocator<U>& other) noexcept
+                : memoryResource(other.resource())
+            {}
+
+            polymorphic_allocator& operator=(const polymorphic_allocator& rhs) = delete;
+
+            [[nodiscard]]
+            Tp* allocate(size_t n)
+            {
+                return static_cast<Tp*>(resource()->allocate(n * sizeof(Tp), alignof(Tp)));
+            }
+
+            void deallocate(Tp* p, size_t n)
+            {
+                resource()->deallocate(p, n * sizeof(Tp));
+            }
+
+            void* allocate_bytes(size_t nbytes, size_t alignment = alignof(max_align_t))
+            {
+                return resource()->allocate(nbytes, alignment);
+            }
+
+            void deallocate_bytes(void* p, size_t nbytes,
+                size_t alignment = alignof(std::max_align_t))
+            {
+                return resource()->deallocate(p, nbytes, alignment);
+            }
+
+            template <class T>
+            T* allocate_object(size_t n = 1)
+            {
+                return static_cast<T*>(allocate_bytes(n * sizeof(T), alignof(T)));
+            }
+
+            template <class T>
+            void deallocate_object(T* p, size_t n = 1)
+            {
+                deallocate_bytes(p, n * sizeof(T), alignof(T));
+            }
+            template <class T, class... Args>
+            T* new_object(Args &&...args)
+            {
+                // NOTE: this doesn't handle constructors that throw exceptions
+                T* p = allocate_object<T>();
+                construct(p, std::forward<Args>(args)...);
+                return p;
+            }
+
+            template <class T>
+            void delete_object(T* p)
+            {
+                destroy(p);
+                deallocate_object(p);
+            }
+
+            template <class T, class... Args>
+            void construct(T* p, Args &&...args)
+            {
+                ::new ((void*)p) T(std::forward<Args>(args)...);
+            }
+
+            template <class T>
+            void destroy(T* p)
+            {
+                p->~T();
+            }
+#if 0
+            polymorphic_allocator select_on_container_copy_construction() const;
+#endif
+            memory_resource* resource() const
+            {
+                return memoryResource;
+            }
+
+        private:
+            memory_resource* memoryResource;
+        };
+
+        template <class T1, class T2>
+        bool operator==(const polymorphic_allocator<T1>& a,
+            const polymorphic_allocator<T2>& b) noexcept
+        {
+            return a.resource() == b.resource();
+        }
+
+        template <class T1, class T2>
+        bool operator!=(const polymorphic_allocator<T1>& a,
+            const polymorphic_allocator<T2>& b) noexcept
+        {
+            return !(a == b);
+        }
+
+    }
 }
 //TODO(ches) finish this
