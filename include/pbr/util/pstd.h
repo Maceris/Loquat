@@ -1499,6 +1499,174 @@ namespace pstd
         size_t stored_count = 0;
     };
 
+    template <typename... Ts>
+    struct tuple;
+    
+    template <>
+    struct tuple<>
+    {
+        template <size_t>
+        using type = void;
+    };
+
+    template <typename T, typename... Ts>
+    struct tuple<T, Ts...> : tuple<Ts...>
+    {
+        using Base = tuple<Ts...>;
+
+        tuple() = default;
+        tuple(const tuple&) = default;
+        tuple(tuple&&) = default;
+        tuple& operator=(tuple&&) = default;
+        tuple& operator=(const tuple&) = default;
+
+        tuple(const T& value, const Ts &...values)
+            : Base(values...)
+            , value(value)
+        {}
+
+        tuple(T&& value, Ts &&...values)
+            : Base(std::move(values)...)
+            , value(std::move(value))
+        {}
+
+        T value;
+    };
+
+    template <typename... Ts>
+    tuple(Ts &&...) -> tuple<std::decay_t<Ts>...>;
+
+    template <size_t I, typename T, typename... Ts>
+    LOQUAT_CPU_GPU
+    auto& get(tuple<T, Ts...>& t)
+    {
+        if constexpr (I == 0)
+        {
+            return t.value;
+        }
+        else
+        {
+            return get<I - 1>(static_cast<tuple<Ts...> &>(t));
+        }
+    }
+
+    template <size_t I, typename T, typename... Ts>
+    LOQUAT_CPU_GPU
+    const auto& get(const tuple<T, Ts...>& t)
+    {
+        if constexpr (I == 0)
+        {
+            return t.value;
+        }
+        else
+        {
+            return get<I - 1>(static_cast<const tuple<Ts...>&>(t));
+        }
+    }
+
+    template <typename Req, typename T, typename... Ts>
+    LOQUAT_CPU_GPU
+    auto& get(tuple<T, Ts...>& t)
+    {
+        if constexpr (std::is_same_v<Req, T>)
+        {
+            return t.value;
+        }
+        else
+        {
+            return get<Req>(static_cast<tuple<Ts...>&>(t));
+        }
+    }
+
+    template <typename Req, typename T, typename... Ts>
+    LOQUAT_CPU_GPU
+    const auto& get(const tuple<T, Ts...>& t)
+    {
+        if constexpr (std::is_same_v<Req, T>)
+        {
+            return t.value;
+        }
+        else
+        {
+            return get<Req>(static_cast<const tuple<Ts...>&>(t));
+        }
+    }
+
+    template <typename T>
+    struct complex
+    {
+        LOQUAT_CPU_GPU
+        complex(T re)
+            : re(re)
+            , im(0)
+        {}
+        LOQUAT_CPU_GPU
+        complex(T re, T im)
+            : re(re)
+            , im(im)
+        {}
+
+        LOQUAT_CPU_GPU
+        complex operator-() const
+        {
+            return { -re, -im };
+        }
+
+        LOQUAT_CPU_GPU
+        complex operator+(complex z) const
+        {
+            return { re + z.re, im + z.im };
+        }
+
+        LOQUAT_CPU_GPU
+        complex operator-(complex z) const
+        {
+            return { re - z.re, im - z.im };
+        }
+
+        LOQUAT_CPU_GPU
+        complex operator*(complex z) const
+        {
+            return { re * z.re - im * z.im, re * z.im + im * z.re };
+        }
+
+        LOQUAT_CPU_GPU
+        complex operator/(complex z) const
+        {
+            T scale = 1 / (z.re * z.re + z.im * z.im);
+            return {
+                scale * (re * z.re + im * z.im),
+                scale * (im * z.re - re * z.im)
+            };
+        }
+
+        LOQUAT_CPU_GPU
+        friend complex operator+(T value, complex z)
+        {
+            return complex(value) + z;
+        }
+
+        LOQUAT_CPU_GPU
+        friend complex operator-(T value, complex z)
+        {
+            return complex(value) - z;
+        }
+
+        LOQUAT_CPU_GPU
+        friend complex operator*(T value, complex z)
+        {
+            return complex(value) * z;
+        }
+
+        LOQUAT_CPU_GPU
+        friend complex operator/(T value, complex z)
+        {
+            return complex(value) / z;
+        }
+
+        T re;
+        T im;
+    };
 
 }
 //TODO(ches) finish this
