@@ -1002,5 +1002,503 @@ namespace pstd
         }
 
     }
+
+    template <typename T, class Allocator = pmr::polymorphic_allocator<T>>
+    class vector
+    {
+    public:
+        using value_type = T;
+        using allocator_type = Allocator;
+        using size_type = std::size_t;
+        using difference_type = std::ptrdiff_t;
+        using reference = value_type&;
+        using const_reference = const value_type&;
+        using pointer = T*;
+        using const_pointer = const T*;
+        using iterator = T*;
+        using const_iterator = const T*;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const iterator>;
+
+        vector(const Allocator& alloc = {})
+            : alloc{ alloc }
+        {}
+
+        vector(size_t count, const T& value, const Allocator& alloc = {})
+            : alloc{ alloc }
+        {
+            reserve(count);
+            for (size_t i = 0; i < count; ++i)
+            {
+                this->alloc.template construct<T>(ptr + i, value);
+            }
+            stored_count = count;
+        }
+
+        vector(size_t count, const Allocator& alloc = {})
+            : vector{ count, T{}, alloc }
+        {}
+
+        vector(const vector& other, const Allocator& alloc = {})
+            : alloc{ alloc }
+        {
+            reserve(other.size());
+            for (size_t i = 0; i < other.size(); ++i)
+            {
+                this->alloc.template construct<T>(ptr + i, other[i]);
+            }
+            stored_count = other.size();
+        }
+
+        template <class InputIt>
+        vector(InputIt first, InputIt last, const Allocator& alloc = {})
+            : alloc{ alloc }
+        {
+            reserve(last - first);
+            size_t i = 0;
+            for (InputIt iter = first; iter != last; ++iter, ++i)
+                this->alloc.template construct<T>(ptr + i, *iter);
+            stored_count = allocated_count;
+        }
+
+        vector(vector&& other)
+            : alloc{ other.alloc }
+        {
+            stored_count = other.stored_count;
+            allocated_count = other.allocated_count;
+            ptr = other.ptr;
+
+            other.stored_count = other.allocated_count = 0;
+            other.ptr = nullptr;
+        }
+
+        vector(vector&& other, const Allocator& alloc)
+        {
+            if (alloc == other.alloc)
+            {
+                ptr = other.ptr;
+                allocated_count = other.allocated_count;
+                stored_count = other.stored_count;
+
+                other.ptr = nullptr;
+                other.allocated_count = other.stored_count = 0;
+            }
+            else
+            {
+                reserve(other.size());
+                for (size_t i = 0; i < other.size(); ++i)
+                {
+                    alloc.template construct<T>(ptr + i, std::move(other[i]));
+                }
+                stored_count = other.size();
+            }
+        }
+        vector(std::initializer_list<T> init, const Allocator& alloc = {})
+            : vector{ init.begin(), init.end(), alloc }
+        {}
+
+        vector& operator=(const vector& other)
+        {
+            if (this == &other)
+            {
+                return *this;
+            }
+
+            clear();
+            reserve(other.size());
+            for (size_t i = 0; i < other.size(); ++i)
+            {
+                alloc.template construct<T>(ptr + i, other[i]);
+            }
+            stored_count = other.size();
+
+            return *this;
+        }
+
+        vector& operator=(vector&& other)
+        {
+            if (this == &other)
+            {
+                return *this;
+            }
+
+            if (alloc == other.alloc)
+            {
+                pstd::swap(ptr, other.ptr);
+                pstd::swap(allocated_count, other.allocated_count);
+                pstd::swap(stored_count, other.stored_count);
+            }
+            else {
+                clear();
+                reserve(other.size());
+                for (size_t i = 0; i < other.size(); ++i)
+                {
+                    alloc.template construct<T>(ptr + i, std::move(other[i]));
+                }
+                stored_count = other.size();
+            }
+
+            return *this;
+        }
+
+        vector& operator=(std::initializer_list<T>& init)
+        {
+            reserve(init.size());
+            clear();
+            iterator iter = begin();
+            for (const auto& value : init)
+            {
+                *iter = value;
+                ++iter;
+            }
+            return *this;
+        }
+
+        void assign(size_type count, const T& value)
+        {
+            clear();
+            reserve(count);
+            for (size_t i = 0; i < count; ++i)
+            {
+                push_back(value);
+            }
+        }
+
+        template <class InputIt>
+        void assign(InputIt first, InputIt last)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        void assign(std::initializer_list<T>& init)
+        {
+            assign(init.begin(), init.end());
+        }
+
+        ~vector()
+        {
+            clear();
+            alloc.deallocate_object(ptr, allocated_count);
+        }
+
+        LOQUAT_CPU_GPU
+        iterator begin()
+        {
+            return ptr;
+        }
+
+        LOQUAT_CPU_GPU
+        iterator end()
+        {
+            return ptr + stored_count;
+        }
+
+        LOQUAT_CPU_GPU
+        const_iterator begin() const
+        {
+            return ptr;
+        }
+
+        LOQUAT_CPU_GPU
+        const_iterator end() const
+        {
+            return ptr + stored_count;
+        }
+
+        LOQUAT_CPU_GPU
+        const_iterator cbegin() const
+        {
+            return ptr;
+        }
+
+        LOQUAT_CPU_GPU
+        const_iterator cend() const
+        {
+            return ptr + stored_count;
+        }
+
+        LOQUAT_CPU_GPU
+        reverse_iterator rbegin()
+        {
+            return reverse_iterator(end());
+        }
+
+        LOQUAT_CPU_GPU
+        reverse_iterator rend()
+        {
+            return reverse_iterator(begin());
+        }
+
+        LOQUAT_CPU_GPU
+        const_reverse_iterator rbegin() const
+        {
+            return const_reverse_iterator(end());
+        }
+
+        LOQUAT_CPU_GPU
+        const_reverse_iterator rend() const
+        {
+            return const_reverse_iterator(begin());
+        }
+
+        allocator_type get_allocator() const
+        {
+            return alloc;
+        }
+
+        LOQUAT_CPU_GPU
+        size_t size() const
+        {
+            return stored_count;
+        }
+
+        LOQUAT_CPU_GPU
+        bool empty() const
+        {
+            return size() == 0;
+        }
+
+        LOQUAT_CPU_GPU
+        size_t max_size() const
+        {
+            return static_cast<size_t>(-1);
+        }
+
+        LOQUAT_CPU_GPU
+        size_t capacity() const
+        {
+            return allocated_count;
+        }
+
+        void reserve(size_t n)
+        {
+            if (allocated_count >= n)
+            {
+                return;
+            }
+
+            T* ra = alloc.template allocate_object<T>(n);
+            for (int i = 0; i < stored_count; ++i)
+            {
+                alloc.template construct<T>(ra + i, std::move(begin()[i]));
+                alloc.destroy(begin() + i);
+            }
+
+            alloc.deallocate_object(ptr, allocated_count);
+            allocated_count = n;
+            ptr = ra;
+        }
+        // TODO(ches): shrink_to_fit
+
+        LOQUAT_CPU_GPU
+        reference operator[](size_type index)
+        {
+            LOG_ASSERT(index < size());
+            return ptr[index];
+        }
+
+        LOQUAT_CPU_GPU
+        const_reference operator[](size_type index) const
+        {
+            LOG_ASSERT(index < size());
+            return ptr[index];
+        }
+
+        LOQUAT_CPU_GPU
+        reference front()
+        {
+            return ptr[0];
+        }
+
+        LOQUAT_CPU_GPU
+        const_reference front() const
+        {
+            return ptr[0];
+        }
+
+        LOQUAT_CPU_GPU
+        reference back()
+        {
+            return ptr[stored_count - 1];
+        }
+
+        LOQUAT_CPU_GPU
+        const_reference back() const
+        {
+            return ptr[stored_count - 1];
+        }
+
+        LOQUAT_CPU_GPU
+        pointer data()
+        {
+            return ptr;
+        }
+
+        LOQUAT_CPU_GPU
+        const_pointer data() const
+        {
+            return ptr;
+        }
+
+        void clear()
+        {
+            for (int i = 0; i < stored_count; ++i)
+            {
+                alloc.destroy(&ptr[i]);
+            }
+            stored_count = 0;
+        }
+
+        iterator insert(const_iterator, const T& value)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        iterator insert(const_iterator, T&& value)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        iterator insert(const_iterator pos, size_type count, const T& value)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        template <class InputIt>
+        iterator insert(const_iterator pos, InputIt first, InputIt last)
+        {
+            if (pos == end())
+            {
+                size_t firstOffset = size();
+                for (auto iter = first; iter != last; ++iter)
+                {
+                    push_back(*iter);
+                }
+                return begin() + firstOffset;
+            }
+            else
+            {
+                LOG_FATAL("TODO");
+            }
+        }
+
+        iterator insert(const_iterator pos, std::initializer_list<T> init)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        template <class... Args>
+        iterator emplace(const_iterator pos, Args &&...args)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        template <class... Args>
+        void emplace_back(Args &&...args)
+        {
+            if (allocated_count == stored_count)
+            {
+                reserve(allocated_count == 0 ? 4 : 2 * allocated_count);
+            }
+
+            alloc.construct(ptr + stored_count, std::forward<Args>(args)...);
+            ++stored_count;
+        }
+
+        iterator erase(const_iterator pos)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        iterator erase(const_iterator first, const_iterator last)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        void push_back(const T& value)
+        {
+            if (allocated_count == stored_count)
+            {
+                reserve(allocated_count == 0 ? 4 : 2 * allocated_count);
+            }
+
+            alloc.construct(ptr + stored_count, value);
+            ++stored_count;
+        }
+
+        void push_back(T&& value)
+        {
+            if (allocated_count == stored_count)
+            {
+                reserve(allocated_count == 0 ? 4 : 2 * allocated_count);
+            }
+
+            alloc.construct(ptr + stored_count, std::move(value));
+            ++stored_count;
+        }
+
+        void pop_back()
+        {
+            DCHECK(!empty());
+            alloc.destroy(ptr + stored_count - 1);
+            --stored_count;
+        }
+
+        void resize(size_type n)
+        {
+            if (n < size())
+            {
+                for (size_t i = n; i < size(); ++i)
+                {
+                    alloc.destroy(ptr + i);
+                }
+                if (n == 0)
+                {
+                    alloc.deallocate_object(ptr, allocated_count);
+                    ptr = nullptr;
+                    allocated_count = 0;
+                }
+            }
+            else if (n > size())
+            {
+                reserve(n);
+                for (size_t i = stored_count; i < n; ++i)
+                {
+                    alloc.construct(ptr + i);
+                }
+            }
+            stored_count = n;
+        }
+
+        void resize(size_type count, const value_type& value)
+        {
+            // TODO(ches)
+            LOG_FATAL("TODO");
+        }
+
+        void swap(vector& other)
+        {
+            LOG_ASSERT(alloc == other.alloc);// TODO(ches): handle this
+            std::swap(ptr, other.ptr);
+            std::swap(allocated_count, other.allocated_count);
+            std::swap(stored_count, other.stored_count);
+        }
+
+    private:
+        Allocator alloc;
+        T* ptr = nullptr;
+        size_t allocated_count = 0;
+        size_t stored_count = 0;
+    };
+
+
 }
 //TODO(ches) finish this
