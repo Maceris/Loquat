@@ -1668,5 +1668,178 @@ namespace pstd
         T im;
     };
 
+    LOQUAT_CPU_GPU
+    inline float sqrt(float f)
+    {
+        return ::sqrtf(f);
+    }
+
+    LOQUAT_CPU_GPU
+    inline double sqrt(double f)
+    {
+        return ::sqrt(f);
+    }
+
+    LOQUAT_CPU_GPU
+    inline float abs(float f)
+    {
+        return ::fabsf(f);
+    }
+
+    LOQUAT_CPU_GPU
+    inline double abs(double f)
+    {
+        return ::fabs(f);
+    }
+
+    LOQUAT_CPU_GPU
+    inline float copysign(float mag, float sign)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::copysignf(mag, sign);
+#else
+        return std::copysign(mag, sign);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline double copysign(double mag, double sign)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::copysign(mag, sign);
+#else
+        return std::copysign(mag, sign);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline float floor(float arg)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::floorf(arg);
+#else
+        return std::floor(arg);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline double floor(double arg)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::floor(arg);
+#else
+        return std::floor(arg);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline float ceil(float arg)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::ceilf(arg);
+#else
+        return std::ceil(arg);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline double ceil(double arg)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::ceil(arg);
+#else
+        return std::ceil(arg);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline float round(float arg)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::roundf(arg);
+#else
+        return std::round(arg);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline double round(double arg)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::round(arg);
+#else
+        return std::round(arg);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline float fmod(float x, float y)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::fmodf(x, y);
+#else
+        return std::fmod(x, y);
+#endif
+    }
+
+    LOQUAT_CPU_GPU
+    inline double fmod(double x, double y)
+    {
+#ifdef LOQUAT_IS_GPU_CODE
+        return ::fmod(x, y);
+#else
+        return std::fmod(x, y);
+#endif
+    }
+
+    template <typename T>
+    LOQUAT_CPU_GPU
+    T real(const complex<T>& z)
+    {
+        return z.re;
+    }
+
+    template <typename T>
+    LOQUAT_CPU_GPU
+    T imag(const complex<T>& z)
+    {
+        return z.im;
+    }
+
+    template <typename T>
+    LOQUAT_CPU_GPU
+    T norm(const complex<T>& z)
+    {
+        return z.re * z.re + z.im * z.im;
+    }
+
+    template <typename T>
+    LOQUAT_CPU_GPU
+    T abs(const complex<T>& z)
+    {
+        return pstd::sqrt(pstd::norm(z));
+    }
+
+    template <typename T>
+    LOQUAT_CPU_GPU
+    complex<T> sqrt(const complex<T>& z)
+    {
+        T n = pstd::abs(z);
+        T t1 = pstd::sqrt(T(.5) * (n + pstd::abs(z.re)));
+        T t2 = T(.5) * z.im / t1;
+
+        if (n == 0)
+        {
+            return 0;
+        }
+
+        if (z.re >= 0)
+        {
+            return { t1, t2 };
+        }
+        else
+        {
+            return { pstd::abs(t2), pstd::copysign(t1, z.im) };
+        }
+    }
 }
-//TODO(ches) finish this
