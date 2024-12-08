@@ -6,8 +6,10 @@
 
 #pragma once
 
+#include <concepts>
 #include <format>
 
+#include "pbr/math/math.h"
 #include "pbr/math/float.h"
 
 namespace loquat
@@ -80,10 +82,13 @@ namespace loquat
 		}
 
 		template <typename T>
+			requires std::integral<T> || std::floating_point<T>
 		LOQUAT_CPU_GPU
 		inline T length_squared(Vec3<T> vector)
 		{
-			return square(vector.x) + square(vector.y) + square(vector.z);
+			return square<T>(vector.x)
+				+ square<T>(vector.y)
+				+ square<T>(vector.z);
 		}
 
 		template <typename T>

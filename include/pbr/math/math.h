@@ -14,6 +14,9 @@
 #include <intrin.h>
 #endif
 
+#include "pbr/math/matrix.h"
+#include "pbr/util/pstd.h"
+
 namespace loquat
 {
 
@@ -256,6 +259,38 @@ namespace loquat
 		return (1 - x) * a + x * b;
 	}
 
+	template <int N>
+	pstd::optional<SquareMatrix<N>> linear_least_squares(
+		const Float A[][N], const Float B[][N], int rows);
+
+	template <int N>
+	pstd::optional<SquareMatrix<N>> linear_least_squares(const Float A[][N],
+		const Float B[][N], int rows)
+	{
+		SquareMatrix<N> AtA = SquareMatrix<N>::Zero();
+		SquareMatrix<N> AtB = SquareMatrix<N>::Zero();
+
+		for (int i = 0; i < N; ++i)
+		{
+			for (int j = 0; j < N; ++j)
+			{
+				for (int r = 0; r < rows; ++r)
+				{
+					AtA[i][j] += A[r][i] * A[r][j];
+					AtB[i][j] += A[r][i] * B[r][j];
+				}
+			}
+		}
+
+		auto AtAi = glm::inverse(AtA);
+		if (!AtAi)
+		{
+			return {};
+		}
+		return Transpose(*AtAi * AtB);
+	}
+
+
 	LOQUAT_CPU_GPU
 	inline Float log2(Float x) noexcept
 	{
@@ -367,6 +402,22 @@ namespace loquat
 	{
 		Float abs_x = std::abs(x);
 		return std::exp(-abs_x / s) / (s * square(1 + std::expf(-abs_x / s)));
+	}
+
+	template <typename Tresult, int N, typename T>
+	LOQUAT_CPU_GPU
+	inline Tresult multiply(const SquareMatrix<N>& m, const T& v)
+	{
+		Tresult result;
+		for (int i = 0; i < N; ++i)
+		{
+			result[i] = 0;
+			for (int j = 0; j < N; ++j)
+			{
+				result[i] += m[i][j] * v[j];
+			}
+		}
+		return result;
 	}
 
 	template <typename Func>
