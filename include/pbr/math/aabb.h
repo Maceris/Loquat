@@ -90,6 +90,19 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
+		bool is_empty() const
+		{
+			for (int dim = 0; dim < PointType::length(); ++dim)
+			{
+				if (min[dim] >= max[dim])
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		LOQUAT_CPU_GPU
 		Vec2<T> offset(Point2<T> p) const noexcept
 		{
 			Vec2<T> result = p - min;
@@ -103,6 +116,6 @@ namespace loquat
 			}
 			return result;
 		}
-
+		//TODO(ches) add more functions
 	};
 }

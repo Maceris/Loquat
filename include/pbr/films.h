@@ -50,7 +50,9 @@ namespace loquat
                 RGB rgb = project_reflectance<RGB>(swatch_reflectances[i],
                     sensor_illumination, &r_bar, &g_bar, &b_bar);
                 for (int c = 0; c < 3; ++c)
+                {
                     rgbCamera[i][c] = rgb[c];
+                }
             }
 
             // Compute _xyzOutput_ values for training swatches
@@ -130,17 +132,130 @@ namespace loquat
 
 	class VisibleSurface
 	{
+    public:
+        LOQUAT_CPU_GPU
+        VisibleSurface(const SurfaceInteraction& interaction,
+            SampledSpectrum albedo, const SampledWavelengths& lambda);
 
+        LOQUAT_CPU_GPU
+        operator bool() const
+        {
+            return set;
+        }
+
+        VisibleSurface() = default;
+
+        [[nodiscard]]
+        std::string to_string() const;
+
+        Point3f p;
+        Normal3f n;
+        Normal3f ns;
+        Point2f uv;
+        Float time = 0;
+        Vec3f dpdx;
+        Vec3f dpdy;
+        SampledSpectrum albedo;
+        bool set = false;
 	};
 
 	struct FilmBaseParameters
 	{
+        FilmBaseParameters(const ParameterDictionary& parameters,
+            Filter filter, const PixelSensor* sensor, const FileLoc* loc);
+        FilmBaseParameters(Point2i full_resolution, AABB2i pixel_bounds,
+            Filter filter, Float diagonal, const PixelSensor* sensor,
+            std::string filename)
+            : full_resolution{ full_resolution }
+            , pixel_bounds{ pixel_bounds }
+            , filter{ filter }
+            , diagonal{ diagonal }
+            , sensor{ sensor }
+            , filename{ filename }
+        {}
 
+        Point2i full_resolution;
+        AABB2i pixel_bounds;
+        Filter filter;
+        Float diagonal;
+        const PixelSensor* sensor;
+        std::string filename;
 	};
 
 	class FilmBase
 	{
+    public:
+        FilmBase(FilmBaseParameters p)
+            : full_resolution{ p.full_resolution }
+            , pixel_bounds{ p.pixel_bounds }
+            , filter{ p.filter }
+            , diagonal{ p.diagonal * .001f }
+            , sensor{ p.sensor }
+            , filename{ p.filename }
+        {
+            LOG_ASSERT(!pixel_bounds.is_empty());
+            LOG_ASSERT(pixel_bounds.min.x >= 0);
+            LOG_ASSERT(pixel_bounds.max.x <= full_resolution.x);
+            LOG_ASSERT(pixel_bounds.min.y >= 0);
+            LOG_ASSERT(pixel_bounds.max.y <= full_resolution.y);
+            LOG_INFO("Created film with full resolution %s, pixel_bounds %s",
+                full_resolution, pixel_bounds);
+        }
 
+        LOQUAT_CPU_GPU
+        Point2i get_full_resolution() const
+        {
+            return full_resolution;
+        }
+
+        LOQUAT_CPU_GPU
+        AABB2i get_pixel_bounds() const
+        {
+            return pixel_bounds;
+        }
+
+        LOQUAT_CPU_GPU
+        Float get_diagonal() const
+        {
+            return diagonal;
+        }
+
+        LOQUAT_CPU_GPU
+        Filter get_filter() const
+        {
+            return filter;
+        }
+
+        LOQUAT_CPU_GPU
+        const PixelSensor* get_pixel_sensor() const
+        {
+            return sensor;
+        }
+
+        std::string get_filename() const
+        {
+            return filename;
+        }
+
+        LOQUAT_CPU_GPU
+        SampledWavelengths SampleWavelengths(Float sample_1D) const
+        {
+            return SampledWavelengths::sample_visible(sample_1D);
+        }
+
+        LOQUAT_CPU_GPU
+        AABB2f sample_bounds() const;
+
+        std::string base_to_string() const;
+
+    protected:
+        // FilmBase Protected Members
+        Point2i full_resolution;
+        AABB2i pixel_bounds;
+        Filter filter;
+        Float diagonal;
+        const PixelSensor* sensor;
+        std::string filename;
 	};
 
 	class RGBFilm : public FilmBase
