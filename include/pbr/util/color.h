@@ -31,7 +31,14 @@ namespace loquat
 		{}
 
 		LOQUAT_CPU_GPU
-		RGB& operator+=(RGB other) noexcept
+		RGB(Vec3f color)
+			: r{ color.r }
+			, g{ color.g }
+			, b{ color.b }
+		{}
+
+		LOQUAT_CPU_GPU
+		RGB& operator+=(RGB other)
 		{
 			r += other.r;
 			g += other.g;
@@ -40,14 +47,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		RGB operator+(RGB other) const noexcept
+		RGB operator+(RGB other) const
 		{
 			RGB result = *this;
 			return result += other;
 		}
 
 		LOQUAT_CPU_GPU
-		RGB& operator-=(RGB other) noexcept
+		RGB& operator-=(RGB other)
 		{
 			r -= other.r;
 			g -= other.g;
@@ -56,20 +63,20 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		RGB operator-(RGB other) const noexcept
+		RGB operator-(RGB other) const
 		{
 			RGB result = *this;
 			return result -= other;
 		}
 
 		LOQUAT_CPU_GPU
-		friend RGB operator-(Float a, RGB color) noexcept
+		friend RGB operator-(Float a, RGB color)
 		{
 			return { a - color.r, a - color.g, a - color.b };
 		}
 
 		LOQUAT_CPU_GPU
-		RGB& operator*=(RGB other) noexcept
+		RGB& operator*=(RGB other)
 		{
 			r *= other.r;
 			g *= other.g;
@@ -78,21 +85,21 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		RGB operator*(RGB other) const noexcept
+		RGB operator*(RGB other) const
 		{
 			RGB result = *this;
 			return result *= other;
 		}
 
 		LOQUAT_CPU_GPU
-		RGB operator*(Float a) const noexcept
+		RGB operator*(Float a) const
 		{
 			LOG_ASSERT(!is_NaN(a) && "Multiplying an RGB value with NaN");
 			return { a * r, a * g, a * b };
 		}
 
 		LOQUAT_CPU_GPU
-		RGB& operator*=(Float a) noexcept
+		RGB& operator*=(Float a)
 		{
 			LOG_ASSERT(!is_NaN(a) && "Multiplying an RGB value with NaN");
 			r *= a;
@@ -102,14 +109,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		friend RGB operator*(Float a, RGB color) noexcept
+		friend RGB operator*(Float a, RGB color)
 		{
 			LOG_ASSERT(!is_NaN(a) && "Multiplying an RGB value with NaN");
 			return color * a;
 		}
 
 		LOQUAT_CPU_GPU
-		RGB& operator/=(RGB other) noexcept
+		RGB& operator/=(RGB other)
 		{
 			r /= other.r;
 			g /= other.g;
@@ -118,14 +125,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		RGB operator/(RGB other) const noexcept
+		RGB operator/(RGB other) const
 		{
 			RGB result = *this;
 			return result /= other;
 		}
 
 		LOQUAT_CPU_GPU
-		RGB& operator/=(Float a) noexcept
+		RGB& operator/=(Float a)
 		{
 			LOG_ASSERT(!is_NaN(a) && "Dividing an RGB value by NaN");
 			LOG_ASSERT(a != 0 && "Dividing an RGB value by zero");
@@ -136,38 +143,38 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		RGB operator/(Float a) const noexcept
+		RGB operator/(Float a) const
 		{
 			RGB result = *this;
 			return result /= a;
 		}
 
 		LOQUAT_CPU_GPU
-		RGB operator-() const noexcept
+		RGB operator-() const
 		{
 			return { -r, -g, -b };
 		}
 
 		LOQUAT_CPU_GPU
-		Float average() const noexcept
+		Float average() const
 		{
 			return (r + g + b) / 3;
 		}
 
 		LOQUAT_CPU_GPU
-		bool operator==(RGB other) const noexcept
+		bool operator==(RGB other) const
 		{
 			return r == other.r && g == other.g && b == other.b;
 		}
 
 		LOQUAT_CPU_GPU
-		bool operator!=(RGB other) const noexcept
+		bool operator!=(RGB other) const
 		{
 			return r != other.r || g != other.g || b != other.b;
 		}
 
 		LOQUAT_CPU_GPU
-		Float operator[](int i) const noexcept
+		Float operator[](int i) const
 		{
 			LOG_ASSERT(i >= 0 && i < 3 && "Index out of bounds");
 			switch (i)
@@ -183,7 +190,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float& operator[](int i) noexcept
+		Float& operator[](int i)
 		{
 			LOG_ASSERT(i >= 0 && i < 3 && "Index out of bounds");
 			switch (i)
@@ -199,9 +206,9 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
-		explicit operator Vec3f() const noexcept
+		explicit operator Vec3f() const
 		{
 			return Vec3f{ r, g, b };
 		}
@@ -212,20 +219,20 @@ namespace loquat
 	};
 
 	LOQUAT_CPU_GPU
-	inline RGB max(RGB a, RGB b) noexcept
+	inline RGB max(RGB a, RGB b)
 	{
 		return { std::max(a.r, b.r), std::max(a.g, b.g), std::max(a.b, b.b) };
 	}
 
 	LOQUAT_CPU_GPU
-	inline RGB lerp(Float t, RGB a, RGB b) noexcept
+	inline RGB lerp(Float t, RGB a, RGB b)
 	{
 		return (1 - t) * a + t * b;
 	}
 
 	template <number U, number V>
 	LOQUAT_CPU_GPU
-	inline RGB clamp(RGB rgb, U min, V max) noexcept
+	inline RGB clamp(RGB rgb, U min, V max)
 	{
 		return { clamp(rgb.r, min, max),
 			 	 clamp(rgb.g, min, max),
@@ -233,7 +240,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline RGB clamp_zero(RGB rgb) noexcept
+	inline RGB clamp_zero(RGB rgb)
 	{
 		return { std::max<Float>(0, rgb.r),
 				 std::max<Float>(0, rgb.g),
@@ -269,7 +276,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ& operator+=(const XYZ& other) noexcept
+		XYZ& operator+=(const XYZ& other)
 		{
 			x += other.x;
 			y += other.y;
@@ -278,14 +285,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ operator+(const XYZ& other) const noexcept
+		XYZ operator+(const XYZ& other) const
 		{
 			XYZ result = *this;
 			return result += other;
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ& operator-=(const XYZ& other) noexcept
+		XYZ& operator-=(const XYZ& other)
 		{
 			x -= other.x;
 			y -= other.y;
@@ -294,20 +301,20 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ operator-(const XYZ& other) const noexcept
+		XYZ operator-(const XYZ& other) const
 		{
 			XYZ result = *this;
 			return result -= other;
 		}
 
 		LOQUAT_CPU_GPU
-		friend XYZ operator-(Float a, const XYZ& color) noexcept
+		friend XYZ operator-(Float a, const XYZ& color)
 		{
 			return { a - color.x, a - color.y, a - color.z };
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ& operator*=(const XYZ& other) noexcept
+		XYZ& operator*=(const XYZ& other)
 		{
 			x *= other.x;
 			y *= other.y;
@@ -316,21 +323,21 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ operator*(const XYZ& other) const noexcept
+		XYZ operator*(const XYZ& other) const
 		{
 			XYZ result = *this;
 			return result *= other;
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ operator*(Float a) const noexcept
+		XYZ operator*(Float a) const
 		{
 			LOG_ASSERT(!is_NaN(a) && "Multiplying an XYZ value with NaN");
 			return { a * x, a * y, a * z };
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ& operator*=(Float a) noexcept
+		XYZ& operator*=(Float a)
 		{
 			LOG_ASSERT(!is_NaN(a) && "Multiplying an XYZ value with NaN");
 			x *= a;
@@ -340,14 +347,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		friend XYZ operator*(Float a, const XYZ& color) noexcept
+		friend XYZ operator*(Float a, const XYZ& color)
 		{
 			LOG_ASSERT(!is_NaN(a) && "Multiplying an XYZ value with NaN");
 			return color * a;
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ& operator/=(const XYZ& other) noexcept
+		XYZ& operator/=(const XYZ& other)
 		{
 			x /= other.x;
 			y /= other.y;
@@ -356,14 +363,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ operator/(const XYZ& other) const noexcept
+		XYZ operator/(const XYZ& other) const
 		{
 			XYZ result = *this;
 			return result /= other;
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ& operator/=(Float a) noexcept
+		XYZ& operator/=(Float a)
 		{
 			LOG_ASSERT(!is_NaN(a) && "Dividing an XYZ value by NaN");
 			LOG_ASSERT(a != 0 && "Dividing an XYZ value by zero");
@@ -374,44 +381,44 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ operator/(Float a) const noexcept
+		XYZ operator/(Float a) const
 		{
 			XYZ result = *this;
 			return result /= a;
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ operator-() const noexcept
+		XYZ operator-() const
 		{
 			return { -x, -y, -z };
 		}
 
 		LOQUAT_CPU_GPU
-		Float average() const noexcept
+		Float average() const
 		{
 			return (x + y + z) / 3;
 		}
 
 		LOQUAT_CPU_GPU
-		Point2f xy() const noexcept
+		Point2f xy() const
 		{
 			return Point2f{ x / (x + y + z), y / (x + y + z) };
 		}
 
 		LOQUAT_CPU_GPU
-		bool operator==(const XYZ& other) const noexcept
+		bool operator==(const XYZ& other) const
 		{
 			return x == other.x && y == other.y && z == other.z;
 		}
 
 		LOQUAT_CPU_GPU
-		bool operator!=(const XYZ& other) const noexcept
+		bool operator!=(const XYZ& other) const
 		{
 			return x != other.x || y != other.y || z != other.z;
 		}
 
 		LOQUAT_CPU_GPU
-		Float operator[](int i) const noexcept
+		Float operator[](int i) const
 		{
 			LOG_ASSERT(i >= 0 && i < 3 && "Index out of bounds");
 			switch (i)
@@ -427,7 +434,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float& operator[](int i) noexcept
+		Float& operator[](int i)
 		{
 			LOG_ASSERT(i >= 0 && i < 3 && "Index out of bounds");
 			switch (i)
@@ -443,10 +450,10 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
-		explicit operator Vec3f() const noexcept
+		explicit operator Vec3f() const
 		{
 			return Vec3f{ x, y, z };
 		}
@@ -457,14 +464,14 @@ namespace loquat
 	};
 
 	LOQUAT_CPU_GPU
-	inline XYZ lerp(Float t, const XYZ& a, const XYZ& b) noexcept
+	inline XYZ lerp(Float t, const XYZ& a, const XYZ& b)
 	{
 		return (1 - t) * a + t * b;
 	}
 
 	template <number U, number V>
 	LOQUAT_CPU_GPU
-	inline XYZ clamp(const XYZ& xyz, U min, V max) noexcept
+	inline XYZ clamp(const XYZ& xyz, U min, V max)
 	{
 		return { clamp(xyz.x, min, max),
 				 clamp(xyz.y, min, max),
@@ -472,7 +479,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline XYZ clamp_zero(const XYZ& xyz) noexcept
+	inline XYZ clamp_zero(const XYZ& xyz)
 	{
 		return { std::max<Float>(0, xyz.x),
 				 std::max<Float>(0, xyz.y),
@@ -493,17 +500,17 @@ namespace loquat
 		{}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
-		Float operator()(Float wavelength) const noexcept
+		Float operator()(Float wavelength) const
 		{
 			return s(evaluate_polynomial(wavelength, c2, c1, c0));
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept
+		Float max_value() const
 		{
 			Float result = std::max((*this)(360), (*this)(830));
 			Float wavelength = -c1 / (2 * c0);
@@ -516,7 +523,7 @@ namespace loquat
 
 	private:
 		LOQUAT_CPU_GPU
-		static Float s(Float x) noexcept
+		static Float s(Float x)
 		{
 			if (is_NaN(x))
 			{
@@ -538,13 +545,13 @@ namespace loquat
 		using CoefficientArray = float[3][resolution][resolution][resolution][3];
 
 		RGBToSpectrumTable(const float* z_nodes,
-			const CoefficientArray* coefficients) noexcept
+			const CoefficientArray* coefficients)
 			: z_nodes{ z_nodes }
 			, coefficients{ coefficients }
 		{}
 
 		LOQUAT_CPU_GPU
-		RGBSigmoidPolynomial operator()(RGB rgb) const noexcept;
+		RGBSigmoidPolynomial operator()(RGB rgb) const;
 
 		static void init(Allocator allocator);
 
@@ -554,7 +561,7 @@ namespace loquat
 		static const RGBToSpectrumTable* ACES2065_1;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		const float* z_nodes;
@@ -573,20 +580,20 @@ namespace loquat
 
 		LOQUAT_CPU_GPU
 		inline void to_linear(std::span<const uint8_t> v_in,
-			std::span<Float> v_out) const noexcept;
+			std::span<Float> v_out) const;
 
 		LOQUAT_CPU_GPU
 		inline void from_linear(std::span<const Float> v_in,
-			std::span<uint8_t> v_out) const noexcept;
+			std::span<uint8_t> v_out) const;
 
 		LOQUAT_CPU_GPU
-		inline Float to_float_linear(Float v) const noexcept;
+		inline Float to_float_linear(Float v) const;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		static const ColorEncoding get(std::string_view name,
-			Allocator allocator) noexcept;
+			Allocator allocator);
 
 		static ColorEncoding Linear;
 		static ColorEncoding sRGB;
@@ -600,7 +607,7 @@ namespace loquat
 
 		LOQUAT_CPU_GPU
 		void to_linear(std::span<const uint8_t> v_in, std::span<Float> v_out)
-			const noexcept
+			const
 		{
 			LOG_ASSERT(v_in.size() == v_out.size()
 				&& "Incompatible span sizes");
@@ -611,14 +618,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float to_float_linear(Float v) const noexcept
+		Float to_float_linear(Float v) const
 		{
 			return v;
 		}
 
 		LOQUAT_CPU_GPU
 		void from_linear(std::span<const Float> v_in,
-			std::span<uint8_t> v_out) const noexcept
+			std::span<uint8_t> v_out) const
 		{
 			LOG_ASSERT(v_in.size() == v_out.size()
 				&& "Incompatible span sizes");
@@ -630,7 +637,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept
+		std::string to_string() const
 		{
 			return "[ LinearColorEncoding ]";
 		}
@@ -641,17 +648,17 @@ namespace loquat
 	public:
 		LOQUAT_CPU_GPU
 		void to_linear(std::span<const uint8_t> v_in, std::span<Float> v_out)
-			const noexcept;
+			const;
 
 		LOQUAT_CPU_GPU
-		Float to_float_linear(Float v) const noexcept;
+		Float to_float_linear(Float v) const;
 
 		LOQUAT_CPU_GPU
 		void from_linear(std::span<const Float> v_in,
-			std::span<uint8_t> v_out) const noexcept;
+			std::span<uint8_t> v_out) const;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept
+		std::string to_string() const
 		{
 			return "[ sRGBColorEncoding ]";
 		}
@@ -666,17 +673,17 @@ namespace loquat
 
 		LOQUAT_CPU_GPU
 		void to_linear(std::span<const uint8_t> v_in, std::span<Float> v_out)
-			const noexcept;
+			const;
 
 		LOQUAT_CPU_GPU
-		Float to_float_linear(Float v) const noexcept;
+		Float to_float_linear(Float v) const;
 
 		LOQUAT_CPU_GPU
 		void from_linear(std::span<const Float> v_in,
-			std::span<uint8_t> v_out) const noexcept;
+			std::span<uint8_t> v_out) const;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		Float gamma;
@@ -685,20 +692,20 @@ namespace loquat
 	};
 
 	inline void ColorEncoding::to_linear(std::span<const uint8_t> v_in,
-		std::span<Float> v_out) const noexcept
+		std::span<Float> v_out) const
 	{
 		auto to_linear = [&](auto ptr) { return ptr->to_linear(v_in, v_out); };
 		dispatch(to_linear);
 	}
 
-	inline Float ColorEncoding::to_float_linear(Float v) const noexcept
+	inline Float ColorEncoding::to_float_linear(Float v) const
 	{
 		auto to_float = [&](auto ptr) { return ptr->to_float_linear(v); };
 		return dispatch(to_float);
 	}
 	
 	inline void ColorEncoding::from_linear(std::span<const Float> v_in,
-		std::span<uint8_t> v_out) const noexcept
+		std::span<uint8_t> v_out) const
 	{
 		auto from_linear =
 			[&](auto ptr) { return ptr->from_linear(v_in, v_out); };
