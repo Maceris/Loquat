@@ -24,6 +24,8 @@ namespace loquat
 	/// </summary>
 	static constexpr int SPECTRUM_SAMPLE_COUNT = 6;
 
+	static constexpr Float CIE_Y_INTEGRAL = 106.856895;
+
 	/// <summary>
 	/// The minimum wavelength we deal with, in nm.
 	/// </summary>

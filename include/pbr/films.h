@@ -32,16 +32,16 @@ namespace loquat
     public:
         static PixelSensor* create(const ParameterDictionary& parameters,
             const RGBColorSpace* color_space, Float exposure_time,
-            const FileLoc* loc, Allocator allocatoratorator);
+            const FileLoc* loc, Allocator allocatoratoratorator);
 
-        static PixelSensor* create_default(Allocator allocatoratorator = {});
+        static PixelSensor* create_default(Allocator allocatoratoratorator = {});
 
         PixelSensor(Spectrum r, Spectrum g, Spectrum b, 
             const RGBColorSpace* output_color_space, 
-            Spectrum sensor_illumination, Float imaging_ratio, Allocator allocatoratorator)
-            : r_bar(r, allocatoratorator)
-            , g_bar(g, allocatoratorator)
-            , b_bar(b, allocatoratorator)
+            Spectrum sensor_illumination, Float imaging_ratio, Allocator allocatoratoratorator)
+            : r_bar(r, allocatoratoratorator)
+            , g_bar(g, allocatoratoratorator)
+            , b_bar(b, allocatoratoratorator)
             , imaging_ratio(imaging_ratio)
         {
             // Compute XYZ from camera RGB matrix
@@ -90,10 +90,10 @@ namespace loquat
 
         PixelSensor(const RGBColorSpace* output_color_space,
             Spectrum sensor_illumination, Float imaging_ratio,
-            Allocator allocatoratorator)
-            : r_bar(&Spectra::X(), allocatoratorator)
-            , g_bar(&Spectra::Y(), allocatoratorator)
-            , b_bar(&Spectra::Z(), allocatoratorator)
+            Allocator allocatoratoratorator)
+            : r_bar(&Spectra::X(), allocatoratoratorator)
+            , g_bar(&Spectra::Y(), allocatoratoratorator)
+            , b_bar(&Spectra::Z(), allocatoratoratorator)
             , imaging_ratio(imaging_ratio)
         {
             // Compute white balancing matrix for XYZ _PixelSensor_
@@ -199,7 +199,7 @@ namespace loquat
             LOG_ASSERT(pixel_bounds.max.x <= full_resolution.x);
             LOG_ASSERT(pixel_bounds.min.y >= 0);
             LOG_ASSERT(pixel_bounds.max.y <= full_resolution.y);
-            LOG_INFO("Created film with full resolution %s, pixel_bounds %s",
+            LOG_INFO("created film with full resolution %s, pixel_bounds %s",
                 full_resolution, pixel_bounds);
         }
 
@@ -239,7 +239,7 @@ namespace loquat
         }
 
         LOQUAT_CPU_GPU
-        SampledWavelengths SampleWavelengths(Float sample_1D) const
+        SampledWavelengths sample_wavelengths(Float sample_1D) const
         {
             return SampledWavelengths::sample_visible(sample_1D);
         }
@@ -262,13 +262,13 @@ namespace loquat
 	{
     public:
         LOQUAT_CPU_GPU
-        bool UsesVisibleSurface() const
+        bool uses_visible_surface() const
         {
             return false;
         }
 
         LOQUAT_CPU_GPU
-        void AddSample(Point2i film_point, SampledSpectrum L,
+        void add_sample(Point2i film_point, SampledSpectrum L,
             const SampledWavelengths& wavelengths, const VisibleSurface*,
             Float weight)
         {
@@ -293,7 +293,7 @@ namespace loquat
         }
 
         LOQUAT_CPU_GPU
-        RGB GetPixelRGB(Point2i p, Float splat_scale = 1) const
+        RGB get_pixel_RGB(Point2i p, Float splat_scale = 1) const
         {
             const Pixel& pixel = pixels[p];
             RGB rgb(pixel.rgb_sum[0], pixel.rgb_sum[1], pixel.rgb_sum[2]);
@@ -316,12 +316,12 @@ namespace loquat
 
         RGBFilm(FilmBaseParameters p, const RGBColorSpace* color_space,
             Float max_component_value = INFINITY, bool write_FP16 = true,
-            Allocator allocatorator = {});
+            Allocator allocatoratorator = {});
 
         static RGBFilm* create(const ParameterDictionary& parameters,
             Float exposure_time, Filter filter,
             const RGBColorSpace* color_space,
-            const FileLoc* loc, Allocator allocatorator);
+            const FileLoc* loc, Allocator allocatoratorator);
 
         LOQUAT_CPU_GPU
         void add_splat(Point2f p, SampledSpectrum v,
@@ -342,7 +342,7 @@ namespace loquat
         }
 
         LOQUAT_CPU_GPU
-        void ResetPixel(Point2i p)
+        void reset_pixel(Point2i p)
         {
             memset(&pixels[p], 0, sizeof(Pixel));
         }
@@ -371,24 +371,24 @@ namespace loquat
             const AnimatedTransform& output_from_render,
             bool apply_inverse, const RGBColorSpace* color_space,
             Float max_component_value = INFINITY, bool write_FP16 = true,
-            Allocator allocator = {});
+            Allocator allocatorator = {});
 
-        static GBufferFilm* Create(const ParameterDictionary& parameters,
+        static GBufferFilm* create(const ParameterDictionary& parameters,
             Float exposure_time, const CameraTransform& camera_transform,
             Filter filter, const RGBColorSpace* color_space,
-            const FileLoc* loc, Allocator allocator);
+            const FileLoc* loc, Allocator allocatorator);
 
         LOQUAT_CPU_GPU
-        void AddSample(Point2i film_point, SampledSpectrum L,
+        void add_sample(Point2i film_point, SampledSpectrum L,
             const SampledWavelengths& wavelengths,
                 const VisibleSurface* visible_surface, Float weight);
 
         LOQUAT_CPU_GPU
-        void AddSplat(Point2f p, SampledSpectrum v,
+        void add_splat(Point2f p, SampledSpectrum v,
             const SampledWavelengths& wavelengths);
 
         LOQUAT_CPU_GPU
-        RGB ToOutputRGB(SampledSpectrum L,
+        RGB to_output_RGB(SampledSpectrum L,
             const SampledWavelengths& wavelengths) const
         {
             RGB cameraRGB = sensor->to_sensor_RGB(L, wavelengths);
@@ -396,13 +396,13 @@ namespace loquat
         }
 
         LOQUAT_CPU_GPU
-        bool UsesVisibleSurface() const
+        bool uses_visible_surface() const
         {
             return true;
         }
 
         LOQUAT_CPU_GPU
-        RGB GetPixelRGB(Point2i p, Float splat_scale = 1) const
+        RGB get_pixel_RGB(Point2i p, Float splat_scale = 1) const
         {
             const Pixel& pixel = pixels[p];
             RGB rgb(pixel.rgb_sum[0], pixel.rgb_sum[1], pixel.rgb_sum[2]);
@@ -432,7 +432,7 @@ namespace loquat
         std::string to_string() const;
 
         LOQUAT_CPU_GPU
-        void ResetPixel(Point2i p)
+        void reset_pixel(Point2i p)
         {
             memset(&pixels[p], 0, sizeof(Pixel));
         }
@@ -467,7 +467,150 @@ namespace loquat
 
 	class SpectralFilm : public FilmBase
 	{
+    public:
+        LOQUAT_CPU_GPU
+        bool uses_visible_surface() const
+        {
+            return false;
+        }
 
+        LOQUAT_CPU_GPU
+        SampledWavelengths sample_wavelengths(Float u) const
+        {
+            return SampledWavelengths::sample_uniform(u, lambda_min,
+                lambda_max);
+        }
+
+        LOQUAT_CPU_GPU
+        void add_sample(Point2i pFilm, SampledSpectrum L,
+            const SampledWavelengths& lambda, const VisibleSurface*, 
+            Float weight)
+        {
+            // Convert sample radiance to _PixelSensor_ RGB
+            RGB rgb = sensor->to_sensor_RGB(L, lambda);
+
+            // Optionally clamp sensor RGB value
+            Float m = std::max({ rgb.r, rgb.g, rgb.b });
+            if (m > max_component_value)
+            {
+                rgb *= max_component_value / m;
+            }
+
+            LOG_ASSERT(inside_exclusive(pFilm, pixel_bounds));
+            // Update RGB fields in Pixel structure.
+            Pixel& pixel = pixels[pFilm];
+            for (int c = 0; c < 3; ++c)
+            {
+                pixel.rgb_sum[c] += weight * rgb[c];
+            }
+            pixel.rgb_weight_sum += weight;
+
+            // Spectral processing starts here.
+            // Optionally clamp spectral value. (TODO: for spectral should we
+            // just clamp channels individually?)
+            Float lm = L.max_component_value();
+            if (lm > max_component_value)
+            {
+                L *= max_component_value / lm;
+            }
+
+            // The CIE_Y_integral factor effectively cancels out the effect of
+            // the conversion of light sources to use photometric units for
+            // specification.  We then do *not* divide by the PDF in |lambda|
+            // but take advantage of the fact that we know that it is uniform
+            // in sample_wavelengths(), the fact that the buckets all have the
+            // same extend, and can then just average radiance in buckets
+            // below.
+            L *= weight * CIE_Y_INTEGRAL;
+
+            // Accumulate contributions in spectral buckets.
+            for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
+            {
+                int b = lambda_to_bucket(lambda[i]);
+                pixel.bucket_sums[b] += L[i];
+                pixel.weight_sums[b] += weight;
+            }
+        }
+
+        LOQUAT_CPU_GPU
+        RGB get_pixel_RGB(Point2i p, Float splat_scale = 1) const;
+
+        SpectralFilm(FilmBaseParameters p, Float lambda_min, Float lambda_max,
+            int bucket_count, const RGBColorSpace* color_space,
+            Float max_component_value = INFINITY, bool write_FP16 = true,
+            Allocator allocator = {});
+
+        static SpectralFilm* create(const ParameterDictionary& parameters,
+            Float exposure_time, Filter filter,
+            const RGBColorSpace* color_space, const FileLoc* loc,
+            Allocator allocator);
+
+        LOQUAT_CPU_GPU
+        void add_splat(Point2f p, SampledSpectrum v,
+            const SampledWavelengths& lambda);
+
+        void write_image(ImageMetadata metadata, Float splat_scale = 1);
+
+        // Returns an image with both RGB and spectral components, following
+        // the layout proposed in "An OpenEXR Layout for Sepctral Images" by
+        // Fichet et al., https://jcgt.org/published/0010/03/01/.
+        Image get_image(ImageMetadata* metadata, Float splat_scale = 1);
+
+        [[nodiscard]]
+        std::string to_string() const;
+
+        LOQUAT_CPU_GPU
+        RGB to_output_RGB(SampledSpectrum L,
+            const SampledWavelengths& lambda) const
+        {
+            LOG_FATAL("to_output_RGB() is unimplemented. But that's ok since "
+                "it's only used in the SPPM integrator, which is inherently "
+                "very much based on RGB output.");
+            return {};
+        }
+
+        LOQUAT_CPU_GPU void reset_pixel(Point2i p)
+        {
+            Pixel& pix = pixels[p];
+            pix.rgb_sum[0] = pix.rgb_sum[1] = pix.rgb_sum[2] = 0.;
+            pix.rgb_weight_sum = 0.;
+            pix.rgb_splat[0] = pix.rgb_splat[1] = pix.rgb_splat[2] = 0.;
+            memset(pix.bucket_sums, 0, bucket_count * sizeof(double));
+            memset(pix.weight_sums, 0, bucket_count * sizeof(double));
+            memset(pix.bucket_splats, 0, bucket_count * sizeof(AtomicDouble));
+        }
+
+    private:
+        LOQUAT_CPU_GPU
+        int lambda_to_bucket(Float lambda) const
+        {
+            int bucket = bucket_count * (lambda - lambda_min) 
+                / (lambda_max - lambda_min);
+            return clamp(bucket, 0, bucket_count - 1);
+        }
+
+        struct Pixel
+        {
+            Pixel() = default;
+            // Continue to store RGB, both to include in the final image as
+            // well as for previews during rendering.
+            double rgb_sum[3] = { 0.0, 0.0, 0.0 };
+            double rgb_weight_sum = 0.;
+            AtomicDouble rgb_splat[3];
+            // The following will all have bucket_count entries.
+            double* bucket_sums, * weight_sums;
+            AtomicDouble* bucket_splats;
+        };
+
+        const RGBColorSpace* color_space;
+        Float lambda_min;
+        Float lambda_max;
+        int bucket_count;
+        Float max_component_value;
+        bool write_FP16;
+        Float filter_integral;
+        Array2D<Pixel> pixels;
+        SquareMatrix<3> output_RGB_from_sensor_RGB;
 	};
 }
 //TODO(ches) fill this out
