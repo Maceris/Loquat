@@ -475,7 +475,7 @@ namespace loquat
 			, sampler_prototype{ sampler }
 			, max_depth{ max_depth }
 			, photons_per_iteration{ photons_per_iteration > 0 ?
-			photons_per_iteration : camera.get_film().pixel_bounds().area() }
+				photons_per_iteration : camera.get_film().get_pixel_bounds().area() }
 			, color_space{ color_space }
 			, digit_permutations_seed{ seed }
 		{}

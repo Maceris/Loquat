@@ -45,11 +45,11 @@ namespace loquat
 			const noexcept;
 
 		LOQUAT_CPU_GPU
-		inline Point2i full_resolution() const noexcept;
+		inline Point2i get_full_resolution() const noexcept;
 		LOQUAT_CPU_GPU
-		inline AABB2i pixel_bounds() const noexcept;
+		inline AABB2i get_pixel_bounds() const noexcept;
 		LOQUAT_CPU_GPU
-		inline Float diagonal() const noexcept;
+		inline Float get_diagonal() const noexcept;
 
 		void write_image(ImageMetadata metadata, Float splat_scale = 1)
 			noexcept;

@@ -612,5 +612,93 @@ namespace loquat
         Array2D<Pixel> pixels;
         SquareMatrix<3> output_RGB_from_sensor_RGB;
 	};
+
+
+    LOQUAT_CPU_GPU
+    inline SampledWavelengths Film::sample_wavelengths(Float u) const
+    {
+        auto sample = [&](auto ptr) { return ptr->sample_wavelengths(u); };
+        return dispatch(sample);
+    }
+
+    LOQUAT_CPU_GPU
+    inline AABB2f Film::sample_bounds() const {
+        auto sb = [&](auto ptr) { return ptr->sample_bounds(); };
+        return dispatch(sb);
+    }
+
+    LOQUAT_CPU_GPU
+    inline AABB2i Film::get_pixel_bounds() const
+    {
+        auto pb = [&](auto ptr) { return ptr->get_pixel_bounds(); };
+        return dispatch(pb);
+    }
+
+    LOQUAT_CPU_GPU
+    inline Point2i Film::get_full_resolution() const
+    {
+        auto fr = [&](auto ptr) { return ptr->get_full_resolution(); };
+        return dispatch(fr);
+    }
+
+    LOQUAT_CPU_GPU
+    inline Float Film::get_diagonal() const
+    {
+        auto diag = [&](auto ptr) { return ptr->get_diagonal(); };
+        return dispatch(diag);
+    }
+
+    LOQUAT_CPU_GPU
+    inline Filter Film::get_filter() const
+    {
+        auto filter = [&](auto ptr) { return ptr->get_filter(); };
+        return dispatch(filter);
+    }
+
+    LOQUAT_CPU_GPU
+    inline bool Film::uses_visible_surface() const
+    {
+        auto uses = [&](auto ptr) { return ptr->uses_visible_surface(); };
+        return dispatch(uses);
+    }
+
+    LOQUAT_CPU_GPU
+    inline RGB Film::get_pixel_RGB(Point2i p, Float splat_scale) const
+    {
+        auto get = [&](auto ptr) { return ptr->get_pixel_RGB(p, splat_scale); };
+        return dispatch(get);
+    }
+
+    LOQUAT_CPU_GPU
+    inline RGB Film::to_output_RGB(SampledSpectrum L,
+        const SampledWavelengths& lambda) const
+    {
+        auto out = [&](auto ptr) { return ptr->to_output_RGB(L, lambda); };
+        return dispatch(out);
+    }
+
+    LOQUAT_CPU_GPU
+    inline void Film::add_sample(Point2i pFilm, SampledSpectrum L,
+            const SampledWavelengths& lambda,
+            const VisibleSurface* visibleSurface, Float weight)
+    {
+        auto add = [&](auto ptr) {
+            return ptr->add_sample(pFilm, L, lambda, visibleSurface, weight);
+            };
+        return dispatch(add);
+    }
+
+    LOQUAT_CPU_GPU
+    inline const PixelSensor* Film::get_pixel_sensor() const
+    {
+        auto filter = [&](auto ptr) { return ptr->get_pixel_sensor(); };
+        return dispatch(filter);
+    }
+
+    LOQUAT_CPU_GPU
+    inline void Film::reset_pixel(Point2i p)
+    {
+        auto rp = [&](auto ptr) { ptr->reset_pixel(p); };
+        return dispatch(rp);
+    }
 }
-//TODO(ches) fill this out
