@@ -44,5 +44,46 @@ namespace loquat
 		PiecewiseConstant2D distribution;
 	};
 
+	class BoxFilter {
+	public:
+		BoxFilter(Vec2f radius = Vec2f(0.5, 0.5))
+			: radius(radius)
+		{}
+
+		static BoxFilter* create(const ParameterDictionary& parameters,
+			const FileLoc* loc, Allocator allocator);
+
+		LOQUAT_CPU_GPU
+		Vec2f get_radius() const
+		{
+			return radius;
+		}
+
+		std::string to_string() const;
+
+		LOQUAT_CPU_GPU
+		Float evaluate(Point2f p) const
+		{
+			return (std::abs(p.x) <= radius.x && std::abs(p.y) <= radius.y) ? 1 : 0;
+		}
+
+		LOQUAT_CPU_GPU
+		FilterSample sample(Point2f u) const
+		{
+			Point2f p(lerp(u[0], -radius.x, radius.x), 
+				lerp(u[1], -radius.y, radius.y));
+			return { p, Float(1) };
+		}
+
+		LOQUAT_CPU_GPU
+		Float Integral() const
+		{
+			return 2 * radius.x * 2 * radius.y;
+		}
+
+	private:
+		Vec2f radius;
+	};
+
 	//TODO(ches) complete this
 }
