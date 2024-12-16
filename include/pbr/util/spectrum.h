@@ -682,7 +682,7 @@ namespace loquat
 		friend struct std::hash<loquat::DenselySampledSpectrum>;
 		int wavelength_min;
 		int wavelength_max;
-		std::vector<Float, AllocatorBase<Float>> values;
+		pstd::vector<Float> values;
 	};
 
 	class PiecewiseLinearSpectrum
@@ -730,8 +730,8 @@ namespace loquat
 			Allocator allocator);
 
 	private:
-		std::vector<Float, AllocatorBase<Float>> wavelengths;
-		std::vector<Float, AllocatorBase<Float>> values;
+		pstd::vector<Float> wavelengths;
+		pstd::vector<Float> values;
 	};
 
 	class BlackbodySpectrum

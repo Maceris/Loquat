@@ -10,6 +10,7 @@
 
 #include "main/loquat.h"
 #include "pbr/math/float.h"
+#include "pbr/math/math.h"
 #include "pbr/math/vec.h"
 
 namespace loquat

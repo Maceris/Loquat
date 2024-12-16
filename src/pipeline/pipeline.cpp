@@ -1,5 +1,6 @@
 #include "pipeline/pipeline.h"
 
+#include "main/global_state.h"
 #include "main/loquat.h"
 #include "render/render.h"
 
@@ -275,9 +276,9 @@ namespace loquat
 			ShaderStage{ ShaderType::vertex, "shaders/simple.vert.spv" },
 				ShaderStage{ ShaderType::fragment, "shaders/simple.frag.spv" }
 		};
-		g_global_state->pipeline = alloc<Pipeline>(
+		g_global_state->pipeline = new Pipeline(
 			std::make_unique<Shader>(shader_stages));
-
+		//TODO(ches) use common pipeline?
 		create_frame_buffers();
 	}
 

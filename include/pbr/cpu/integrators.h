@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "main/loquat.h"
 #include "pbr/light_samplers.h"
 #include "pbr/base/camera.h"
 #include "pbr/base/film.h"
@@ -265,7 +266,7 @@ namespace loquat
 			: RayIntegrator{ camera, sampler, aggregate, lights }
 			, max_depth{ max_depth }
 			, light_sampler{ LightSampler::create(
-				light_sample_strategy, lights, *g_allocator) }
+				light_sample_strategy, lights, Allocator()) }
 			, regularize{ regularize }
 		{}
 

@@ -1,6 +1,7 @@
 #include "window/window_state.h"
 
 #include "debug/logger.h"
+#include "main/loquat.h"
 #include "main/global_state.h"
 #include "window/window.h"
 #include "window/window_surface.h"
@@ -21,9 +22,10 @@ namespace loquat
 			LOG_FATAL("We are trying to create a second window");
 		}
 
-		WindowState* state = alloc<WindowState>();
+		WindowState* state = new WindowState();
 		g_global_state->window_state = state;
-		state->window = alloc<Window>();
-		state->surface = alloc<WindowSurface>(state->window);
+		state->window = new Window();
+		state->surface = new WindowSurface(state->window);
+		//TODO(ches) use common allocator?
 	}
 }

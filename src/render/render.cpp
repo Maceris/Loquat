@@ -4,6 +4,8 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 
+#include "debug/logger.h"
+#include "main/global_state.h"
 #include "main/loquat.h"
 #include "window/window.h"
 #include "window/window_state.h"

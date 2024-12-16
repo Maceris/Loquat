@@ -7,14 +7,15 @@
 #include "main/loquat.h"
 #include "main/vulkan_instance.h"
 #include "render/render.h"
+#include "resource/resource_cache.h"
 #include "resource/resource_file_folder.h"
 #include "window/swap_chain.h"
 #include "window/window.h"
 
 namespace loquat
 {
-	Allocator* g_allocator = new Allocator();
-	GlobalState* g_global_state = alloc<GlobalState>();
+	GlobalState* g_global_state = new GlobalState();
+	//TODO(ches) use common allocator?
 	ResourceCache* g_resource_cache;
 
 	/// <summary>
@@ -93,8 +94,9 @@ namespace loquat
 		std::filesystem::path full_resource_path =
 			std::filesystem::canonical(resource_path);
 		ResourceFileFolder* resource_folder =
-			alloc<ResourceFileFolder>(full_resource_path.string());
-		g_resource_cache = alloc<ResourceCache>(50, resource_folder);
+			new ResourceFileFolder(full_resource_path.string());
+		g_resource_cache = new ResourceCache(50, resource_folder);
+		//TODO(ches) use common allocator?
 
 		if (!g_resource_cache->init())
 		{
@@ -103,7 +105,8 @@ namespace loquat
 
 		create_vulkan_instance();
 		create_vulkan_window();
-		g_global_state->device = alloc<Device>();
+		g_global_state->device = new Device();
+		//TODO(ches) use common allocator?
 		create_swap_chain();
 		create_pipeline();
 

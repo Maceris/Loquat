@@ -8,8 +8,6 @@
 
 #include <optional>
 
-#include "pbr/math/vec.h"
-
 namespace loquat
 {
 	/// <summary>

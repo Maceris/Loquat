@@ -1,6 +1,8 @@
 #include "render/render_state.h"
 
+#include "main/global_state.h"
 #include "main/loquat.h"
+#include "pipeline/pipeline.h"
 
 namespace loquat
 {
@@ -109,7 +111,8 @@ namespace loquat
 
 	void create_render_state() noexcept
 	{
-		g_global_state->render_state = alloc<RenderState>();
+		g_global_state->render_state = new RenderState();
+		//TODO(ches) use common allocator?
 	}
 
 	void destroy_render_state() noexcept

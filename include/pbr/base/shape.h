@@ -34,7 +34,7 @@ namespace loquat
 	public:
 		using TaggedPointer::TaggedPointer;
 
-		static std::vector<Shape> create(std::string_view name,
+		static pstd::vector<Shape> create(std::string_view name,
 			const Transform* render_from_object,
 			const Transform* object_from_render, bool reverse_orientation,
 			const ParameterDictionary& parameters,

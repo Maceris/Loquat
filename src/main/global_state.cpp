@@ -10,9 +10,21 @@ namespace loquat
 	GlobalState::~GlobalState()
 	{
 		destroy_render_state();
-		safe_delete(pipeline);
-		safe_delete(window_state);
-		safe_delete(device);
+		if (pipeline) {
+			delete pipeline;
+		}
+		pipeline = nullptr;
+
+		if (window_state)
+		{
+			delete window_state;
+		}
+		window_state = nullptr;
+		if (device)
+		{
+			delete device;
+		}
+		device = nullptr;
 		if (debug_messenger)
 		{
 			unload_debug_messenger();

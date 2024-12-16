@@ -53,16 +53,21 @@ namespace loquat
 		Array2D(AABB2i extent, T def, allocator_type allocator = {}) noexcept
 			: Array2D{ extent, allocator }
 		{
-			std::ranges::fill(begin(), end(), def);
+			std::fill(begin(), end(), def);
 			
 		}
 		
-		template <std::ranges::input_range Range>
-		Array2D(Range range, int nx, int ny,
+		template <typename InputIt,
+			typename = typename std::enable_if_t<
+				!std::is_integral_v<InputIt>&&
+				std::is_base_of<
+					std::input_iterator_tag,
+					typename std::iterator_traits<InputIt>::iterator_category>::value>>
+		Array2D(InputIt first, InputIt last, int nx, int ny,
 			allocator_type allocator = {}) noexcept
 			: Array2D{ {0,0}, {nx, ny}, allocator }
 		{
-			std::ranges::copy(range, begin());
+			std::copy(first, last, begin());
 		}
 
 		Array2D(int nx, int ny, allocator_type allocator = {}) noexcept
@@ -101,7 +106,7 @@ namespace loquat
 			else
 			{
 				values = allocator.allocate_object<T>(extent.area());
-				std::ranges::copy(array, begin());
+				std::copy(array.begin(), array.end(), begin());
 			}
 		}
 
@@ -111,8 +116,8 @@ namespace loquat
 		{
 			if (allocator == other.allocator)
 			{
-				std::swap(extent, other.extent);
-				std::swap(values, other.values);
+				pstd::swap(extent, other.extent);
+				pstd::swap(values, other.values);
 			}
 			else if (extent == other.extent)
 			{
@@ -220,15 +225,15 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		operator std::span<T>() noexcept
+		operator pstd::span<T>() noexcept
 		{
-			return std::span<T>(values, size());
+			return pstd::span<T>(values, size());
 		}
 
 		LOQUAT_CPU_GPU
-		operator std::span<const T>() const noexcept
+		operator pstd::span<const T>() const noexcept
 		{
-			return std::span<const T>(values, size());
+			return pstd::span<const T>(values, size());
 		}
 
 		[[nodiscard]]
@@ -258,7 +263,7 @@ namespace loquat
 	};
 
 
-	template <typename T, int N, class AllocatorT = AllocatorBase<T>>
+	template <typename T, int N, class AllocatorT = pstd::pmr::polymorphic_allocator<T>>
 	class InlinedVector
 	{
 	public:
@@ -397,9 +402,9 @@ namespace loquat
 			clear();
 			if (allocator == other.allocator)
 			{
-				std::swap(pointer, other.pointer);
-				std::swap(allocated_count, other.allocated_count);
-				std::swap(stored_count, other.stored_count);
+				pstd::swap(pointer, other.pointer);
+				pstd::swap(allocated_count, other.allocated_count);
+				pstd::swap(stored_count, other.stored_count);
 				if (stored_count > 0 && !pointer)
 				{
 					for (int i = 0; i < other.stored_count; ++i)
@@ -815,12 +820,12 @@ namespace loquat
 	};
 
 	template <typename Key, typename Value, typename Hash = std::hash<Key>,
-		typename AllocatorT = AllocatorBase<std::optional<std::pair<Key, Value>>>
+		typename AllocatorT = pstd::pmr::polymorphic_allocator<pstd::optional<std::pair<Key, Value>>>
 	>
 	class HashMap
 	{
 	public:
-		using TableEntry = std::optional<std::pair<Key, Value>>;
+		using TableEntry = pstd::optional<std::pair<Key, Value>>;
 
 		class Iterator
 		{
@@ -985,7 +990,7 @@ namespace loquat
 		void grow() noexcept
 		{
 			size_t current_capacity = capacity();
-			std::vector<TableEntry> new_table{
+			pstd::vector<TableEntry> new_table{
 				std::max<size_t>(64, 2 * current_capacity),
 				table.get_allocator() };
 			size_t new_capacity = new_table.size();
@@ -1011,7 +1016,7 @@ namespace loquat
 			table = std::move(new_table);
 		}
 
-		std::vector<TableEntry> table;
+		pstd::vector<TableEntry> table;
 		size_t stored_count = 0;
 	};
 
@@ -1019,13 +1024,13 @@ namespace loquat
 	class SampleGrid
 	{
 	public:
-		using const_iterator = typename std::vector<T>::const_iterator;
+		using const_iterator = typename pstd::vector<T>::const_iterator;
 
 		SampleGrid() noexcept = default;
 		SampleGrid(Allocator allocator) noexcept
 			: values{ allocator }
 		{}
-		SampleGrid(std::span<const T> values, int nx, int ny, int nz,
+		SampleGrid(pstd::span<const T> values, int nx, int ny, int nz,
 			Allocator allocator) noexcept
 			: values{ values.begin(), values.end(), allocator }
 			, nx{ nx }
@@ -1177,7 +1182,7 @@ namespace loquat
 		}
 
 	private:
-		std::vector<T> values;
+		pstd::vector<T> values;
 		int nx;
 		int ny;
 		int nz;
@@ -1235,7 +1240,7 @@ namespace loquat
 					//NOTE(ches) grow the hash table if it's too full
 					if (entry_count * 4 > hash_table.size())
 					{
-						std::vector<const T*> new_hash{ hash_table.size() * 2,
+						pstd::vector<const T*> new_hash{ hash_table.size() * 2,
 							hash_table.get_allocator() };
 						for (const T* pointer : hash_table)
 						{
@@ -1290,7 +1295,7 @@ namespace loquat
 		}
 
 	private:
-		void insert(const T* pointer, std::vector<const T*>* table) noexcept
+		void insert(const T* pointer, pstd::vector<const T*>* table) noexcept
 		{
 			size_t offset = Hash()(*pointer) % table->size();
 			int step = 1;
@@ -1304,10 +1309,10 @@ namespace loquat
 			(*table)[offset] = pointer;
 		}
 
-		std::pmr::monotonic_buffer_resource buffer_resource;
+		pstd::pmr::monotonic_buffer_resource buffer_resource;
 		Allocator item_allocator;
 		size_t entry_count = 0;
-		std::vector<const T*> hash_table;
+		pstd::vector<const T*> hash_table;
 		std::shared_mutex mutex;
 	};
 

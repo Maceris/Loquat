@@ -163,14 +163,18 @@ namespace loquat
 
 	void create_swap_chain() noexcept
 	{
-		g_global_state->window_state->swap_chain = alloc<SwapChain>();
+		g_global_state->window_state->swap_chain = new SwapChain();
+		//TODO(ches) use common allocator?
 	}
 
 	void recreate_swap_chain() noexcept
 	{
 		vkDeviceWaitIdle(g_global_state->device->logical_device);
 		destroy_frame_buffers();
-		safe_delete(g_global_state->window_state->swap_chain);
+		if (g_global_state->window_state->swap_chain) {
+			delete g_global_state->window_state->swap_chain;
+		}
+		g_global_state->window_state->swap_chain = nullptr;
 
 		g_global_state->render_state->recreate_synchronization_objects();
 

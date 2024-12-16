@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-#include "main/loquat.h"
+#include "debug/logger.h"
 
 namespace loquat
 {

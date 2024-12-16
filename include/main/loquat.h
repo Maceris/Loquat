@@ -50,25 +50,44 @@
 
 #define LOQUAT_ARRAYSIZE(array) (sizeof(::loquat::detail::ArraySizeHelper(array)))
 
-#include "main/memory_utils.h"
+namespace pstd
+{
+	namespace pmr
+	{
+		template <typename T>
+		class polymorphic_allocator;
+	}
+}
 
-#include "debug/logger.h"
+using Allocator = pstd::pmr::polymorphic_allocator<std::byte>;
+
+/// <summary>
+/// Safely delete a pointer to an object, if it's not null, and set it to
+/// nullptr.
+/// </summary>
+/// <typeparam name="T">The type of the pointer to delete.</typeparam>
+/// <param name="ptr">The pointer we are deleting.</param>
+template<typename T>
+constexpr void safe_delete(T* ptr) noexcept
+{
+	if (ptr)
+	{
+		delete ptr;
+	}
+	ptr = nullptr;
+}
 
 // NOTE(ches) the math includes are in a somewhat specific order
 
 #include "glm/glm.hpp"
 
 #include "pbr/math/float.h"
-#include "pbr/math/math.h"
 #include "pbr/math/vec.h"
 #include "pbr/math/matrix.h"
 #include "pbr/math/quaternion.h"
 #include "pbr/math/interval.h"
 #include "pbr/math/point.h"
 #include "pbr/math/aabb.h"
-
-#include "main/global_state.h"
-#include "resource/resource_cache.h"
 
 namespace loquat
 {

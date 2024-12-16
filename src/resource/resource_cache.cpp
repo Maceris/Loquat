@@ -4,7 +4,7 @@
 #include <cstring>
 
 #include "debug/logger.h"
-#include "main/memory_utils.h"
+#include "pbr/util/pstd.h"
 #include "resource/default_resource_loader.h"
 
 namespace loquat
@@ -34,7 +34,8 @@ namespace loquat
 			return nullptr;
 		}
 
-		char* memory = alloc_array<char>(size);
+		//TODO(ches) use common allocator?
+		char* memory = new char[size];
 		if (memory)
 		{
 			allocated += size;
@@ -87,8 +88,9 @@ namespace loquat
 			++allocation_size;
 		}
 
+		//TODO(ches) use common allocator?
 		char* raw_buffer = loader->use_raw_file() ? allocate(allocation_size) 
-			: alloc_array<char>(allocation_size);
+			: new char[allocation_size];
 		memset(raw_buffer, 0, allocation_size);
 
 		if (raw_buffer == nullptr
@@ -102,8 +104,9 @@ namespace loquat
 		if (loader->use_raw_file())
 		{
 			buffer = raw_buffer;
+			//TODO(ches) use common allocator?
 			handle = std::shared_ptr<ResourceHandle>(
-				alloc<ResourceHandle>(*resource, buffer, raw_size, this));
+				new ResourceHandle(*resource, buffer, raw_size, this));
 		}
 		else
 		{
@@ -113,14 +116,19 @@ namespace loquat
 			{
 				return std::shared_ptr<ResourceHandle>();
 			}
+			//TODO(ches) use common allocator?
 			handle = std::shared_ptr<ResourceHandle>(
-				alloc<ResourceHandle>(*resource, buffer, size, this));
+				new ResourceHandle(*resource, buffer, size, this));
 
 			bool success = loader->load_resource(raw_buffer, raw_size, handle);
 
 			if (loader->discard_raw_buffer_after_load())
 			{
-				safe_delete_array(raw_buffer);
+				if (raw_buffer)
+				{
+					delete[] raw_buffer;
+				}
+				raw_buffer = nullptr;
 			}
 
 			if (!success)
@@ -190,8 +198,9 @@ namespace loquat
 	{
 		if (file->open())
 		{
+			//TODO(ches) use common allocator?
 			register_loader(std::shared_ptr<ResourceLoader>(
-				alloc<DefaultResourceLoader>()));
+				new DefaultResourceLoader()));
 			return true;
 		}
 		return false;

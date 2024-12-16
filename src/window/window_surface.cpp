@@ -25,7 +25,10 @@ namespace loquat
 
 	WindowSurface::~WindowSurface()
 	{
-		safe_delete(surface_format);
+		if (surface_format) {
+			delete surface_format;
+		}
+		surface_format = nullptr;
 		vkDestroySurfaceKHR(g_global_state->instance, vulkan_surface, nullptr);
 	}
 
@@ -55,7 +58,8 @@ namespace loquat
 		LOG_ASSERT(available_formats.size() > 0
 			&& "We require available surface formats");
 
-		surface_format = alloc<VkSurfaceFormatKHR>();
+		surface_format = new VkSurfaceFormatKHR();
+		//TODO(ches) use common allocator?
 		for (const auto& choice : available_formats)
 		{
 			if (choice.format == VK_FORMAT_B8G8R8A8_UNORM

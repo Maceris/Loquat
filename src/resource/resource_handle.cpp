@@ -1,6 +1,5 @@
 #include "resource/resource_handle.h"
 
-#include "main/memory_utils.h"
 #include "resource/resource_cache.h"
 
 namespace loquat
@@ -51,7 +50,10 @@ namespace loquat
 
 	ResourceHandle::~ResourceHandle()
 	{
-		safe_delete_array(buffer);
+		if (buffer) {
+			delete[] buffer;
+		}
+		buffer = nullptr;
 		resource_cache->memory_has_been_freed(size);
 	}
 }

@@ -9,9 +9,6 @@
 #include <concepts>
 #include <format>
 
-#include "pbr/math/math.h"
-#include "pbr/math/float.h"
-
 namespace loquat
 {
 	template <typename T>
@@ -73,7 +70,13 @@ namespace loquat
 		{
 			for (glm::length_t i = 0; i < vector.length(); ++i)
 			{
-				if (is_NaN(vector[i]))
+				bool NaN;
+#ifdef LOQUAT_IS_GPU_CODE
+				NaN = isnan(vector[i]);
+#else
+				NaN = std::isnan(vector[i]);
+#endif
+				if (NaN)
 				{
 					return true;
 				}
@@ -86,9 +89,9 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		inline T length_squared(Vec3<T> vector)
 		{
-			return square<T>(vector.x)
-				+ square<T>(vector.y)
-				+ square<T>(vector.z);
+			return vector.x * vector.x
+				+ vector.y * vector.y
+				+ vector.z * vector.z;
 		}
 
 		template <typename T>

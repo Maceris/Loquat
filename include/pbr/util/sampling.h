@@ -7,11 +7,9 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <functional>
 #include <ostream>
-#include <span>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -21,17 +19,18 @@
 #include "pbr/math/math.h"
 #include "pbr/math/rng.h"
 #include "pbr/math/vector_math.h"
+#include "pbr/util/pstd.h"
 
 namespace loquat
 {
 	LOQUAT_CPU_GPU
-	std::array<Float, 3> sample_spherical_triangle(
-		const std::array<Point3f, 3>& v, Point3f p, Point2f u,
+	pstd::array<Float, 3> sample_spherical_triangle(
+		const pstd::array<Point3f, 3>& v, Point3f p, Point2f u,
 		Float* pdf = nullptr);
 	
 	LOQUAT_CPU_GPU
 	Point2f invert_spherical_triangle_sample(
-		const std::array<Point3f, 3>& v, Point3f p, Vec3f w);
+		const pstd::array<Point3f, 3>& v, Point3f p, Vec3f w);
 	
 	LOQUAT_CPU_GPU
 	Point3f sample_spherical_rectangle(Point3f p, Point3f v00, Vec3f eu,
@@ -46,15 +45,15 @@ namespace loquat
 		Float* pdf = nullptr);
 
 	LOQUAT_CPU_GPU
-	Float sample_catmull_rom(std::span<const Float> nodes,
-		std::span<const Float> f, std::span<const Float> cdf, Float sample,
+	Float sample_catmull_rom(pstd::span<const Float> nodes,
+		pstd::span<const Float> f, pstd::span<const Float> cdf, Float sample,
 		Float* fval = nullptr,
 		Float* pdf = nullptr);
 	
 	LOQUAT_CPU_GPU
-	Float sample_catmull_rom_2D(std::span<const Float> nodes1,
-		std::span<const Float> nodes2, std::span<const Float> values,
-		std::span<const Float> cdf, Float alpha, Float sample,
+	Float sample_catmull_rom_2D(pstd::span<const Float> nodes1,
+		pstd::span<const Float> nodes2, pstd::span<const Float> values,
+		pstd::span<const Float> cdf, Float alpha, Float sample,
 		Float* fval = nullptr, Float* pdf = nullptr);
 
 	LOQUAT_CPU_GPU
@@ -79,7 +78,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline int sample_discrete(std::span<const Float> weights, Float u,
+	inline int sample_discrete(pstd::span<const Float> weights, Float u,
 		Float* pmf = nullptr, Float* u_remapped = nullptr)
 	{
 		if (weights.empty())
@@ -165,7 +164,7 @@ namespace loquat
 	/// <param name="values">The valuse at (0, 0), (1, 0), (0, 1), and (1, 1) respectively.</param>
 	/// <returns></returns>
 	LOQUAT_CPU_GPU
-	inline Float bilinear_PDF(Point2f sample, std::span<const Float> values)
+	inline Float bilinear_PDF(Point2f sample, pstd::span<const Float> values)
 	{
 		LOG_ASSERT(values.size() == 4 && "Exactly 4 values are required");
 		if (sample.x < 0 || sample.x > 1 || sample.y < 0 || sample.y > 1)
@@ -196,7 +195,7 @@ namespace loquat
 	/// <returns></returns>
 	LOQUAT_CPU_GPU
 	inline Point2f sample_bilinear(Point2f sample,
-		std::span<const Float> values)
+		pstd::span<const Float> values)
 	{
 		LOG_ASSERT(values.size() == 4 && "Exactly 4 values are required");
 		Point2f result;
@@ -218,7 +217,7 @@ namespace loquat
 
 	LOQUAT_CPU_GPU
 	inline Point2f invert_bilinear_sample(Point2f sample,
-		std::span<const Float> values)
+		pstd::span<const Float> values)
 	{
 		return {
 			invert_linear_sample(
@@ -262,7 +261,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline std::array<Float, 3> sample_uniform_triangle(Point2f sample)
+	inline pstd::array<Float, 3> sample_uniform_triangle(Point2f sample)
 	{
 		Float b0;
 		Float b1;
@@ -281,7 +280,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline Point2f invert_uniform_triangle_sample(const std::array<Float, 3>& b)
+	inline Point2f invert_uniform_triangle_sample(const pstd::array<Float, 3>& b)
 	{
 		if (b[0] > b[1])
 		{
@@ -289,6 +288,20 @@ namespace loquat
 		}
 		return { 2 * b[0], b[1] + b[0] };
 	}
+
+	LOQUAT_CPU_GPU
+	inline Float sample_tent(Float u, Float r)
+	{
+		if (sample_discrete({ Float(0.5f), Float(0.5f) }, u, nullptr, &u) == 0)
+		{
+			return -r + r * sample_linear(u, 0, 1);
+		}
+		else
+		{
+			return r * sample_linear(u, 1, 0);
+		}
+	}
+
 
 	LOQUAT_CPU_GPU
 	inline Float tent_PDF(Float x, Float r)
@@ -882,10 +895,10 @@ namespace loquat
 			: function(allocator)
 			, cdf(allocator)
 		{}
-		PiecewiseConstant1D(std::span<const Float> f, Allocator allocator = {})
+		PiecewiseConstant1D(pstd::span<const Float> f, Allocator allocator = {})
 			: PiecewiseConstant1D(f, 0.0, 1.0, allocator)
 		{}
-		PiecewiseConstant1D(std::span<const Float> f, Float min, Float max,
+		PiecewiseConstant1D(pstd::span<const Float> f, Float min, Float max,
 			Allocator allocator = {})
 			: function(f.begin(), f.end(), allocator)
 			, cdf(f.size() + 1, allocator)
@@ -976,8 +989,8 @@ namespace loquat
 			return lerp(delta, cdf[offset], cdf[offset + 1]);
 		}
 
-		std::pmr::vector<Float> function;
-		std::pmr::vector<Float> cdf;
+		pstd::vector<Float> function;
+		pstd::vector<Float> cdf;
 		Float min;
 		Float max;
 		Float function_integral = 0;
@@ -994,7 +1007,7 @@ namespace loquat
 			, marginal_density{ allocator }
 		{}
 
-		PiecewiseConstant2D(std::span<const Float> data, int nx, int ny,
+		PiecewiseConstant2D(pstd::span<const Float> data, int nx, int ny,
 			Allocator allocator = {}) noexcept
 			: PiecewiseConstant2D(data, nx, ny, AABB2f{ {0, 0}, {1, 1} },
 				allocator)
@@ -1002,17 +1015,17 @@ namespace loquat
 
 		explicit PiecewiseConstant2D(const Array2D<Float>& data,
 			Allocator allocator = {}) noexcept
-			: PiecewiseConstant2D(std::span<const Float>(data), data.size_x(),
+			: PiecewiseConstant2D(pstd::span<const Float>(data), data.size_x(),
 				data.size_y(), allocator)
 		{}
 
 		PiecewiseConstant2D(const Array2D<Float>& data, AABB2f domain,
 			Allocator allocator = {}) noexcept
-			: PiecewiseConstant2D(std::span<const Float>(data), data.size_x(),
+			: PiecewiseConstant2D(pstd::span<const Float>(data), data.size_x(),
 				data.size_y(), domain, allocator)
 		{}
 
-		PiecewiseConstant2D(std::span<const Float> function, int nu, int nv,
+		PiecewiseConstant2D(pstd::span<const Float> function, int nu, int nv,
 			AABB2f domain, Allocator allocator = {})
 			: m_domain{ domain }
 			, conditional_densities{ allocator }
@@ -1161,7 +1174,7 @@ namespace loquat
 			: bins{ alloc }
 		{}
 
-		AliasTable(std::span<const Float> weights,
+		AliasTable(pstd::span<const Float> weights,
 			Allocator alloc = {}) noexcept;
 
 		LOQUAT_CPU_GPU
@@ -1190,7 +1203,7 @@ namespace loquat
 			int alias;
 		};
 		
-		std::pmr::vector<Bin> bins;
+		pstd::vector<Bin> bins;
 	};
 
 	//TODO(ches) complete this

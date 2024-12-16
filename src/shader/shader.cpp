@@ -4,6 +4,9 @@
 
 #include "main/loquat.h"
 
+#include "main/global_state.h"
+#include "resource/resource_cache.h"
+
 namespace loquat
 {
 	ShaderModule::ShaderModule(std::string_view name)

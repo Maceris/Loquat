@@ -10,6 +10,7 @@
 #include <cmath>
 #include <concepts>
 #include <limits>
+#include <string>
 
 #if defined(LOQUAT_BUILD_GPU_RENDERER) && defined(LOQUAT_IS_GPU_CODE)
 #include <cuda_fp16.h>

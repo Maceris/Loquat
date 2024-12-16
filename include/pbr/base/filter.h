@@ -6,10 +6,11 @@
 
 #pragma once
 
-#include "main/loquat.h"
-
 #include <string_view>
 
+#include "main/loquat.h"
+
+#include "pbr/util/tagged_pointer.h"
 
 namespace loquat
 {
@@ -31,7 +32,7 @@ namespace loquat
 			noexcept;
 
 		LOQUAT_CPU_GPU
-		inline Vec2f radius() const noexcept;
+		inline Vec2f get_radius() const noexcept;
 
 		LOQUAT_CPU_GPU
 		inline Float evaluate(Point2f point) const noexcept;

@@ -14,7 +14,8 @@
 #include <intrin.h>
 #endif
 
-#include "pbr/math/matrix.h"
+#include "debug/logger.h"
+#include "main/loquat.h"
 #include "pbr/util/pstd.h"
 
 namespace loquat
@@ -234,6 +235,16 @@ namespace loquat
 			* fast_e(-square(x - mu) / (2 * square(sigma)));
 	}
 
+	LOQUAT_CPU_GPU
+	inline Float gaussian_integral(Float x0, Float x1, Float mu = 0,
+		Float sigma = 1)
+	{
+		LOG_ASSERT(sigma > 0);
+		Float sigma_root_2 = sigma * Float(1.414213562373095);
+		return 0.5f * (std::erf((mu - x0) / sigma_root_2) 
+			- std::erf((mu - x1) / sigma_root_2));
+	}
+
 	template <std::integral T>
 	LOQUAT_CPU_GPU
 	inline constexpr bool is_power_of_2(T v) noexcept
@@ -257,6 +268,28 @@ namespace loquat
 	inline Float lerp(Float x, Float a, Float b) noexcept
 	{
 		return (1 - x) * a + x * b;
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float sin_x_over_x(Float x);
+
+	LOQUAT_CPU_GPU
+	inline Float sinc(Float);
+
+	LOQUAT_CPU_GPU
+	inline Float windowed_sinc(Float x, Float radius, Float tau)
+	{
+		if (std::abs(x) > radius)
+		{
+			return 0;
+		}
+		return sinc(x) * sinc(x / tau);
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float sinc(Float x)
+	{
+		return sin_x_over_x(PI * x);
 	}
 
 	template <int N>
@@ -623,6 +656,17 @@ namespace loquat
 	inline T round_up_pow4(T v) noexcept
 	{
 		return is_power_of_4(v) ? v : (1 << (2 * (1 + log4_int(v))));
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float sin_x_over_x(Float x)
+	{
+		// http://www.plunk.org/~hatch/rightway.html
+		if (1 - x * x == 1)
+		{
+			return 1;
+		}
+		return std::sin(x) / x;
 	}
 
 	template <typename T>

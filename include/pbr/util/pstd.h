@@ -21,12 +21,12 @@
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
+#include <vector>
 
 #include "main/loquat.h"
 
 namespace pstd
 {
-
 	template <typename T>
 	LOQUAT_CPU_GPU
 	inline void swap(T& a, T& b)
@@ -767,7 +767,8 @@ namespace pstd
         }
 
         // TODO(ches)
-        struct pool_options {
+        struct pool_options
+        {
             size_t max_blocks_per_chunk = 0;
             size_t largest_required_pool_block = 0;
         };
