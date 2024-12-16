@@ -193,6 +193,129 @@ IF (UB_SANITIZER)
   SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fsanitize=undefined,shift,shift-exponent,integer-divide-by-zero,unreachable,vla-bound,null,return,signed-integer-overflow,bounds,float-divide-by-zero,float-cast-overflow,nonnull-attribute,returns-nonnull-attribute,bool,enum,vptr,pointer-overflow,builtin -fno-sanitize-recover=all")
 ENDIF()
 
+
+###########################################################################
+# Check for various C++ features and set preprocessor variables or
+# define workarounds.
+
+include (CheckCXXSourceCompiles)
+
+check_cxx_source_compiles ("
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+int main() {
+   int fd = open(\"foo\", O_RDONLY);
+   struct stat s;
+   fstat(fd, &s);
+   size_t len = s.st_size;
+   void *ptr = mmap(0, len, PROT_READ, MAP_FILE | MAP_SHARED, fd, 0);
+   munmap(ptr, len);   
+}
+" HAVE_MMAP)
+
+if (HAVE_MMAP)
+  ADD_DEFINITIONS(-DLOQUAT_HAVE_MMAP)
+ENDIF ()
+
+include (CheckIncludeFiles)
+
+check_cxx_source_compiles ("
+#include <intrin.h>
+int main() {
+    unsigned long lz = 0, v = 1234;
+    if (_BitScanReverse(&lz, v)) return lz;
+    return 0;
+} " HAS_INTRIN_H)
+
+if (HAS_INTRIN_H)
+  ADD_DEFINITIONS(-DLOQUAT_HAS_INTRIN_H)
+endif ()
+
+########################################
+# noinline
+
+check_cxx_source_compiles (
+"__declspec(noinline) void foo() { }
+int main() { }"
+HAVE_DECLSPEC_NOINLINE)
+
+check_cxx_source_compiles (
+"__attribute__((noinline)) void foo() { }
+int main() { }"
+HAVE_ATTRIBUTE_NOINLINE)
+
+if (HAVE_ATTRIBUTE_NOINLINE)
+  ADD_DEFINITIONS("-DLOQUAT_NOINLINE=__attribute__((noinline))")
+elseif (HAVE_DECLSPEC_NOINLINE)
+  ADD_DEFINITIONS("-DLOQUAT_NOINLINE=__declspec(noinline)")
+else ()
+  ADD_DEFINITIONS(-DLOQUAT_NOINLINE)
+endif ()
+
+########################################
+# restrict
+
+check_cxx_source_compiles (
+"int * __restrict__ ptr;
+int main() { }"
+HAVE_PRE_POST_BAR_RESTRICT)
+
+check_cxx_source_compiles (
+"int * __restrict ptr;
+int main() { }"
+HAVE_PRE_BAR_RESTRICT)
+
+if (HAVE_PRE_POST_BAR_RESTRICT)
+  ADD_DEFINITIONS("-DLOQUAT_RESTRICT=__restrict__")
+elseif (HAVE_PRE_BAR_RESTRICT)
+  ADD_DEFINITIONS("-DLOQUAT_RESTRICT=__restrict")
+else ()
+  ADD_DEFINITIONS(-DLOQUAT_RESTRICT)
+endif ()
+
+########################################
+# Aligned memory allocation
+
+check_cxx_source_compiles ( "
+#include <malloc.h>
+int main() { void * ptr = _aligned_malloc(1024, 32); }
+" HAVE__ALIGNED_MALLOC )
+
+check_cxx_source_compiles ( "
+#include <stdlib.h>
+int main() {
+  void *ptr;
+  posix_memalign(&ptr, 32, 1024);
+} " HAVE_POSIX_MEMALIGN )
+
+if (HAVE__ALIGNED_MALLOC)
+  ADD_DEFINITIONS(-DLOQUAT_HAVE__ALIGNED_MALLOC)
+elseif (HAVE_POSIX_MEMALIGN)
+  ADD_DEFINITIONS(-DLOQUAT_HAVE_POSIX_MEMALIGN)
+else ()
+  message (SEND_ERROR "Unable to find a way to allocate aligned memory")
+endif ()
+
+########################################
+# are long and int64_t the same
+
+check_cxx_source_compiles ("
+#include <cstdint>
+#include <type_traits>
+static_assert(!std::is_same<long, int64_t>::value && !std::is_same<long long, int64_t>::value);
+int main() { }
+" INT64_IS_OWN_TYPE)
+
+if (INT64_IS_OWN_TYPE)
+  ADD_DEFINITIONS(-DLOQUAT_INT64_IS_OWN_TYPE)
+endif ()
+
+if (LOQUAT_NVTX)
+  ADD_DEFINITIONS(-DNVTX)
+endif()
+
 INCLUDE(PrecompiledHeader)
 
 # Set Loquat project output directory variables.

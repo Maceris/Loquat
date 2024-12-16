@@ -505,7 +505,7 @@ namespace loquat
 		}
 
 	private:
-		friend struct SOA<SampledSpectrum>;
+		friend struct SOA<SampledWavelengths>;
 		std::array<Float, SPECTRUM_SAMPLE_COUNT> wavelengths;
 		std::array<Float, SPECTRUM_SAMPLE_COUNT> pdf;
 	};
