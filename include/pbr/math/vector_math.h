@@ -132,6 +132,11 @@ namespace loquat
 		return std::abs(glm::dot(v1, v2));
 	}
 
+	LOQUAT_CPU_GPU
+	inline Float absolute_cos_theta(Vec3f w) {
+		return std::abs(w.z);
+	}
+
 	template <typename T>
 	[[nodiscard]]
 	LOQUAT_CPU_GPU
@@ -200,6 +205,16 @@ namespace loquat
 			&& point.y < bounds.min.y
 			&& point.z >= bounds.min.z
 			&& point.z < bounds.min.z;
+	}
+
+	LOQUAT_CPU_GPU
+	inline bool same_hemisphere(Vec3f w, Vec3f wp) {
+		return w.z * wp.z > 0;
+	}
+
+	LOQUAT_CPU_GPU
+	inline bool same_hemisphere(Vec3f w, Normal3f wp) {
+		return w.z * wp.z > 0;
 	}
 
 	LOQUAT_CPU_GPU
