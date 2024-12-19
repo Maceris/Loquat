@@ -13,8 +13,8 @@
 
 #include "main/loquat.h"
 
-#include "pbr/interaction.h"
-//#include "pbr/media.h"
+#include "pbr/struct/interaction.h"
+#include "pbr/media.h"
 #include "pbr/options.h"
 #include "pbr/base/bxdf.h"
 #include "pbr/math/math.h"

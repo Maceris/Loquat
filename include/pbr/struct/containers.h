@@ -9,6 +9,7 @@
 #include "main/loquat.h"
 #include "pbr/math/hash.h"
 #include "pbr/math/vector_math.h"
+#include "pbr/util/pstd.h"
 
 #include <algorithm>
 #include <cstring>
@@ -32,7 +33,7 @@ namespace loquat
 		using value_type = T;
 		using iterator = value_type*;
 		using const_iterator = const value_type*;
-		using allocator_type = AllocatorBase<std::byte>;
+		using allocator_type = pstd::pmr::polymorphic_allocator<std::byte>;
 
 		Array2D(allocator_type allocator = {}) noexcept
 			: Array2D{ {0, 0}, {0, 0}, allocator }

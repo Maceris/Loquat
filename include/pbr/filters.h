@@ -10,8 +10,8 @@
 
 #include "pbr/base/filter.h"
 #include "pbr/math/math.h"
+#include "pbr/math/sampling.h"
 #include "pbr/struct/containers.h"
-#include "pbr/util/sampling.h"
 
 namespace loquat
 {

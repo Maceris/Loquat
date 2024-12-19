@@ -17,8 +17,6 @@
 
 namespace loquat
 {
-	class SurfaceInteraction;
-	class MediumInteraction;
 
 	class Interaction
 	{

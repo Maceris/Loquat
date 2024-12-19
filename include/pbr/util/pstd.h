@@ -12,11 +12,13 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
+#include <format>
 #include <initializer_list>
 #include <iostream>
 #include <iterator>
 #include <new>
 #include <string>
+#include <sstream>
 #include <thread>
 #include <type_traits>
 #include <typeinfo>
@@ -1845,3 +1847,41 @@ namespace pstd
         }
     }
 }
+
+template<typename T, typename A>
+struct std::formatter<pstd::vector<T, A>>
+{
+    constexpr auto parse(std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    auto format(const pstd::vector<T, A>& vec, std::format_context& ctx) const
+    {
+        std::ostringstream out;
+        
+        out << "[";
+
+        for (auto it = vec.begin(); it != vec.end();)
+        {
+            if constexpr (requires(T t) { t.to_string(); })
+            {
+                out << it->to_string();
+            }
+            else
+            {
+                out << *it;
+            }
+            
+            ++it;
+
+            if (it != vec.end())
+            {
+                out << ", ";
+            }
+        }
+        out << "]";
+
+        return std::ranges::copy(std::move(out).str(), ctx.out()).out;
+    }
+};

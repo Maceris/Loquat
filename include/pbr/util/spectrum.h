@@ -14,6 +14,7 @@
 #include "main/loquat.h"
 #include "pbr/util/color.h"
 #include "pbr/math/hash.h"
+#include "pbr/math/sampling.h"
 #include "pbr/util/tagged_pointer.h"
 
 namespace loquat

@@ -19,13 +19,19 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/main/loquat.h
   ${HEADER_PATH}/main/vulkan_instance.h
   ${HEADER_PATH}/pbr/bsdf.h
+  ${HEADER_PATH}/pbr/bssrdf.h
   ${HEADER_PATH}/pbr/bxdfs.h
+  ${HEADER_PATH}/pbr/cameras.h
   ${HEADER_PATH}/pbr/films.h
   ${HEADER_PATH}/pbr/filters.h
   ${HEADER_PATH}/pbr/light_samplers.h
+  ${HEADER_PATH}/pbr/materials.h
+  ${HEADER_PATH}/pbr/media.h
   ${HEADER_PATH}/pbr/options.h
   ${HEADER_PATH}/pbr/samplers.h
+  ${HEADER_PATH}/pbr/scene.h
   ${HEADER_PATH}/pbr/shapes.h
+  ${HEADER_PATH}/pbr/textures.h
   ${HEADER_PATH}/pbr/base/bssrdf.h
   ${HEADER_PATH}/pbr/base/bxdf.h
   ${HEADER_PATH}/pbr/base/camera.h
@@ -71,7 +77,6 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/memory.h
   ${HEADER_PATH}/pbr/util/parallel.h
   ${HEADER_PATH}/pbr/util/pstd.h
-  ${HEADER_PATH}/pbr/util/sampling.h
   ${HEADER_PATH}/pbr/util/spectrum.h
   ${HEADER_PATH}/pbr/util/tagged_pointer.h
   ${HEADER_PATH}/pipeline/pipeline.h

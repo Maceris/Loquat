@@ -213,11 +213,6 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline bool same_hemisphere(Vec3f w, Normal3f wp) {
-		return w.z * wp.z > 0;
-	}
-
-	LOQUAT_CPU_GPU
 	inline Vec3f spherical_direction(Float sin_theta, Float cos_theta,
 		Float phi) noexcept
 	{

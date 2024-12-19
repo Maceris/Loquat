@@ -16,13 +16,13 @@
 #include "pbr/base/bxdf.h"
 #include "pbr/base/camera.h"
 #include "pbr/base/film.h"
+#include "pbr/math/sampling.h"
 #include "pbr/math/transform.h"
 #include "pbr/math/vector_math.h"
 #include "pbr/util/color.h"
 #include "pbr/util/color_space.h"
 #include "pbr/util/parallel.h"
 #include "pbr/util/pstd.h"
-#include "pbr/util/sampling.h"
 #include "pbr/util/spectrum.h"
 
 namespace loquat

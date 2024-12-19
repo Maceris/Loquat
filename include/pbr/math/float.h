@@ -9,6 +9,7 @@
 #include <bit>
 #include <cmath>
 #include <concepts>
+#include <format>
 #include <limits>
 #include <string>
 
@@ -777,3 +778,21 @@ namespace loquat
         uint16_t h;
     };
 }
+
+template<>
+struct std::formatter<loquat::Float>
+{
+    constexpr auto parse(std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    auto format(const loquat::Float& f, std::format_context& ctx) const
+    {
+#if defined(DOUBLE_PRECISION_FLOAT)
+        return std::format_to(ctx.out(), "{}", static_cast<double>(f));
+#else
+        return std::format_to(ctx.out(), "{}", static_cast<float>(f));
+#endif
+    }
+};

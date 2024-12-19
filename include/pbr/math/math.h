@@ -488,7 +488,7 @@ namespace loquat
 			std::pair<Float, Float> fx_mid = f(x_mid);
 			LOG_ASSERT(!is_NaN(fx_mid.first));
 
-			if (start_is_negative == (fx_mid < 0))
+			if (start_is_negative == (fx_mid.first < 0))
 			{
 				x0 = x_mid;
 			}
