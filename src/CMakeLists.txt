@@ -48,6 +48,12 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/cpu/integrators.h
   ${HEADER_PATH}/pbr/cpu/primitive.h
   ${HEADER_PATH}/pbr/cpu/render.h
+  ${HEADER_PATH}/pbr/gpu/cudagl.h
+  ${HEADER_PATH}/pbr/gpu/memory.h
+  ${HEADER_PATH}/pbr/gpu/util.h
+  ${HEADER_PATH}/pbr/gpu/optix/aggregate.h
+  ${HEADER_PATH}/pbr/gpu/optix/denoiser.h
+  ${HEADER_PATH}/pbr/gpu/optix/optix.h
   ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/blue_noise.h
   ${HEADER_PATH}/pbr/math/float.h
