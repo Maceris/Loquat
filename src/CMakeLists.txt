@@ -78,12 +78,25 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/struct/interaction.h
   ${HEADER_PATH}/pbr/struct/parameter_dictionary.h
   ${HEADER_PATH}/pbr/struct/soa.h
+  ${HEADER_PATH}/pbr/struct/string.h
+  ${HEADER_PATH}/pbr/util/args.h
+  ${HEADER_PATH}/pbr/util/buffer_cache.h
   ${HEADER_PATH}/pbr/util/color.h
   ${HEADER_PATH}/pbr/util/color_space.h
+  ${HEADER_PATH}/pbr/util/display.h
+  ${HEADER_PATH}/pbr/util/gui.h
+  ${HEADER_PATH}/pbr/util/loop_subdivide.h
   ${HEADER_PATH}/pbr/util/memory.h
+  ${HEADER_PATH}/pbr/util/mesh.h
+  ${HEADER_PATH}/pbr/util/mipmap.h
+  ${HEADER_PATH}/pbr/util/noise.h
   ${HEADER_PATH}/pbr/util/parallel.h
+  ${HEADER_PATH}/pbr/util/progress_reporter.h
   ${HEADER_PATH}/pbr/util/pstd.h
+  ${HEADER_PATH}/pbr/util/scattering.h
   ${HEADER_PATH}/pbr/util/spectrum.h
+  ${HEADER_PATH}/pbr/util/splines.h
+  ${HEADER_PATH}/pbr/util/stats.h
   ${HEADER_PATH}/pbr/util/tagged_pointer.h
   ${HEADER_PATH}/pipeline/pipeline.h
   ${HEADER_PATH}/render/render.h
