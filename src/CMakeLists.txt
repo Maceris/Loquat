@@ -98,6 +98,12 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/splines.h
   ${HEADER_PATH}/pbr/util/stats.h
   ${HEADER_PATH}/pbr/util/tagged_pointer.h
+  ${HEADER_PATH}/pbr/wavefront/aggregate.h
+  ${HEADER_PATH}/pbr/wavefront/integrator.h
+  ${HEADER_PATH}/pbr/wavefront/intersect.h
+  ${HEADER_PATH}/pbr/wavefront/wavefront.h
+  ${HEADER_PATH}/pbr/wavefront/work_items.h
+  ${HEADER_PATH}/pbr/wavefront/work_queue.h
   ${HEADER_PATH}/pipeline/pipeline.h
   ${HEADER_PATH}/render/render.h
   ${HEADER_PATH}/render/render_state.h
