@@ -12,10 +12,10 @@
 #include "pbr/base/material.h"
 #include "pbr/base/medium.h"
 #include "pbr/bsdf.h"
-#include "pbr/interaction.h"
 #include "pbr/math/math.h"
 #include "pbr/math/ray.h"
 #include "pbr/math/vector_math.h"
+#include "pbr/struct/interaction.h"
 #include "pbr/util/pstd.h"
 #include "pbr/util/spectrum.h"
 
