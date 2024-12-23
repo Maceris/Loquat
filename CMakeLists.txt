@@ -193,6 +193,23 @@ IF (UB_SANITIZER)
   SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fsanitize=undefined,shift,shift-exponent,integer-divide-by-zero,unreachable,vla-bound,null,return,signed-integer-overflow,bounds,float-divide-by-zero,float-cast-overflow,nonnull-attribute,returns-nonnull-attribute,bool,enum,vptr,pointer-overflow,builtin -fno-sanitize-recover=all")
 ENDIF()
 
+add_library (loquat_warnings INTERFACE)
+target_compile_options (
+    loquat_warnings
+    INTERFACE
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4244>"  # int -> float conversion
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4267>"  # size_t -> int conversion
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4305>"  # double constant assigned to float
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4552>"  # result of expression not used
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4838>"  # double -> int conversion
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4843>"  # double -> float conversion
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd26451>" # arithmetic on 4-byte value, then cast to 8-byte
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd26495>" # uninitialized member variable
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4334>"  # 32 to 64 bit displacement
+        "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4146>"  # NanoVDB: unary minus operator applied to unsigned type, result still unsigned
+)
+
+add_library (loquat_opt INTERFACE)
 
 ###########################################################################
 # Check for various C++ features and set preprocessor variables or
@@ -503,3 +520,31 @@ if(WIN32)
     ENDIF()
   ENDIF()
 ENDIF ()
+
+
+######################
+# soac
+
+add_executable (soac ${LOQUAT_ROOT_DIRECTORY}/src/pbr/cmd/soac.cpp)
+TARGET_USE_COMMON_OUTPUT_DIRECTORY(soac)
+add_executable (loquat::soac ALIAS soac)
+
+target_compile_definitions (soac PRIVATE ${COMPILE_DEFINITIONS})
+target_compile_options (soac PUBLIC ${CMAKE_CXX_FLAGS})
+target_link_libraries (soac PRIVATE loquat_warnings loquat_opt)
+
+set_target_properties (soac PROPERTIES OUTPUT_NAME soac)
+
+add_custom_command (OUTPUT ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/pbrt_soa.h
+    COMMAND soac ${LOQUAT_ROOT_DIRECTORY}/include/pbr/pbrt.soa > ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/pbrt_soa.h
+    DEPENDS soac ${LOQUAT_ROOT_DIRECTORY}/include/pbr/pbrt.soa)
+set (LOQUAT_SOA_GENERATED ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/pbrt_soa.h)
+
+add_custom_command (OUTPUT ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/wavefront_work_items_soa.h
+    COMMAND soac ${LOQUAT_ROOT_DIRECTORY}/include/pbr/wavefront/work_items.soa > ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/wavefront_work_items_soa.h
+    DEPENDS soac ${LOQUAT_ROOT_DIRECTORY}/include/pbr/wavefront/work_items.soa)
+set (LOQUAT_SOA_GENERATED ${LOQUAT_SOA_GENERATED} ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/wavefront_work_items_soa.h)
+
+add_custom_target (loquat_soa_generated DEPENDS ${LOQUAT_SOA_GENERATED})
+
+set_property (TARGET soac PROPERTY FOLDER "cmd")
