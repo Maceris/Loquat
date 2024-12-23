@@ -78,7 +78,6 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/struct/interaction.h
   ${HEADER_PATH}/pbr/struct/parameter_dictionary.h
   ${HEADER_PATH}/pbr/struct/soa.h
-  ${HEADER_PATH}/pbr/struct/string.h
   ${HEADER_PATH}/pbr/util/args.h
   ${HEADER_PATH}/pbr/util/buffer_cache.h
   ${HEADER_PATH}/pbr/util/color.h
@@ -97,6 +96,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/spectrum.h
   ${HEADER_PATH}/pbr/util/splines.h
   ${HEADER_PATH}/pbr/util/stats.h
+  ${HEADER_PATH}/pbr/util/string.h
   ${HEADER_PATH}/pbr/util/tagged_pointer.h
   ${HEADER_PATH}/pbr/wavefront/aggregate.h
   ${HEADER_PATH}/pbr/wavefront/integrator.h
