@@ -7,7 +7,11 @@
 #pragma once
 
 #include "main/loquat.h"
+
+#include "pbr/util/color.h"
+#include "pbr/util/spectrum.h"
 #include "pbr/math/math.h"
+#include "pbr/math/vec.h"
 
 namespace loquat
 {
@@ -77,5 +81,13 @@ namespace loquat
         const RGBToSpectrumTable* rgb_to_spectrum_table;
     };
 
+#ifdef LOQUAT_BUILD_GPU_RENDERER
+    extern LOQUAT_CONST RGBColorSpace* RGBColorSpace_sRGB;
+    extern LOQUAT_CONST RGBColorSpace* RGBColorSpace_DCI_P3;
+    extern LOQUAT_CONST RGBColorSpace* RGBColorSpace_Rec2020;
+    extern LOQUAT_CONST RGBColorSpace* RGBColorSpace_ACES2065_1;
+#endif
+
+    SquareMatrix<3> convert_RGB_color_space(const RGBColorSpace& from,
+        const RGBColorSpace& to);
 }
-//TODO(ches) finish this

@@ -99,7 +99,10 @@ namespace loquat
 
         struct BufferHasher
         {
-            size_t operator()(const Buffer& b) const { return b.hash; }
+            size_t operator()(const Buffer& b) const
+            {
+                return b.hash;
+            }
         };
 
         static constexpr int log_shards = 6;
