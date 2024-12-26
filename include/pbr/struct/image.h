@@ -7,3 +7,8 @@
 #pragma once
 
 //TODO(ches) fill this out
+
+namespace loquat
+{
+	struct ImageChannelDesc;
+}
