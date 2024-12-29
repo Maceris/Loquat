@@ -6,8 +6,6 @@
 
 #pragma once
 
-//TODO(ches) fill this out
-
 #include <set>
 #include <string>
 
@@ -68,13 +66,18 @@ namespace loquat
         // It's a little messy that the state of values controlled via the UI
         // are just public variables here but it's probably not worth putting
         // an abstraction layer on top of all this at this point.
-        Transform get_camera_transform() const { return moving_from_camera; }
+        Transform get_camera_transform() const
+        {
+            return moving_from_camera;
+        }
         Float exposure = 1.f;
         bool print_camera_transform = false;
 
-        void keyboard_callback(GLFWwindow* window, int key, int scan, int action, int mods);
+        void keyboard_callback(GLFWwindow* window, int key, int scan,
+            int action, int mods);
         void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos);
-        void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+        void mouse_button_callback(GLFWwindow* window, int button, int action,
+            int mods);
 
         static void initialize();
         static Point2i get_resolution();
@@ -85,16 +88,16 @@ namespace loquat
         bool process();
 
         std::set<char> keys_down;
-        Float move_scale = 1.f;
+        Float move_scale = 1.0f;
         Transform moving_from_camera;
         Vec2i resolution;
         bool record_frames = false;
         int frame_number = 0;
         bool pressed = false;
-        Float xoffset = 0.f;
-        Float yoffset = 0.f;
-        double lastX = 0.f;
-        double lastY = 0.f;
+        Float xoffset = 0.0f;
+        Float yoffset = 0.0f;
+        double lastX = 0.0f;
+        double lastY = 0.0f;
 
 #ifdef LOQUAT_BUILD_GPU_RENDERER
         CUDAOutputBuffer<RGB>* cuda_framebuffer = nullptr;

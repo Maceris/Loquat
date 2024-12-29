@@ -6,4 +6,14 @@
 
 #pragma once
 
-//TODO(ches) fill this out
+#include "main/loquat.h"
+
+#include "pbr/util/pstd.h"
+
+namespace loquat
+{
+    TriangleMesh* loop_subdivide(const Transform* render_from_object,
+        bool reverse_orientation, int level_count,
+        pstd::span<const int> vertex_indices,
+        pstd::span<const Point3f> p, Allocator allocator);
+}
