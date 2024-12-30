@@ -687,8 +687,8 @@ namespace loquat
 
 	private:
 		Float gamma;
-		std::array<Float, 256> apply_LUT;
-		std::array<Float, 1024> inverse_LUT;
+		pstd::array<Float, 256> apply_LUT;
+		pstd::array<Float, 1024> inverse_LUT;
 	};
 
 	inline void ColorEncoding::to_linear(std::span<const uint8_t> v_in,
