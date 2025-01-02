@@ -17,7 +17,7 @@ OPTION(LOQUAT_BUILD_GPU_RENDERER
 )
 
 OPTION(LOQUAT_INSTALL
-  "Disable this if you want to use Loquat as a submodule"
+  "Disable this IF you want to use Loquat as a submodule"
   ON
 )
 
@@ -41,6 +41,8 @@ OPTION(DOUBLE_PRECISION_FLOAT
   OFF
 )
 
+SET (LOQUAT_OPTIX7_PATH $ENV{LOQUAT_OPTIX7_PATH} CACHE PATH "Path to OptiX 7 SDK")
+
 IF(DOUBLE_PRECISION_FLOAT)
   ADD_DEFINITIONS(-DDOUBLE_PRECISION_FLOAT)
 ENDIF()
@@ -57,7 +59,7 @@ IF(CMAKE_SYSTEM_NAME STREQUAL Windows)
 
   IF(MSVC)
     IF(NOT (MSVC_VERSION LESS 1900))
-      # Multibyte character set is deprecated since
+      # Multibyte character SET is deprecated since
 	  # at least MSVC2015 (possibly earlier)
       ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
     ENDIF()
@@ -104,6 +106,11 @@ LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
 SET(LIBLOQUAT_COMPONENT "libloquat${LOQUAT_VERSION_MAJOR}.${LOQUAT_VERSION_MINOR}.${LOQUAT_VERSION_PATCH}")
 SET(LIBLOQUAT-DEV_COMPONENT "libloquat${LOQUAT_VERSION_MAJOR}.${LOQUAT_VERSION_MINOR}.${LOQUAT_VERSION_PATCH}-dev")
 SET(CPACK_COMPONENTS_ALL loquat-bin ${LIBLOQUAT_COMPONENT} ${LIBLOQUAT-DEV_COMPONENT} loquat-dev)
+
+INCLUDE(PrecompiledHeader)
+# Include module with fuction 'write_basic_package_version_file'
+INCLUDE(CMakePackageConfigHelpers)
+INCLUDE(CheckLanguage)
 
 IF(UNIX)
   # Use GNUInstallDirs for Unix predefined directories
@@ -156,7 +163,7 @@ ELSEIF(MSVC)
   IF(MSVC12)
     ADD_COMPILE_OPTIONS(/wd4351)	
   ENDIF()
-  # supress warning for double to float conversion if Double precission is activated
+  # supress warning for double to float conversion IF Double precission is activated
   ADD_COMPILE_OPTIONS(/wd4244)
   SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_DEBUG /Zi /Od")
   SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
@@ -167,9 +174,9 @@ ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   SET(CMAKE_C_FLAGS "-fno-strict-aliasing ${CMAKE_C_FLAGS}")
 ELSEIF(MINGW)
   IF (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
-    message(FATAL_ERROR "MinGW is too old to be supported. Please update MinGW and try again.")
+    MESSAGE(FATAL_ERROR "MinGW is too old to be supported. Please update MinGW and try again.")
   ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.3)
-    message(WARNING "MinGW is old, if you experience errors, please update MinGW.")
+    MESSAGE(WARNING "MinGW is old, IF you experience errors, please update MinGW.")
   ENDIF()
   SET(CMAKE_CXX_FLAGS "-std=gnu++20 ${CMAKE_CXX_FLAGS}")
   SET(CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
@@ -198,7 +205,7 @@ IF (UB_SANITIZER)
 ENDIF()
 
 add_library (loquat_warnings INTERFACE)
-target_compile_options (
+TARGET_COMPILE_OPTIONS (
     loquat_warnings
     INTERFACE
         "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4244>"  # int -> float conversion
@@ -216,7 +223,7 @@ target_compile_options (
 add_library (loquat_opt INTERFACE)
 
 ###########################################################################
-# Check for various C++ features and set preprocessor variables or
+# Check for various C++ features and SET preprocessor variables or
 # define workarounds.
 
 include (CheckCXXSourceCompiles)
@@ -236,7 +243,7 @@ int main() {
 }
 " HAVE_MMAP)
 
-if (HAVE_MMAP)
+IF (HAVE_MMAP)
   ADD_DEFINITIONS(-DLOQUAT_HAVE_MMAP)
 ENDIF ()
 
@@ -246,13 +253,13 @@ check_cxx_source_compiles ("
 #include <intrin.h>
 int main() {
     unsigned long lz = 0, v = 1234;
-    if (_BitScanReverse(&lz, v)) return lz;
+    IF (_BitScanReverse(&lz, v)) return lz;
     return 0;
 } " HAS_INTRIN_H)
 
-if (HAS_INTRIN_H)
+IF (HAS_INTRIN_H)
   ADD_DEFINITIONS(-DLOQUAT_HAS_INTRIN_H)
-endif ()
+ENDIF ()
 
 ########################################
 # noinline
@@ -267,13 +274,13 @@ check_cxx_source_compiles (
 int main() { }"
 HAVE_ATTRIBUTE_NOINLINE)
 
-if (HAVE_ATTRIBUTE_NOINLINE)
+IF (HAVE_ATTRIBUTE_NOINLINE)
   ADD_DEFINITIONS("-DLOQUAT_NOINLINE=__attribute__((noinline))")
-elseif (HAVE_DECLSPEC_NOINLINE)
+ELSEIF (HAVE_DECLSPEC_NOINLINE)
   ADD_DEFINITIONS("-DLOQUAT_NOINLINE=__declspec(noinline)")
-else ()
+ELSE ()
   ADD_DEFINITIONS(-DLOQUAT_NOINLINE)
-endif ()
+ENDIF ()
 
 ########################################
 # restrict
@@ -288,13 +295,13 @@ check_cxx_source_compiles (
 int main() { }"
 HAVE_PRE_BAR_RESTRICT)
 
-if (HAVE_PRE_POST_BAR_RESTRICT)
+IF (HAVE_PRE_POST_BAR_RESTRICT)
   ADD_DEFINITIONS("-DLOQUAT_RESTRICT=__restrict__")
-elseif (HAVE_PRE_BAR_RESTRICT)
+ELSEIF (HAVE_PRE_BAR_RESTRICT)
   ADD_DEFINITIONS("-DLOQUAT_RESTRICT=__restrict")
-else ()
+ELSE ()
   ADD_DEFINITIONS(-DLOQUAT_RESTRICT)
-endif ()
+ENDIF ()
 
 ########################################
 # Aligned memory allocation
@@ -311,13 +318,13 @@ int main() {
   posix_memalign(&ptr, 32, 1024);
 } " HAVE_POSIX_MEMALIGN )
 
-if (HAVE__ALIGNED_MALLOC)
+IF (HAVE__ALIGNED_MALLOC)
   ADD_DEFINITIONS(-DLOQUAT_HAVE__ALIGNED_MALLOC)
-elseif (HAVE_POSIX_MEMALIGN)
+ELSEIF (HAVE_POSIX_MEMALIGN)
   ADD_DEFINITIONS(-DLOQUAT_HAVE_POSIX_MEMALIGN)
-else ()
-  message (SEND_ERROR "Unable to find a way to allocate aligned memory")
-endif ()
+ELSE ()
+  MESSAGE (SEND_ERROR "Unable to find a way to allocate aligned memory")
+ENDIF ()
 
 ########################################
 # are long and int64_t the same
@@ -329,18 +336,219 @@ static_assert(!std::is_same<long, int64_t>::value && !std::is_same<long long, in
 int main() { }
 " INT64_IS_OWN_TYPE)
 
-if (INT64_IS_OWN_TYPE)
+IF (INT64_IS_OWN_TYPE)
   ADD_DEFINITIONS(-DLOQUAT_INT64_IS_OWN_TYPE)
-endif ()
+ENDIF ()
 
-if (LOQUAT_NVTX)
+IF (LOQUAT_NVTX)
   ADD_DEFINITIONS(-DNVTX)
-endif()
+ENDIF()
 
-INCLUDE(PrecompiledHeader)
+#########################################
+## CUDA / OptiX
+
+add_library (cuda_build_configuration INTERFACE)
+
+check_language(CUDA)
+
+IF (CMAKE_CUDA_COMPILER)
+  IF (CUDA_VERSION_MAJOR LESS 11)
+    MESSAGE (WARNING "loquat requires CUDA version 11.0 or later but version ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR}\
+was found. GPU support is therefore disabled. If you have multiple versions\
+of CUDA installed, please update your PATH.")
+  ELSE ()
+    FIND_PACKAGE (CUDA REQUIRED)
+
+    # This seems to be necessary starting with 3.17.1, but gives an error
+    # about 17 being an unsupported version earlier...
+    IF (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0")
+        SET (CMAKE_CUDA_STANDARD 17)
+    ENDIF ()
+
+    # https://github.com/VIAME/VIAME/blob/aa6c5f56a898b08e4da102c400b453e23952199c/CMakeLists.txt#L291
+    IF (NOT CUDA_VERSION_PATCH)
+      IF (CUDA_NVCC_EXECUTABLE AND
+          CUDA_NVCC_EXECUTABLE STREQUAL CMAKE_CUDA_COMPILER AND
+          CMAKE_CUDA_COMPILER_VERSION MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
+        SET (CUDA_VERSION_PATCH "${CMAKE_MATCH_3}")
+      ELSEIF (CUDA_NVCC_EXECUTABLE)
+        EXECUTE_PROCESS (COMMAND ${CUDA_NVCC_EXECUTABLE} "--version" OUTPUT_VARIABLE NOUT)
+        IF (NOUT MATCHES [=[ V([0-9]+)\.([0-9]+)\.([0-9]+)]=])
+          SET (CUDA_VERSION_PATCH "${CMAKE_MATCH_3}")
+        ENDIF ()
+      ENDIF ()
+    ENDIF ()
+
+    MESSAGE (STATUS "Found CUDA: ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR}.${CUDA_VERSION_PATCH}")
+    IF (CUDA_VERSION_MAJOR EQUAL 11 AND CUDA_VERSION_MINOR EQUAL 3 AND CUDA_VERSION_PATCH LESS 109)
+      MESSAGE (SEND_ERROR "Unfortunately, pbrt-v4 triggers an internal compiler error in CUDA 11.3.0. Please either use CUDA 11.0-11.2 or 11.3.1 or later.")
+    ENDIF ()
+
+    IF ("${LOQUAT_OPTIX7_PATH}" STREQUAL "")
+        MESSAGE (WARNING "Found CUDA but LOQUAT_OPTIX7_PATH is not SET. Disabling GPU compilation.")
+    ELSE ()
+        enable_language (CUDA)
+        list (APPEND LOQUAT_DEFINITIONS "LOQUAT_BUILD_GPU_RENDERER")
+        IF (LOQUAT_NVTX)
+            list (APPEND LOQUAT_DEFINITIONS "NVTX")
+        ENDIF ()
+        IF (LOQUAT_NVML)
+            list (APPEND LOQUAT_DEFINITIONS "LOQUAT_USE_NVML")
+        ENDIF ()
+        SET (LOQUAT_CUDA_ENABLED ON)
+
+        # FIXME
+        INCLUDE_DIRECTORIES (${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})  # for regular c++ compiles
+
+        # http://www.ssl.berkeley.edu/~jimm/grizzly_docs/SSL/opt/intel/cc/9.0/lib/locale/en_US/mcpcom.msg
+        TARGET_COMPILE_OPTIONS (
+            loquat_warnings
+            INTERFACE
+                #"$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xptxas --warn-on-double-precision-use>"
+                "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcudafe --diag_suppress=partial_override>"
+                "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcudafe --diag_suppress=virtual_FUNCTION_decl_hidden>"
+                "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcudafe --diag_suppress=integer_sign_change>"
+                "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcudafe --diag_suppress=declared_but_not_referenced>"
+                # WAR invalid warnings about this with "IF constexpr"
+                "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcudafe --diag_suppress=implicit_return_from_non_void_FUNCTION>"
+        )
+
+        # Willie hears yeh..
+        string (APPEND CMAKE_CUDA_FLAGS " -Xnvlink -suppress-stack-size-warning")
+
+        TARGET_COMPILE_OPTIONS (
+            cuda_build_configuration
+            INTERFACE
+                "$<$<COMPILE_LANGUAGE:CUDA>:--std=c++17;--use_fast_math;--expt-relaxed-constexpr;--extended-lambda;--forward-unknown-to-host-compiler>"
+                # The "$<NOT:$<BOOL:$<TARGET_PROPERTY:CUDA_PTX_COMPILATION>>>" part is to not add debugging symbols when generating PTX files for OptiX;
+                # see https://github.com/mmp/pbrt-v4/issues/69#issuecomment-715499748.
+                "$<$<COMPILE_LANGUAGE:CUDA>:$<IF:$<AND:$<CONFIG:Debug>,$<NOT:$<BOOL:$<TARGET_PROPERTY:CUDA_PTX_COMPILATION>>>>,-G;-g,-lineinfo;-maxrregcount;128>>"
+        )
+
+        IF (LOQUAT_GPU_SHADER_MODEL STREQUAL "")
+            # https://wagonhelm.github.io/articles/2018-03/detecting-cuda-capability-with-cmake
+            # Get CUDA compute capability
+            SET (CHECK_CUDA_OUTPUT_EXE ${CMAKE_BINARY_DIR}/checkcuda)
+            IF (MSVC)
+                EXECUTE_PROCESS (COMMAND ${CMAKE_CUDA_COMPILER} -lcuda ${LOQUAT_SOURCE_CODE}/cmake/checkcuda.cu -ccbin ${CMAKE_CXX_COMPILER} -o ${CHECK_CUDA_OUTPUT_EXE}
+                                 RESULT_VARIABLE BUILD_CHECK_CUDA_RETURN_CODE)
+            ELSE  ()
+                EXECUTE_PROCESS (COMMAND ${CMAKE_CUDA_COMPILER} -lcuda ${LOQUAT_SOURCE_CODE}/cmake/checkcuda.cu -o ${CHECK_CUDA_OUTPUT_EXE}
+                                 RESULT_VARIABLE BUILD_CHECK_CUDA_RETURN_CODE)
+            ENDIF ()
+
+            IF (NOT ${BUILD_CHECK_CUDA_RETURN_CODE} EQUAL 0)
+                MESSAGE (SEND_ERROR "Was unable to build checkcuda, consider manually setting LOQUAT_GPU_SHADER_MODEL")
+            ENDIF ()
+
+            EXECUTE_PROCESS (COMMAND ${CHECK_CUDA_OUTPUT_EXE}
+                             RESULT_VARIABLE CUDA_RETURN_CODE
+                             OUTPUT_VARIABLE CHECK_CUDA_OUTPUT)
+
+            IF (NOT ${CUDA_RETURN_CODE} EQUAL 0)
+                MESSAGE (SEND_ERROR ${CHECK_CUDA_OUTPUT})
+              ELSE ()
+                SET(ARCH "${CHECK_CUDA_OUTPUT}")
+                MESSAGE (STATUS "Detected CUDA Architecture: ${ARCH}")
+                string (APPEND CMAKE_CUDA_FLAGS " --gpu-architecture=${ARCH}")
+            ENDIF ()
+        ELSE ()
+            SET(ARCH "${LOQUAT_GPU_SHADER_MODEL}")
+            MESSAGE (STATUS "Specified CUDA Architecture: ${ARCH}")
+            string (APPEND CMAKE_CUDA_FLAGS " --gpu-architecture=${ARCH}")
+        ENDIF ()
+
+        SET (LOQUAT_CUDA_LIB cuda)
+        # optix
+        # FIXME
+        INCLUDE_DIRECTORIES (${LOQUAT_OPTIX7_PATH}/include)
+
+        # find CUDA's bin2c executable
+        get_filename_component (cuda_compiler_bin "${CMAKE_CUDA_COMPILER}" DIRECTORY)
+        find_program (BIN2C
+                      NAMES bin2c
+                      PATHS ${cuda_compiler_bin}
+                      DOC "Path to the CUDA SDK bin2c executable."
+                      NO_DEFAULT_PATH)
+        IF (NOT BIN2C)
+            MESSAGE (FATAL_ERROR
+                     "bin2c not found:\n"
+                     "  CMAKE_CUDA_COMPILER='${CMAKE_CUDA_COMPILER}'\n"
+                     "  cuda_compiler_bin='${cuda_compiler_bin}'\n"
+            )
+        ENDIF ()
+
+        # this macro defines cmake rules that execute the following four steps:
+        # 1) compile the given cuda file ${cuda_file} to an intermediary PTX file
+        # 2) use the 'bin2c' tool (that comes with CUDA) to
+        #    create a second intermediary (.c-)file which defines a const string variable
+        #    (named '${c_var_name}') whose (constant) value is the PTX output
+        #    from the previous step.
+        # 3) compile the given .c file to an intermediary object file (why thus has
+        #    that PTX string 'embedded' as a global constant.
+        # 4) assign the name of the intermediary .o file to the cmake variable
+        #    'output_var', which can then be added to cmake targets.
+        MACRO (cuda_compile_and_embed output_var cuda_file lib_name)
+          add_library ("${lib_name}" OBJECT "${cuda_file}")
+          set_property (TARGET "${lib_name}" PROPERTY CUDA_PTX_COMPILATION ON)
+
+          # disable "extern declaration... is treated as a static definition" warning
+          IF (CUDA_VERSION_MAJOR EQUAL 11 AND CUDA_VERSION_MINOR LESS 2)
+              TARGET_COMPILE_OPTIONS ("${lib_name}" PRIVATE
+                                      -Xcudafe=--display_error_number -Xcudafe=--diag_suppress=3089)
+          ELSE ()
+              TARGET_COMPILE_OPTIONS ("${lib_name}" PRIVATE
+                                      -Xcudafe=--display_error_number -Xcudafe=--diag_suppress=20044)
+          ENDIF ()
+
+          # CUDA integration in Visual Studio seems broken as even IF "Use
+          # Host Preprocessor Definitions" is checked, the host preprocessor
+          # definitions are still not used when compiling device code.
+          # To work around that, define the MACROs using --define-MACRO to
+          # avoid CMake identifying those as MACROs and using the proper (but
+          # broken) way of specifying them.
+          IF (${CMAKE_GENERATOR} MATCHES "^Visual Studio")
+            # As LOQUAT_DEBUG_BUILD is specified globally as a definition, we need to
+            # manually add it due to the bug mentioned earlier and due to it
+            # not being found in LOQUAT_DEFINITIONS.
+            IF (CMAKE_BUILD_TYPE MATCHES Debug)
+                SET (cuda_definitions "--define-MACRO=LOQUAT_DEBUG_BUILD")
+            ENDIF ()
+            FOREACH (arg ${LOQUAT_DEFINITIONS})
+              list (APPEND cuda_definitions "--define-MACRO=${arg}")
+            ENDFOREACH ()
+            TARGET_COMPILE_OPTIONS ("${lib_name}" PRIVATE ${cuda_definitions})
+          ELSE ()
+            TARGET_COMPILE_DEFINITIONS ("${lib_name}" PRIVATE ${LOQUAT_DEFINITIONS})
+          ENDIF ()
+          TARGET_INCLUDE_DIRECTORIES ("${lib_name}" PRIVATE src ${CMAKE_BINARY_DIR})
+          TARGET_INCLUDE_DIRECTORIES ("${lib_name}" SYSTEM PRIVATE ${NANOVDB_INCLUDE})
+          TARGET_LINK_LIBRARIES ("${lib_name}" PRIVATE cuda_build_configuration loquat_opt loquat_warnings)
+          ADD_DEPENDENCIES ("${lib_name}" loquat_soa_generated)
+          SET (c_var_name ${output_var})
+          SET (embedded_file ${cuda_file}.ptx_embedded.c)
+          ADD_CUSTOM_COMMAND (
+            OUTPUT "${embedded_file}"
+            COMMAND ${CMAKE_COMMAND}
+              "-DBIN_TO_C_COMMAND=${BIN2C}"
+              "-DOBJECTS=$<TARGET_OBJECTS:${lib_name}>"
+              "-DVAR_NAME=${c_var_name}"
+              "-DOUTPUT=${embedded_file}"
+              -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/bin2c_wrapper.cmake
+            VERBATIM
+            DEPENDS "${lib_name}" $<TARGET_OBJECTS:${lib_name}>
+            COMMENT "Embedding PTX generated from ${cuda_file}"
+          )
+          SET (${output_var} ${embedded_file})
+        ENDMACRO ()
+    ENDIF ()
+  ENDIF()
+ELSE ()
+    MESSAGE (STATUS "CUDA not found")
+ENDIF ()
 
 # Set Loquat project output directory variables.
-# Will respect top-level CMAKE_*_OUTPUT_DIRECTORY variables if any are set.
+# Will respect top-level CMAKE_*_OUTPUT_DIRECTORY variables IF any are SET.
 IF(NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   SET(LOQUAT_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/" CACHE STRING "Path for runtime output files")
 ELSE()
@@ -359,7 +567,7 @@ ELSE()
   SET(LOQUAT_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/" CACHE STRING "Path for archive output files")
 ENDIF()
 
-# Macro used to set the output directories of a target to the
+# Macro used to SET the output directories of a target to the
 # respective Loquat output directories.
 MACRO(TARGET_USE_COMMON_OUTPUT_DIRECTORY target)
   SET_TARGET_PROPERTIES(${target} PROPERTIES
@@ -376,7 +584,7 @@ INCLUDE_DIRECTORIES(BEFORE
 
 GET_CMAKE_PROPERTY(is_multi_config GENERATOR_IS_MULTI_CONFIG)
 
-# Only generate this target if no higher-level project already has
+# Only generate this target IF no higher-level project already has
 IF (NOT TARGET uninstall AND LOQUAT_INSTALL)
   # add make uninstall capability
   CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules/cmake_uninstall.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" IMMEDIATE @ONLY)
@@ -401,9 +609,6 @@ SET(VERSION_CONFIG "${GENERATED_DIR}/${PROJECT_NAME_LOWERCASE}ConfigVersion.cmak
 SET(PROJECT_CONFIG "${GENERATED_DIR}/${PROJECT_NAME_LOWERCASE}Config.cmake")
 
 SET_PROPERTY(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT loquat)
-
-# Include module with fuction 'write_basic_package_version_file'
-INCLUDE(CMakePackageConfigHelpers)
 
 # Note: PROJECT_VERSION is used as a VERSION
 write_basic_package_version_file("${VERSION_CONFIG}" COMPATIBILITY SameMajorVersion)
@@ -439,34 +644,34 @@ ENDIF()
 
 MARK_AS_ADVANCED (LOQUAT_BUILD_ARCHITECTURE LOQUAT_BUILD_COMPILER)
 
-function (CHECK_EXT NAME DIR HASH)
-  if (NOT IS_DIRECTORY "${LOQUAT_THIRD_PARTY_DIR}/${DIR}")
-    message (FATAL_ERROR "The ${NAME} submodule directory is missing! "
+FUNCTION (CHECK_EXT NAME DIR HASH)
+  IF (NOT IS_DIRECTORY "${LOQUAT_THIRD_PARTY_DIR}/${DIR}")
+    MESSAGE (FATAL_ERROR "The ${NAME} submodule directory is missing! "
       "Either that submodule was recently added or you did not clone the project with --recursive. "
       "In order to update the submodules, run:\n"
       "  \"git submodule update --init --recursive\"")
-  endif ()
+  ENDIF ()
 
-  find_package(Git)
-  if (GIT_FOUND)
-    execute_process (
+  FIND_PACKAGE(Git)
+  IF (GIT_FOUND)
+    EXECUTE_PROCESS (
       COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
       WORKING_DIRECTORY "${LOQUAT_THIRD_PARTY_DIR}/${DIR}"
       RESULT_VARIABLE "git_return"
       ERROR_QUIET
       OUTPUT_STRIP_TRAILING_WHITESPACE
       OUTPUT_VARIABLE "git_hash")
-    if (NOT ${git_hash} MATCHES "^${HASH}")
-      message (FATAL_ERROR "The ${LOQUAT_THIRD_PARTY_DIR}/${DIR} "
+    IF (NOT ${git_hash} MATCHES "^${HASH}")
+      MESSAGE (FATAL_ERROR "The ${LOQUAT_THIRD_PARTY_DIR}/${DIR} "
         "submodule isn't up to date (${git_hash} vs ${HASH}). Please run:\n"
         "  \"git submodule update --recursive\"")
-    else ()
-      message (STATUS "${NAME} at commit: ${git_hash}")
-    endif()
-  else (GIT_FOUND)
-    message (STATUS "git not found: unable to verify revisions in submodules")
-  endif (GIT_FOUND)
-endfunction ()
+    ELSE ()
+      MESSAGE (STATUS "${NAME} at commit: ${git_hash}")
+    ENDIF()
+  ELSE (GIT_FOUND)
+    MESSAGE (STATUS "git not found: unable to verify revisions in submodules")
+  ENDIF (GIT_FOUND)
+ENDFUNCTION ()
 
 check_ext ("OpenEXR" "openexr/OpenEXR" 5cfb5dab6dfada731586b0281bdb15ee75e26782)
 check_ext ("OpenVDB" "openvdb/nanovdb" 414bed84c2fc22e188eac7b611aa85c7edd7a5a9)
@@ -498,11 +703,11 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_BINARY_DIR}/revision.h
 )
 
-if(WIN32)
-  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+IF(WIN32)
+  IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
     SET(BIN_DIR "${PROJECT_SOURCE_DIR}/bin64/")
     SET(LIB_DIR "${PROJECT_SOURCE_DIR}/lib64/")
-  else()
+  ELSE()
     SET(BIN_DIR "${PROJECT_SOURCE_DIR}/bin32/")
     SET(LIB_DIR "${PROJECT_SOURCE_DIR}/lib32/")
   ENDIF()
@@ -533,21 +738,21 @@ add_executable (soac ${LOQUAT_ROOT_DIRECTORY}/src/pbr/cmd/soac.cpp)
 TARGET_USE_COMMON_OUTPUT_DIRECTORY(soac)
 add_executable (loquat::soac ALIAS soac)
 
-target_compile_definitions (soac PRIVATE ${COMPILE_DEFINITIONS})
-target_compile_options (soac PUBLIC ${CMAKE_CXX_FLAGS})
-target_link_libraries (soac PRIVATE loquat_warnings loquat_opt)
+TARGET_COMPILE_DEFINITIONS (soac PRIVATE ${COMPILE_DEFINITIONS})
+TARGET_COMPILE_OPTIONS (soac PUBLIC ${CMAKE_CXX_FLAGS})
+TARGET_LINK_LIBRARIES (soac PRIVATE loquat_warnings loquat_opt)
 
 set_target_properties (soac PROPERTIES OUTPUT_NAME soac)
 
-add_custom_command (OUTPUT ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/pbrt_soa.h
+ADD_CUSTOM_COMMAND (OUTPUT ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/pbrt_soa.h
     COMMAND soac ${LOQUAT_ROOT_DIRECTORY}/include/pbr/pbrt.soa > ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/pbrt_soa.h
     DEPENDS soac ${LOQUAT_ROOT_DIRECTORY}/include/pbr/pbrt.soa)
-set (LOQUAT_SOA_GENERATED ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/pbrt_soa.h)
+SET (LOQUAT_SOA_GENERATED ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/pbrt_soa.h)
 
-add_custom_command (OUTPUT ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/wavefront_work_items_soa.h
+ADD_CUSTOM_COMMAND (OUTPUT ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/wavefront_work_items_soa.h
     COMMAND soac ${LOQUAT_ROOT_DIRECTORY}/include/pbr/wavefront/work_items.soa > ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/wavefront_work_items_soa.h
     DEPENDS soac ${LOQUAT_ROOT_DIRECTORY}/include/pbr/wavefront/work_items.soa)
-set (LOQUAT_SOA_GENERATED ${LOQUAT_SOA_GENERATED} ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/wavefront_work_items_soa.h)
+SET (LOQUAT_SOA_GENERATED ${LOQUAT_SOA_GENERATED} ${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}/wavefront_work_items_soa.h)
 
 add_custom_target (loquat_soa_generated DEPENDS ${LOQUAT_SOA_GENERATED})
 

@@ -6,8 +6,6 @@
 
 #pragma once
 
-//TODO(ches) fill this out
-
 #include <atomic>
 #include <chrono>
 #include <cstdint>

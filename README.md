@@ -25,6 +25,14 @@ $ git submodule update --init --recursive
 The build system uses [cmake](http://www.cmake.org/). Release builds are the default, provide `-DCMAKE_BUILD_TYPE=Debug` to cmake
 for a debug build.
 
+The project also requires CUDA to be installed for GPU builds, version 11.0 or later, as well as OPTIX 7 for OptiX.
+
+The build scripts automatically attempt to find a CUDA compiler, looking in the usual places.
+The cmake output will indicate whether it was successful.
+It is necessary to manually set the cmake `LOQUAT_OPTIX7_PATH` configuration option to point at an OptiX installation.
+By default, the GPU shader model is set automatically based on the GPU in the system.
+Alternatively, the `LOQUAT_GPU_SHADER_MODEL` option can be set manually (e.g., `-DLOQUAT_GPU_SHADER_MODEL=sm_80`).
+
 To create the project or solution files for the project, you can run `regenerate-project.bat` or `regenerate-project.sh`. 
 This will generate all of the project files in the `bin` folder. These can be rerun to wipe out the whole bin directory
 again and regenerate the project contents.
