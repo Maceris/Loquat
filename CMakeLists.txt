@@ -381,7 +381,7 @@ of CUDA installed, please update your PATH.")
 
     MESSAGE (STATUS "Found CUDA: ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR}.${CUDA_VERSION_PATCH}")
     IF (CUDA_VERSION_MAJOR EQUAL 11 AND CUDA_VERSION_MINOR EQUAL 3 AND CUDA_VERSION_PATCH LESS 109)
-      MESSAGE (SEND_ERROR "Unfortunately, pbrt-v4 triggers an internal compiler error in CUDA 11.3.0. Please either use CUDA 11.0-11.2 or 11.3.1 or later.")
+      MESSAGE (SEND_ERROR "Unfortunately, code from pbrt-v4 triggers an internal compiler error in CUDA 11.3.0. Please either use CUDA 11.0-11.2 or 11.3.1 or later.")
     ENDIF ()
 
     IF ("${LOQUAT_OPTIX7_PATH}" STREQUAL "")
