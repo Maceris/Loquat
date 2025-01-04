@@ -7,7 +7,9 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdint>
 #include <memory>
+#include <span>
 #include <string>
 
 #include "main/loquat.h"
@@ -15,10 +17,10 @@
 #include "pbr/math/primes.h"
 #include "pbr/math/sobol_matrices.h"
 #include "pbr/math/vector_math.h"
+#include "pbr/util/pstd.h"
 
 namespace loquat
 {
-
     class DigitPermutation
     {
     public:
@@ -77,7 +79,7 @@ namespace loquat
     LOQUAT_CPU_GPU
     Float radical_inverse(int base_index, uint64_t a);
 
-    std::vector<DigitPermutation>* compute_radical_inverse_permutations(
+    pstd::vector<DigitPermutation>* compute_radical_inverse_permutations(
         uint64_t seed, Allocator allocator = {});
 
     LOQUAT_CPU_GPU
@@ -183,7 +185,7 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-    inline uint32_t multiply_generator(std::span<const uint32_t> C,
+    inline uint32_t multiply_generator(pstd::span<const uint32_t> C,
         uint32_t a) noexcept
     {
         uint32_t result = a;

@@ -6,11 +6,6 @@
 
 #pragma once
 
-#include "main/loquat.h"
-#include "pbr/math/hash.h"
-#include "pbr/math/vector_math.h"
-#include "pbr/util/pstd.h"
-
 #include <algorithm>
 #include <cstring>
 #include <format>
@@ -22,6 +17,11 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
+
+#include "main/loquat.h"
+#include "pbr/math/hash.h"
+#include "pbr/math/vector_math.h"
+#include "pbr/util/pstd.h"
 
 namespace loquat
 {
