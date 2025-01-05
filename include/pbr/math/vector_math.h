@@ -334,6 +334,12 @@ namespace loquat
 			&& point.z < bounds.min.z;
 	}
 
+	template <typename T>
+	LOQUAT_CPU_GPU
+		inline auto lerp(Float t, Vec3<T> t0, Vec3<T> t1) {
+		return (1 - t) * t0 + t * t1;
+	}
+
 	LOQUAT_CPU_GPU
 	inline bool same_hemisphere(Vec3f w, Vec3f wp) {
 		return w.z * wp.z > 0;
@@ -365,5 +371,29 @@ namespace loquat
 		Float phi = std::atan2(v.y, v.x);
 		return (phi < 0) ? (phi + 2 * PI) : phi;
 	}
+
+	template<typename T>
+	LOQUAT_CPU_GPU
+	inline AABB<Point2, T> union_bounds(const AABB<Point2, T>& b1, const AABB<Point2, T>& b2)
+	{
+		// Be careful to not run the two-point Bounds constructor.
+		AABB<Point2, T> ret;
+		ret.min = min(b1.min, b2.min);
+		ret.max = max(b1.max, b2.max);
+		return ret;
+	}
+
+	template<typename T>
+	LOQUAT_CPU_GPU
+		inline AABB<Point3, T> union_bounds(const AABB<Point3, T>& b1,
+			const AABB<Point3, T>& b2)
+	{
+		// Be careful to not run the two-point Bounds constructor.
+		AABB<Point3, T> ret;
+		ret.min = min(b1.min, b2.min);
+		ret.max = max(b1.max, b2.max);
+		return ret;
+	}
+
 	//TODO(ches) finish this
 }
