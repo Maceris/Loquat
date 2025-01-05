@@ -274,8 +274,8 @@ namespace loquat
 			shading.dpdv = dpdv;
 			shading.dndu = dndu;
 			shading.dndv = dndv;
-			while (vector::length_squared(shading.dpdu) > 1e16f
-				|| vector::length_squared(shading.dpdv) > 1e16f)
+			while (length_squared(shading.dpdu) > 1e16f
+				|| length_squared(shading.dpdv) > 1e16f)
 			{
 				shading.dpdu /= 1e8f;
 				shading.dpdv /= 1e8f;

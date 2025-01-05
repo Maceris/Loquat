@@ -65,12 +65,12 @@ namespace loquat
         LOQUAT_CPU_GPU
         RGB to_RGB(XYZ xyz) const
         {
-            return multiply<RGB>(RGB_from_XYZ, xyz);
+            return mul<RGB>(RGB_from_XYZ, xyz);
         }
         LOQUAT_CPU_GPU
         XYZ to_XYZ(RGB rgb) const
         {
-            return multiply<XYZ>(XYZ_from_RGB, rgb);
+            return mul<XYZ>(XYZ_from_RGB, rgb);
         }
 
         static const RGBColorSpace* get_named(std::string name);

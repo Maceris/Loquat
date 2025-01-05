@@ -949,7 +949,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		std::optional<Float> invert(Float x) const noexcept
+		pstd::optional<Float> invert(Float x) const noexcept
 		{
 			if (x < min || x > max)
 			{
@@ -1108,9 +1108,9 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		std::optional<Point2f> invert(Point2f p) const noexcept
+		pstd::optional<Point2f> invert(Point2f p) const noexcept
 		{
-			std::optional<Float> m_inv = marginal_density.invert(p[1]);
+			pstd::optional<Float> m_inv = marginal_density.invert(p[1]);
 			if (!m_inv)
 			{
 				return {};
@@ -1125,7 +1125,7 @@ namespace loquat
 
 			int offset = clamp(p1o * conditional_densities.size(),
 				0, conditional_densities.size() - 1);
-			std::optional<Float> c_inv =
+			pstd::optional<Float> c_inv =
 				conditional_densities[offset].invert(p[0]);
 			if (!c_inv)
 			{

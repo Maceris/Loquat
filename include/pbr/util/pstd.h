@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "main/loquat.h"
+#include "debug/logger.h"
 
 namespace pstd
 {

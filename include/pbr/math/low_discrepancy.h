@@ -102,7 +102,7 @@ namespace loquat
     };
 
     LOQUAT_CPU_GPU
-    inline Float radical_inverse(int base_index, uint64_t a) noexcept
+    inline Float radical_inverse(int base_index, uint64_t a)
     {
         unsigned int base = primes[base_index];
         
@@ -219,7 +219,7 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-    inline Float blue_noise_sample(Point2i point, int instance) noexcept
+    inline Float blue_noise_sample(Point2i point, int instance)
     {
         auto hash_permutation = [&](uint64_t index) -> int
             {

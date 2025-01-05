@@ -58,10 +58,8 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/math/blue_noise.h
   ${HEADER_PATH}/pbr/math/float.h
   ${HEADER_PATH}/pbr/math/hash.h
-  ${HEADER_PATH}/pbr/math/interval.h
   ${HEADER_PATH}/pbr/math/low_discrepancy.h
   ${HEADER_PATH}/pbr/math/math.h
-  ${HEADER_PATH}/pbr/math/matrix.h
   ${HEADER_PATH}/pbr/math/pmj02_tables.h
   ${HEADER_PATH}/pbr/math/point.h
   ${HEADER_PATH}/pbr/math/primes.h

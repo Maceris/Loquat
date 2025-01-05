@@ -15,6 +15,63 @@
 
 namespace loquat
 {
+
+	class Point3fi : public Vec3<Interval>
+	{
+	public:
+		using Vec3<Interval>::x;
+		using Vec3<Interval>::y;
+		using Vec3<Interval>::z;
+		using Vec3<Interval>::operator*=;
+
+		Point3fi() = default;
+		LOQUAT_CPU_GPU
+		Point3fi(Interval x, Interval y, Interval z)
+			: Vec3<Interval>{ x, y, z }
+		{}
+		LOQUAT_CPU_GPU
+		Point3fi(Float x, Float y, Float z)
+			: Vec3<Interval>{ Interval(x), Interval(y), Interval(z) }
+		{}
+		LOQUAT_CPU_GPU
+		Point3fi(const Point3f& point)
+			: Vec3<Interval>{
+			Interval(point.x), Interval(point.y), Interval(point.z) }
+		{}
+		LOQUAT_CPU_GPU
+		Point3fi(Vec3<Interval> point)
+			: Vec3<Interval>{ point }
+		{}
+		LOQUAT_CPU_GPU
+		Point3fi(Point3f point, Vec3f error)
+		: Vec3<Interval>{ Interval::from_value_and_error(point.x, error.x),
+			Interval::from_value_and_error(point.y, error.y),
+			Interval::from_value_and_error(point.z, error.z) }
+		{}
+
+		LOQUAT_CPU_GPU
+		Vec3f error() const noexcept
+		{
+			return {
+				x.width() / 2,
+				y.width() / 2,
+				z.width() / 2
+			};
+		}
+		LOQUAT_CPU_GPU
+		bool is_exact() const noexcept
+		{
+			return x.width() == 0 && y.width() == 0 && z.width() == 0;
+		}
+
+		[[nodiscard]]
+		LOQUAT_CPU_GPU
+		Vec3f to_vec() const noexcept
+		{
+			return Vec3f{ x.midpoint(), y.midpoint(), z.midpoint() };
+		}
+	};
+
 	/// <summary>
 	/// Construct a local orthonormal coordinate system given a single
 	/// normalized vector.
@@ -133,8 +190,78 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline Float absolute_cos_theta(Vec3f w) {
+	inline Float absolute_cos_theta(Vec3f w)
+	{
 		return std::abs(w.z);
+	}
+
+
+	LOQUAT_CPU_GPU
+	inline Float spherical_theta(Vec3f v)
+	{
+		return safe_acos(v.z);
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float cos_theta(Vec3f w)
+	{
+		return w.z;
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float cos2_theta(Vec3f w)
+	{
+		return square(w.z);
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float abs_cos_theta(Vec3f w)
+	{
+		return std::abs(w.z);
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float sin2_theta(Vec3f w)
+	{
+		return std::max<Float>(0, 1 - cos2_theta(w));
+	}
+	LOQUAT_CPU_GPU
+	inline Float sin_theta(Vec3f w)
+	{
+		return std::sqrt(sin2_theta(w));
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float tan_theta(Vec3f w)
+	{
+		return sin_theta(w) / cos_theta(w);
+	}
+	LOQUAT_CPU_GPU
+	inline Float tan2_theta(Vec3f w) 
+	{
+		return sin2_theta(w) / cos2_theta(w);
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float cos_phi(Vec3f w)
+	{
+		Float sinTheta = sin_theta(w);
+		return (sinTheta == 0) ? 1 : clamp(w.x / sinTheta, -1, 1);
+	}
+	LOQUAT_CPU_GPU
+	inline Float sin_phi(Vec3f w)
+	{
+		Float sinTheta = sin_theta(w);
+		return (sinTheta == 0) ? 0 : clamp(w.y / sinTheta, -1, 1);
+	}
+
+	LOQUAT_CPU_GPU
+	inline Float cos_d_phi(Vec3f wa, Vec3f wb)
+	{
+		Float waxy = square(wa.x) + square(wa.y), wbxy = square(wb.x) + square(wb.y);
+		if (waxy == 0 || wbxy == 0)
+			return 1;
+		return clamp((wa.x * wb.x + wa.y * wb.y) / std::sqrt(waxy * wbxy), -1, 1);
 	}
 
 	template <typename T>
@@ -227,13 +354,13 @@ namespace loquat
 	}
 
 	/// <summary>
-	/// Returns an angle in [0, 2*Pi], adjusted from the results of std::atan2.
+	/// Returns an angle in [0, 2*PI], adjusted from the results of std::atan2.
 	/// </summary>
 	/// <param name="v">The dimensional vector, whose x and y coordinates
 	/// will be used to return the phi angle.</param>
 	/// <returns>The spherical angle phi.</returns>
 	LOQUAT_CPU_GPU
-	inline Float spherical_phi(Vec3f v) noexcept
+	inline Float spherical_phi(Vec3f v)
 	{
 		Float phi = std::atan2(v.y, v.x);
 		return (phi < 0) ? (phi + 2 * PI) : phi;

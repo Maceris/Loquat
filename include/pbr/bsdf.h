@@ -81,7 +81,7 @@ namespace loquat
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		std::optional<BSDFSample> sample_f(Vec3f outgoing_render,
+		pstd::optional<BSDFSample> sample_f(Vec3f outgoing_render,
 			Float sample_1D, Point2f sample_2D,
 			TransportMode mode = TransportMode::Radiance,
 			BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
@@ -92,7 +92,7 @@ namespace loquat
 			{
 				return {};
 			}
-			std::optional<BSDFSample> result = bxdf.sample_f(outgoing,
+			pstd::optional<BSDFSample> result = bxdf.sample_f(outgoing,
 				sample_1D, sample_2D, mode, sample_flags);
 			if (result)
 			{
@@ -123,7 +123,7 @@ namespace loquat
 		template<is_BxDF BxDF>
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		std::optional<BSDFSample> sample_f(Vec3f outgoing_render,
+		pstd::optional<BSDFSample> sample_f(Vec3f outgoing_render,
 			Float sample_1D, Point2f sample_2D,
 			TransportMode mode = TransportMode::Radiance,
 			BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
@@ -140,7 +140,7 @@ namespace loquat
 				return {};
 			}
 
-			std::optional<BSDFSample> result = specific_BxDF->sample_f(
+			pstd::optional<BSDFSample> result = specific_BxDF->sample_f(
 				outgoing, sample_1D, sample_2D, mode, sample_flags);
 
 			if (!result || !result->flags || result->pdf == 0

@@ -83,9 +83,7 @@ constexpr void safe_delete(T* ptr) noexcept
 
 #include "pbr/math/float.h"
 #include "pbr/math/vec.h"
-#include "pbr/math/matrix.h"
 #include "pbr/math/quaternion.h"
-#include "pbr/math/interval.h"
 #include "pbr/math/point.h"
 #include "pbr/math/aabb.h"
 

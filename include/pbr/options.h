@@ -8,6 +8,8 @@
 
 #include "main/loquat.h"
 
+#include "pbr/util/pstd.h"
+
 namespace loquat
 {
 	enum class RenderingCoordinateSystem
@@ -43,7 +45,7 @@ namespace loquat
         bool write_partial_images = false;
         bool record_pixel_statistics = false;
         bool print_statistics = false;
-        std::optional<int> pixel_samples;
+        pstd::optional<int> pixel_samples;
         bool quick_render = false;
         bool upgrade = false;
         std::string image_file;
@@ -51,9 +53,9 @@ namespace loquat
         std::string mse_reference_output;
         std::string debug_start;
         std::string display_server;
-        std::optional<AABB2f> crop_window;
-        std::optional<AABB2i> pixel_bounds;
-        std::optional<Point2i> pixel_material;
+        pstd::optional<AABB2f> crop_window;
+        pstd::optional<AABB2i> pixel_bounds;
+        pstd::optional<Point2i> pixel_material;
         Float displacement_edge_scale = 1;
 
         [[nodiscard]]

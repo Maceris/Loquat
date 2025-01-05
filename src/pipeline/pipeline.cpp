@@ -1,5 +1,6 @@
 #include "pipeline/pipeline.h"
 
+#include "debug/logger.h"
 #include "main/global_state.h"
 #include "main/loquat.h"
 #include "render/render.h"

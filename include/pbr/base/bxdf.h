@@ -222,7 +222,7 @@ namespace loquat
 
         LOQUAT_CPU_GPU
         [[nodiscard]]
-        inline std::optional<BSDFSample> sample_f(Vec3f outgoing, 
+        inline pstd::optional<BSDFSample> sample_f(Vec3f outgoing, 
             Float sample_1D, Point2f sample_2D,
             TransportMode mode = TransportMode::Radiance,
             BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)

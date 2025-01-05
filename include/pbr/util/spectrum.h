@@ -105,7 +105,7 @@ namespace loquat
 
 		const float l = lambda * 1.0e-9f;
 		const float emitted = (2 * h * c * c)
-			/ (pow<5>(l) * (fast_e((h * c) / (1 * kb * temperature)) - 1));
+			/ (pow<5>(l) * (fast_exp((h * c) / (1 * kb * temperature)) - 1));
 		LOG_ASSERT(!is_NaN(emitted) &&
 			"Emitted light is NaN");
 		return emitted;
@@ -723,7 +723,7 @@ namespace loquat
 		PiecewiseLinearSpectrum(std::span<const Float> wavelengths,
 			std::span<const Float> values, Allocator allcator = {}) noexcept;
 
-		static std::optional<Spectrum> read(const std::string_view filename,
+		static pstd::optional<Spectrum> read(const std::string_view filename,
 			Allocator allocator) noexcept;
 
 		static PiecewiseLinearSpectrum* from_interleaved(
@@ -1019,7 +1019,7 @@ namespace loquat
 		SampledSpectrum result;
 		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 		{
-			result[i] = fast_e(spectrum[i]);
+			result[i] = fast_exp(spectrum[i]);
 		}
 		LOG_ASSERT(!result.has_NaNs());
 		return result;

@@ -35,7 +35,7 @@ namespace loquat
 
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
-		inline std::optional<PhaseFunctionSample> sample_phase(Vec3f outgoing,
+		inline pstd::optional<PhaseFunctionSample> sample_phase(Vec3f outgoing,
 			Point2f sample_2D) const noexcept;
 
 		LOQUAT_CPU_GPU
@@ -71,7 +71,7 @@ namespace loquat
 		using TaggedPointer::TaggedPointer;
 
 		LOQUAT_CPU_GPU
-		std::optional<RayMajorantSegment> next() noexcept;
+		pstd::optional<RayMajorantSegment> next() noexcept;
 
 		[[nodiscard]]
 		std::string to_string() const noexcept;

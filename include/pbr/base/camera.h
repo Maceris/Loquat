@@ -42,11 +42,11 @@ namespace loquat
 		std::string to_string() const noexcept;
 
 		LOQUAT_CPU_GPU
-		inline std::optional<CameraRay> generate_ray(CameraSample sample,
+		inline pstd::optional<CameraRay> generate_ray(CameraSample sample,
 			SampledWavelengths& wavelengths) const noexcept;
 
 		LOQUAT_CPU_GPU
-		inline std::optional<CameraRay> generate_ray_differential(
+		inline pstd::optional<CameraRay> generate_ray_differential(
 			CameraSample sample, 
 			SampledWavelengths& wavelengths) const noexcept;
 
@@ -75,7 +75,7 @@ namespace loquat
 			Float* pdf_direction) const noexcept;
 
 		LOQUAT_CPU_GPU
-		std::optional<CameraWiSample> sample_light_incoming(
+		pstd::optional<CameraWiSample> sample_light_incoming(
 			const Interaction& reference, Point2f sample_2D,
 			SampledWavelengths& wavelengths) const noexcept;
 	};

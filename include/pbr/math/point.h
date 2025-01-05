@@ -26,61 +26,7 @@ namespace loquat {
 	using Point3f = Point3<Float>;
 	using Point3i = Point3<int>;
 
-	class Point3fi : public Vec3<Interval>
-	{
-	public:
-		using Vec3<Interval>::x;
-		using Vec3<Interval>::y;
-		using Vec3<Interval>::z;
-		using Vec3<Interval>::operator*=;
-
-        Point3fi() = default;
-        LOQUAT_CPU_GPU
-        Point3fi(Interval x, Interval y, Interval z)
-            : Vec3<Interval>{ x, y, z }
-        {}
-        LOQUAT_CPU_GPU
-        Point3fi(Float x, Float y, Float z)
-            : Vec3<Interval>{ Interval(x), Interval(y), Interval(z) }
-        {}
-        LOQUAT_CPU_GPU
-        Point3fi(const Point3f& point)
-            : Vec3<Interval>{
-            Interval(point.x), Interval(point.y), Interval(point.z)}
-        {}
-        LOQUAT_CPU_GPU
-        Point3fi(Vec3<Interval> point)
-            : Vec3<Interval>{ point }
-        {}
-        LOQUAT_CPU_GPU
-        Point3fi(Point3f point, Vec3f error)
-            : Vec3<Interval>{ Interval::from_value_and_error(point.x, error.x),
-                Interval::from_value_and_error(point.y, error.y),
-                Interval::from_value_and_error(point.z, error.z)}
-        {}
-
-        LOQUAT_CPU_GPU
-        Vec3f error() const noexcept
-        {
-            return {
-                x.width() / 2,
-                y.width() / 2,
-                z.width() / 2
-            };
-        }
-        LOQUAT_CPU_GPU
-        bool is_exact() const noexcept 
-        {
-            return x.width() == 0 && y.width() == 0 && z.width() == 0;
-        }
-
-        [[nodiscard]]
-        LOQUAT_CPU_GPU
-        Vec3f to_vec() const noexcept
-        {
-            return Vec3f{ x.midpoint(), y.midpoint(), z.midpoint() };
-        }
-	};
+    class Point3fi;
 
 	/// <summary>
 	/// Checks if a type is one of our point types.

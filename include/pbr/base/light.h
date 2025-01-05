@@ -120,7 +120,7 @@ namespace loquat
 		/// </returns>
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
-		inline std::optional<LightIncidentSample> sample_light_incoming(
+		inline pstd::optional<LightIncidentSample> sample_light_incoming(
 			LightSampleContext context, Point2f point,
 			SampledWavelengths lambda, bool allow_incomplete_PDF = false)
 			const noexcept;
@@ -173,10 +173,10 @@ namespace loquat
 
 		void preprocess(const AABB3f& sceneBounds);
 
-		std::optional<LightBounds> bounds() const noexcept;
+		pstd::optional<LightBounds> bounds() const noexcept;
 
 		LOQUAT_CPU_GPU
-		std::optional<LightEmissiveSample> sample_emissive(Point2f sample1,
+		pstd::optional<LightEmissiveSample> sample_emissive(Point2f sample1,
 			Point2f sample2, SampledWavelengths& lambda, Float time)
 			const noexcept;
 

@@ -38,10 +38,10 @@ namespace loquat
 		Transform(const Mat4& matrix) noexcept
 			: matrix{ matrix }
 		{
-			std::optional<Mat4> inverse = glm::inverse(matrix);
-			if (inverse)
+			pstd::optional<Mat4> inv = inverse(matrix);
+			if (inv)
 			{
-				matrix_inverse = *inverse;
+				matrix_inverse = *inv;
 			}
 			else
 			{
@@ -87,17 +87,16 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		bool is_identity() const noexcept
 		{
-			return matrix == Mat4{ 1 };
+			return matrix.is_identity();
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		bool has_scale(Float tolerance = 1.0e-3f) const noexcept
 		{
-			Mat3 mat = matrix;
-			Float length_a_2 = vector::length_squared(mat * (Vec3f(1, 0, 0)));
-			Float length_b_2 = vector::length_squared(mat * (Vec3f(0, 1, 0)));
-			Float length_c_2 = vector::length_squared(mat * (Vec3f(0, 0, 1)));
+			Float length_a_2 = length_squared((*this)(Vec3f(1, 0, 0)));
+			Float length_b_2 = length_squared((*this)(Vec3f(0, 1, 0)));
+			Float length_c_2 = length_squared((*this)(Vec3f(0, 0, 1)));
 			return (std::abs(length_a_2 - 1) > tolerance
 				|| std::abs(length_b_2 - 1) > tolerance
 				|| std::abs(length_c_2 - 1) > tolerance);

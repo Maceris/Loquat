@@ -51,7 +51,7 @@ namespace loquat
 		inline DirectionCone normal_bounds() const noexcept;
 
 		LOQUAT_CPU_GPU
-		inline std::optional<ShapeIntersection> intersect(const Ray& ray,
+		inline pstd::optional<ShapeIntersection> intersect(const Ray& ray,
 			Float t_max = FLOAT_INFINITY) const noexcept;
 
 		LOQUAT_CPU_GPU
@@ -62,14 +62,14 @@ namespace loquat
 		inline Float area() const noexcept;
 
 		LOQUAT_CPU_GPU
-		inline std::optional<ShapeSample> sample(Point2f sample_2D)
+		inline pstd::optional<ShapeSample> sample(Point2f sample_2D)
 			const noexcept;
 
 		LOQUAT_CPU_GPU
 		inline float PDF(const Interaction& interaction) const noexcept;
 
 		LOQUAT_CPU_GPU
-		std::optional<ShapeSample> sample(const ShapeSampleContext& context,
+		pstd::optional<ShapeSample> sample(const ShapeSampleContext& context,
 			Point2f sample_2D) const noexcept;
 
 		LOQUAT_CPU_GPU

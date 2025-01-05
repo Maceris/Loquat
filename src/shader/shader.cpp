@@ -4,6 +4,7 @@
 
 #include "main/loquat.h"
 
+#include "debug/logger.h"
 #include "main/global_state.h"
 #include "resource/resource_cache.h"
 

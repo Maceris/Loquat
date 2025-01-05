@@ -10,6 +10,7 @@
 
 namespace loquat
 {
+#if 0
 	/// <summary>
 	/// A square matrix of Floats.
 	/// </summary>
@@ -41,4 +42,5 @@ namespace loquat
 			const SquareMatrix<Size>& matrix) noexcept;
         
 	}
+#endif
 }

@@ -85,16 +85,6 @@ namespace loquat
 		}
 
 		template <typename T>
-			requires std::integral<T> || std::floating_point<T>
-		LOQUAT_CPU_GPU
-		inline T length_squared(Vec3<T> vector)
-		{
-			return vector.x * vector.x
-				+ vector.y * vector.y
-				+ vector.z * vector.z;
-		}
-
-		template <typename T>
 		std::string to_string(Vec1<T> vector)
 		{
 			return std::format("[ %s ]", vector.x);
@@ -111,6 +101,25 @@ namespace loquat
 		{
 			return std::format("[ %s, %s, %s ]", vector.x, vector.y, vector.z);
 		}
+	}
+
+	template <typename T>
+		requires std::integral<T> || std::floating_point<T>
+	LOQUAT_CPU_GPU
+	inline T length_squared(Vec2<T> vector)
+	{
+		return vector.x * vector.x
+			+ vector.y * vector.y;
+	}
+
+	template <typename T>
+		requires std::integral<T> || std::floating_point<T>
+	LOQUAT_CPU_GPU
+	inline T length_squared(Vec3<T> vector)
+	{
+		return vector.x * vector.x
+			+ vector.y * vector.y
+			+ vector.z * vector.z;
 	}
 	
 }

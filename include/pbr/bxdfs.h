@@ -21,7 +21,7 @@
 #include "pbr/math/vector_math.h"
 #include "pbr/util/memory.h"
 #include "pbr/util/pstd.h"
-//#include "pbr/util/scattering.h"
+#include "pbr/util/scattering.h"
 #include "pbr/util/spectrum.h"
 #include "pbr/util/tagged_pointer.h"
 
@@ -45,9 +45,9 @@ namespace loquat
         }
 
         LOQUAT_CPU_GPU
-        pstd::optional<BSDFSample> Sample_f(
-                Vec3f outgoing, Float uc, Point2f u, TransportMode mode,
-                BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All) const
+        pstd::optional<BSDFSample> sample_f(
+            Vec3f outgoing, Float uc, Point2f u, TransportMode mode,
+            BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All) const
         {
             if (!(sample_flags & BxDFReflTransFlags::Reflection))
             {
