@@ -6,7 +6,15 @@
 
 #pragma once
 
+#include "glm/glm.hpp"
+
 namespace loquat
 {
-	using Quaternion = glm::quat;
+#if defined(DOUBLE_PRECISION_FLOAT)
+	using Quaternion = glm::dquat;
+#else
+	using Quaternion = glm::fquat;
+#endif
+
+	//TODO(ches) actually have a quaternion?
 }
