@@ -6,7 +6,15 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "main/loquat.h"
+#include "pbr/util/tagged_pointer.h"
+
+#include "pbr/math/rng.h"
+#include "pbr/util/pstd.h"
+#include "pbr/util/spectrum.h"
 #include "pbr/util/tagged_pointer.h"
 
 namespace loquat

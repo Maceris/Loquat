@@ -29,25 +29,25 @@ namespace loquat
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		inline Ray apply_inverse(const Ray& ray, 
-			Float* t_max = nullptr) const noexcept;
+			Float* t_max = nullptr) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		inline RayDifferential apply_inverse(const RayDifferential& ray,
-			Float* t_max = nullptr) const noexcept;
+			Float* t_max = nullptr) const;
 
 		template <typename T>
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		inline Vec3<T> apply_inverse(Vec3<T> vec) const noexcept;
+		inline Vec3<T> apply_inverse(Vec3<T> vec) const;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		Transform() = default;
 
 		LOQUAT_CPU_GPU
-		Transform(const Mat4& matrix) noexcept
+		Transform(const Mat4& matrix)
 			: matrix{ matrix }
 		{
 			pstd::optional<Mat4> inv = inverse(matrix);
@@ -69,42 +69,42 @@ namespace loquat
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		const Mat4& get_matrix() const noexcept
+		const Mat4& get_matrix() const
 		{
 			return matrix;
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		const Mat4& get_inverse_matrix() const noexcept
+		const Mat4& get_inverse_matrix() const
 		{
 			return matrix_inverse;
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		bool operator==(const Transform& t) const noexcept
+		bool operator==(const Transform& t) const
 		{
 			return t.matrix == matrix;
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		bool operator!=(const Transform& t) const noexcept
+		bool operator!=(const Transform& t) const
 		{
 			return t.matrix != matrix;
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		bool is_identity() const noexcept
+		bool is_identity() const
 		{
 			return matrix.is_identity();
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		bool has_scale(Float tolerance = 1.0e-3f) const noexcept
+		bool has_scale(Float tolerance = 1.0e-3f) const
 		{
 			Float length_a_2 = length_squared((*this)(Vec3f(1, 0, 0)));
 			Float length_b_2 = length_squared((*this)(Vec3f(0, 1, 0)));
@@ -117,65 +117,67 @@ namespace loquat
 		template <typename T>
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Point3<T> operator()(Point3<T> point) const noexcept;
+		Point3<T> operator()(Point3<T> point) const;
 
         LOQUAT_CPU_GPU
         inline Vec3fi operator()(const Vec3fi& v) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Ray operator()(const Ray& ray, Float* t_max = nullptr)
-			const noexcept;
+		Ray operator()(const Ray& ray, Float* t_max = nullptr) const;
+
+        LOQUAT_CPU_GPU
+        RayDifferential operator()(const RayDifferential& r, Float* tMax) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		AABB3f operator()(const AABB3f& bounds) const noexcept;
+		AABB3f operator()(const AABB3f& bounds) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Transform operator*(const Transform& t2) const noexcept;
+		Transform operator*(const Transform& t2) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		bool swaps_handedness() const noexcept;
+		bool swaps_handedness() const;
 
 		LOQUAT_CPU_GPU
-		explicit Transform(const Frame& frame) noexcept;
+		explicit Transform(const Frame& frame);
 
 		LOQUAT_CPU_GPU
-		explicit Transform(Quaternion q) noexcept;
+		explicit Transform(Quaternion q);
 
 		LOQUAT_CPU_GPU
-		explicit operator Quaternion() const noexcept;
+		explicit operator Quaternion() const;
 
 		void decompose(Vec3f* transformation, Mat4* rotation, Mat4* scale) 
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Interaction operator()(const Interaction& in) const noexcept;
+		Interaction operator()(const Interaction& in) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Interaction apply_inverse(const Interaction& in) const noexcept;
+		Interaction apply_inverse(const Interaction& in) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		SurfaceInteraction operator()(const SurfaceInteraction& in)
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		SurfaceInteraction apply_inverse(const SurfaceInteraction& in)
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Point3fi operator()(const Point3fi& point) const noexcept;
+		Point3fi operator()(const Point3fi& point) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Point3fi apply_inverse(const Point3fi& point) const noexcept;
+		Point3fi apply_inverse(const Point3fi& point) const;
 
 	private:
 		Mat4 matrix;
@@ -348,7 +350,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-    inline Ray Transform::operator()(const Ray& r, Float* tMax) const {
+    inline Ray Transform::operator()(const Ray& r, Float* tMax) const
+    {
         Point3fi o = (*this)(Point3fi(r.origin));
         Vec3f d = (*this)(r.direction);
         // Offset ray origin to edge of error bounds and compute _tMax_
@@ -386,9 +389,9 @@ namespace loquat
     LOQUAT_CPU_GPU
     inline Transform::Transform(Quaternion q)
     {
-        Float xx = q.v.x * q.v.x, yy = q.v.y * q.v.y, zz = q.v.z * q.v.z;
-        Float xy = q.v.x * q.v.y, xz = q.v.x * q.v.z, yz = q.v.y * q.v.z;
-        Float wx = q.v.x * q.w, wy = q.v.y * q.w, wz = q.v.z * q.w;
+        Float xx = q.x * q.x, yy = q.y * q.y, zz = q.z * q.z;
+        Float xy = q.x * q.y, xz = q.x * q.z, yz = q.y * q.z;
+        Float wx = q.x * q.w, wy = q.y * q.w, wz = q.z * q.w;
 
         matrix_inverse[0][0] = 1 - 2 * (yy + zz);
         matrix_inverse[0][1] = 2 * (xy + wz);
@@ -418,26 +421,6 @@ namespace loquat
             return Point3<T>(xp, yp, zp);
         else
             return Point3<T>(xp, yp, zp) / wp;
-    }
-
-    template <typename T>
-    LOQUAT_CPU_GPU
-    inline Vec3<T> Transform::apply_inverse(Vec3<T> v) const
-    {
-        T x = v.x, y = v.y, z = v.z;
-        return Vec3<T>(matrix_inverse[0][0] * x + matrix_inverse[0][1] * y + matrix_inverse[0][2] * z,
-            matrix_inverse[1][0] * x + matrix_inverse[1][1] * y + matrix_inverse[1][2] * z,
-            matrix_inverse[2][0] * x + matrix_inverse[2][1] * y + matrix_inverse[2][2] * z);
-    }
-
-    template <typename T>
-    LOQUAT_CPU_GPU
-    inline Normal3<T> Transform::apply_inverse(Normal3<T> n) const
-    {
-        T x = n.x, y = n.y, z = n.z;
-        return Normal3<T>(matrix[0][0] * x + matrix[1][0] * y + matrix[2][0] * z,
-            matrix[0][1] * x + matrix[1][1] * y + matrix[2][1] * z,
-            matrix[0][2] * x + matrix[1][2] * y + matrix[2][2] * z);
     }
 
     LOQUAT_CPU_GPU
@@ -485,15 +468,6 @@ namespace loquat
         Ray apply_inverse(const Ray& r, Float* tMax = nullptr) const;
 
         LOQUAT_CPU_GPU
-        Point3f apply_inverse(Point3f p, Float time) const
-        {
-            if (!actually_animated)
-            {
-                return start_transform.apply_inverse(p);
-            }
-            return interpolate(time).apply_inverse(p);
-        }
-        LOQUAT_CPU_GPU
         Vec3f apply_inverse(Vec3f v, Float time) const
         {
             if (!actually_animated)
@@ -504,15 +478,6 @@ namespace loquat
         }
         LOQUAT_CPU_GPU
         Normal3f operator()(Normal3f n, Float time) const;
-        LOQUAT_CPU_GPU
-        Normal3f apply_inverse(Normal3f n, Float time) const
-        {
-            if (!actually_animated)
-            {
-                return start_transform.apply_inverse(n);
-            }
-            return interpolate(time).apply_inverse(n);
-        }
         LOQUAT_CPU_GPU
         Interaction operator()(const Interaction& it) const;
         LOQUAT_CPU_GPU
@@ -533,8 +498,6 @@ namespace loquat
         Ray operator()(const Ray& r, Float* tMax = nullptr) const;
         LOQUAT_CPU_GPU
         RayDifferential operator()(const RayDifferential& r, Float* tMax = nullptr) const;
-        LOQUAT_CPU_GPU
-        Point3f operator()(Point3f p, Float time) const;
         LOQUAT_CPU_GPU
         Vec3f operator()(Vec3f v, Float time) const;
 

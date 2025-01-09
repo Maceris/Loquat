@@ -8,6 +8,17 @@
 
 #include "glm/glm.hpp"
 
+#include "glm/ext/quaternion_common.hpp"
+#include "glm/ext/quaternion_double.hpp"
+#include "glm/ext/quaternion_double_precision.hpp"
+#include "glm/ext/quaternion_float.hpp"
+#include "glm/ext/quaternion_float_precision.hpp"
+//#include "glm/ext/quaternion_exponential.hpp"
+//#include "glm/ext/quaternion_geometric.hpp"
+//#include "glm/ext/quaternion_relational.hpp"
+#include "glm/ext/quaternion_transform.hpp"
+#include "glm/ext/quaternion_trigonometric.hpp"
+
 namespace loquat
 {
 #if defined(DOUBLE_PRECISION_FLOAT)

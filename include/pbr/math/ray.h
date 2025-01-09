@@ -6,6 +6,13 @@
 
 #pragma once
 
+#include <string>
+
+#include "main/loquat.h"
+
+#include "pbr/base/medium.h"
+#include "pbr/math/vector_math.h"
+
 namespace loquat
 {
 	class Ray

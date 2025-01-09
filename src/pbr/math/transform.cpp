@@ -9,7 +9,7 @@
 namespace loquat
 {
 	[[nodiscard]]
-	Point3fi Transform::operator()(const Point3fi& point) const noexcept
+	Point3fi Transform::operator()(const Point3fi& point) const
 	{
 		Vec4f point4 = Vec4f(point.to_vec(), 1);
 		Vec4f transformed = matrix * point4;
