@@ -85,7 +85,7 @@ namespace loquat
 		T area() const noexcept
 			requires requires (PointType p) { p.x; p.y; }
 		{
-			PointType diagonal = max - min;
+			PointType diagonal = PointType(max - min);
 			return diagonal.x * diagonal.y;
 		}
 

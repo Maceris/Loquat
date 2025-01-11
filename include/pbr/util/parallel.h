@@ -37,12 +37,12 @@ namespace loquat
     {
     public:
         ThreadLocal()
-            : hashTable{ 4 * running_threads() }
+            : hash_table{ 4 * running_threads() }
             , create{ []() { return T(); } }
         {}
 
         ThreadLocal(std::function<T(void)>&& create)
-            : hashTable{ 4 * running_threads() }
+            : hash_table{ 4 * running_threads() }
             , create{ create }
         {}
 

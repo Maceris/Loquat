@@ -41,6 +41,11 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		inline Vec3<T> apply_inverse(Vec3<T> vec) const;
 
+        template <typename T>
+        [[nodiscard]]
+        LOQUAT_CPU_GPU
+        inline Point3<T> apply_inverse(Point3<T> vec) const;
+
 		[[nodiscard]]
 		std::string to_string() const;
 
@@ -117,7 +122,12 @@ namespace loquat
 		template <typename T>
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Point3<T> operator()(Point3<T> point) const;
+		Vec3<T> operator()(Vec3<T> point) const;
+
+        template <typename T>
+        [[nodiscard]]
+        LOQUAT_CPU_GPU
+        Point3<T> operator()(Point3<T> point) const;
 
         LOQUAT_CPU_GPU
         inline Vec3fi operator()(const Vec3fi& v) const;
@@ -339,16 +349,6 @@ namespace loquat
             matrix[2][0] * v.x + matrix[2][1] * v.y + matrix[2][2] * v.z);
     }
 
-    template <typename T>
-    LOQUAT_CPU_GPU
-    inline Normal3<T> Transform::operator()(Normal3<T> n) const
-    {
-        T x = n.x, y = n.y, z = n.z;
-        return Normal3<T>(matrix_inverse[0][0] * x + matrix_inverse[1][0] * y + matrix_inverse[2][0] * z,
-            matrix_inverse[0][1] * x + matrix_inverse[1][1] * y + matrix_inverse[2][1] * z,
-            matrix_inverse[0][2] * x + matrix_inverse[1][2] * y + matrix_inverse[2][2] * z);
-    }
-
     LOQUAT_CPU_GPU
     inline Ray Transform::operator()(const Ray& r, Float* tMax) const
     {
@@ -416,7 +416,7 @@ namespace loquat
         T yp = (matrix_inverse[1][0] * x + matrix_inverse[1][1] * y) + (matrix_inverse[1][2] * z + matrix_inverse[1][3]);
         T zp = (matrix_inverse[2][0] * x + matrix_inverse[2][1] * y) + (matrix_inverse[2][2] * z + matrix_inverse[2][3]);
         T wp = (matrix_inverse[3][0] * x + matrix_inverse[3][1] * y) + (matrix_inverse[3][2] * z + matrix_inverse[3][3]);
-        CHECK_NE(wp, 0);
+        LOG_ASSERT(wp != 0);
         if (wp == 1)
             return Point3<T>(xp, yp, zp);
         else
@@ -476,8 +476,6 @@ namespace loquat
             }
             return interpolate(time).apply_inverse(v);
         }
-        LOQUAT_CPU_GPU
-        Normal3f operator()(Normal3f n, Float time) const;
         LOQUAT_CPU_GPU
         Interaction operator()(const Interaction& it) const;
         LOQUAT_CPU_GPU

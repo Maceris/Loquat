@@ -30,11 +30,11 @@ namespace loquat
 
 		if (transformed.w == 1)
 		{
-			return Point3fi(transformed, error);
+			return Point3fi(Vec3f(transformed), error);
 		}
 		else
 		{
-			return Point3fi(transformed / transformed.w, error);
+			return Point3fi(Vec3f(transformed / transformed.w), error);
 		}
 
 	}

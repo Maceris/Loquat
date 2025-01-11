@@ -861,7 +861,7 @@ SET(ALL_LOQUAT_LIBS
   utf8proc
   glfw
   glad
-  OpenGL::GL
+  #OpenGL::GL
   ZLIB::ZLIB
   )
 
