@@ -1,6 +1,6 @@
 # Loquat Rendering Engine
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.13...3.31.4)
 
 PROJECT(Loquat VERSION 1.0.0)
 
@@ -95,12 +95,6 @@ SET(LOQUAT_SOVERSION 1)
 SET(CMAKE_CXX_STANDARD 20)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CMAKE_C_STANDARD 99)
-
-INCLUDE_DIRECTORIES(BEFORE
-  ./
-  src/
-  include/
-)
 
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
 SET(LIBLOQUAT_COMPONENT "libloquat${LOQUAT_VERSION_MAJOR}.${LOQUAT_VERSION_MINOR}.${LOQUAT_VERSION_PATCH}")
@@ -204,7 +198,7 @@ IF (UB_SANITIZER)
   SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fsanitize=undefined,shift,shift-exponent,integer-divide-by-zero,unreachable,vla-bound,null,return,signed-integer-overflow,bounds,float-divide-by-zero,float-cast-overflow,nonnull-attribute,returns-nonnull-attribute,bool,enum,vptr,pointer-overflow,builtin -fno-sanitize-recover=all")
 ENDIF()
 
-add_library (loquat_warnings INTERFACE)
+ADD_LIBRARY(loquat_warnings INTERFACE)
 TARGET_COMPILE_OPTIONS (
     loquat_warnings
     INTERFACE
@@ -220,7 +214,7 @@ TARGET_COMPILE_OPTIONS (
         "$<$<CXX_COMPILER_ID:MSVC>:$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler >/wd4146>"  # NanoVDB: unary minus operator applied to unsigned type, result still unsigned
 )
 
-add_library (loquat_opt INTERFACE)
+ADD_LIBRARY(loquat_opt INTERFACE)
 
 ###########################################################################
 # Check for various C++ features and SET preprocessor variables or
@@ -347,9 +341,9 @@ ENDIF()
 #########################################
 ## CUDA / OptiX
 
-add_library (cuda_build_configuration INTERFACE)
+ADD_LIBRARY(cuda_build_configuration INTERFACE)
 
-check_language(CUDA)
+ENABLE_LANGUAGE("CUDA")
 
 IF (CMAKE_CUDA_COMPILER)
   IF (CUDA_VERSION_MAJOR LESS 11)
@@ -357,7 +351,6 @@ IF (CMAKE_CUDA_COMPILER)
 was found. GPU support is therefore disabled. If you have multiple versions\
 of CUDA installed, please update your PATH.")
   ELSE ()
-    FIND_PACKAGE (CUDA REQUIRED)
 
     # This seems to be necessary starting with 3.17.1, but gives an error
     # about 17 being an unsupported version earlier...
@@ -489,8 +482,8 @@ of CUDA installed, please update your PATH.")
         # 4) assign the name of the intermediary .o file to the cmake variable
         #    'output_var', which can then be added to cmake targets.
         MACRO (cuda_compile_and_embed output_var cuda_file lib_name)
-          add_library ("${lib_name}" OBJECT "${cuda_file}")
-          set_property (TARGET "${lib_name}" PROPERTY CUDA_PTX_COMPILATION ON)
+          ADD_LIBRARY("${lib_name}" OBJECT "${cuda_file}")
+          SET_PROPERTY(TARGET "${lib_name}" PROPERTY CUDA_PTX_COMPILATION ON)
 
           # disable "extern declaration... is treated as a static definition" warning
           IF (CUDA_VERSION_MAJOR EQUAL 11 AND CUDA_VERSION_MINOR LESS 2)
@@ -521,8 +514,8 @@ of CUDA installed, please update your PATH.")
           ELSE ()
             TARGET_COMPILE_DEFINITIONS ("${lib_name}" PRIVATE ${LOQUAT_DEFINITIONS})
           ENDIF ()
-          TARGET_INCLUDE_DIRECTORIES ("${lib_name}" PRIVATE src ${CMAKE_BINARY_DIR})
-          TARGET_INCLUDE_DIRECTORIES ("${lib_name}" SYSTEM PRIVATE ${NANOVDB_INCLUDE})
+          TARGET_INCLUDE_DIRECTORIES ("${lib_name}" PRIVATE $<BUILD_INTERFACE:src> $<BUILD_INTERFACE:${LOQUAT_RUNTIME_OUTPUT_DIRECTORY}>)
+          TARGET_INCLUDE_DIRECTORIES ("${lib_name}" SYSTEM PRIVATE $<BUILD_INTERFACE:${NANOVDB_INCLUDE}>)
           TARGET_LINK_LIBRARIES ("${lib_name}" PRIVATE cuda_build_configuration loquat_opt loquat_warnings)
           ADD_DEPENDENCIES ("${lib_name}" loquat_soa_generated)
           SET (c_var_name ${output_var})
@@ -686,8 +679,191 @@ check_ext ("utf8proc" "utf8proc/bench" 2484e2ed5e1d9c19edcccf392a7d9920ad90dfaf)
 check_ext ("zlib" "zlib/doc" 54d591eabf9fe0e84c725638f8d5d8d202a093fa)
 
 # 3rd Party Libraries
-ADD_SUBDIRECTORY(third-party/glfw/)
-ADD_SUBDIRECTORY(third-party/glm/)
+#SET(CMAKE_DEBUG_TARGET_PROPERTIES INCLUDE_DIRECTORIES)
+
+if (MSVC)
+  ADD_DEFINITIONS(/D _CRT_SECURE_NO_WARNINGS /Dstrdup=_strdup
+    /wd4018 /wd4100 /wd4101 /wd4127 /wd4146 /wd4232 /wd4242 /wd4244 /wd4245 /wd4267 /wd4305 /wd4309 
+    /wd4310 /wd4334 /wd4456 /wd4464 /wd4668 /wd4701 /wd4703 /wd4711 /wd4756 /wd4820 /wd5045 /wd5250)
+endif ()
+
+###########################################################################
+# stb
+
+SET(STB_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/stb)
+
+###########################################################################
+# filesystem
+
+SET(FILESYSTEM_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/filesystem)
+
+###########################################################################
+# libdeflate
+
+ADD_SUBDIRECTORY(${LOQUAT_THIRD_PARTY_DIR}/libdeflate)
+
+SET(LIBDEFLATE_INCLUDE_DIRS ${LOQUAT_THIRD_PARTY_DIR}/libdeflate)
+SET(LIBDEFLATE_LIBRARIES deflate::deflate)
+
+SET_PROPERTY(TARGET deflate PROPERTY FOLDER "third-party")
+
+###########################################################################
+# zlib
+
+FIND_PACKAGE(ZLIB)
+if (NOT ZLIB_FOUND)
+  # Build zlib
+  SET(ZLIB_BUILD_STATIC_LIBS ON CACHE BOOL " " FORCE)
+  SET(ZLIB_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+  ADD_SUBDIRECTORY(${LOQUAT_THIRD_PARTY_DIR}/zlib)
+
+  # try to make openexr happy about this...
+  SET(ZLIB_LIBRARY zlibstatic)
+  SET(ZLIB_FOUND TRUE)
+
+  SET_PROPERTY(TARGET zlibstatic PROPERTY FOLDER "third-party")
+
+  ADD_LIBRARY(ZLIB::ZLIB ALIAS zlibstatic)
+  INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})  # yuck, but so openexr/ptex can find zlib.h...
+endif ()
+
+SET(ZLIB_INCLUDE_DIR ${LOQUAT_THIRD_PARTY_DIR}/zlib ${LOQUAT_LIB_INSTALL_DIR}/third-party/zlib)
+SET(ZLIB_INCLUDE_DIRS ${LOQUAT_THIRD_PARTY_DIR}/zlib)
+SET(ZLIB_LIBRARIES zlibstatic)
+
+###########################################################################
+# OpenEXR
+
+#TODO(ches) fix the build appending src path to hte folder path during TARGET_INCLUDE_DIRECTORIES
+
+#FIND_PACKAGE(OpenEXR)
+#
+#if (OPENEXR_FOUND)
+#  message (STATUS "Found OpenEXR version ${OPENEXR_VERSION}")
+#  SET(OPENEXR_INCLUDE ${OPENEXR_INCLUDES}/OpenEXR ${ILMBASE_INCLUDES}/OpenEXR)
+#  if (WIN32)
+#    SET(OPENEXR_LIBS ${OPENEXR_LIBRARIES} ${ZLIB_LIBRARY})
+#  else ()
+#    SET(OPENEXR_LIBS ${OPENEXR_LIBRARIES})
+#  endif ()
+#else ()
+#  message (STATUS "OpenEXR not found; building it from scratch.")
+#
+#  SET (CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+#
+#  SET(ILMBASE_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
+#  SET(OPENEXR_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
+#  SET(OPENEXR_BUILD_SHARED_LIBS    OFF CACHE BOOL " " FORCE)
+#  SET(ILMBASE_BUILD_SHARED_LIBS    OFF CACHE BOOL " " FORCE)
+#  SET(PYILMBASE_ENABLE             OFF CACHE BOOL " " FORCE)
+#  SET(OPENEXR_BUILD_UTILS          OFF CACHE BOOL " " FORCE)
+#
+#  ADD_SUBDIRECTORY(${LOQUAT_THIRD_PARTY_DIR}/openexr)
+#
+#  SET_PROPERTY(TARGET IexMath IlmThread Half
+#                Iex Imath IlmImf HalfTest IexTest
+#                IlmImfExamples IlmImfTest IlmImfUtil IlmImfUtilTest ImathTest
+#                PROPERTY FOLDER "third-party/OpenEXR")
+#
+#  SET(OPENEXR_INCLUDE
+#    ${LOQUAT_THIRD_PARTY_DIR}/openexr/IlmBase/Imath
+#    ${LOQUAT_THIRD_PARTY_DIR}/openexr/IlmBase/Half
+#    ${LOQUAT_THIRD_PARTY_DIR}/openexr/IlmBase/Iex
+#    ${LOQUAT_THIRD_PARTY_DIR}/openexr/OpenEXR/IlmImf
+#    ${LOQUAT_THIRD_PARTY_DIR}/openexr/IlmBase/config
+#    ${LOQUAT_THIRD_PARTY_DIR}/openexr/OpenEXR/config
+#  )
+#
+#  if (WIN32)
+#    SET(OPENEXR_LIBS OpenEXR::IlmImf IlmBase::Imath IlmBase::Half ${ZLIB_LIBRARY})
+#  else ()
+#    SET(OPENEXR_LIBS OpenEXR::IlmImf IlmBase::Imath IlmBase::Half)
+#  endif ()
+#endif ()
+
+###########################################################################
+# ptex
+
+SET(PTEX_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+
+SET(CMAKE_MACOSX_RPATH 1)
+if (WIN32)
+  ADD_DEFINITIONS(/DPTEX_STATIC)
+endif ()
+
+ADD_SUBDIRECTORY(${LOQUAT_THIRD_PARTY_DIR}/ptex)
+
+SET_PROPERTY(TARGET Ptex_static ptxinfo halftest ftest rtest wtest PROPERTY FOLDER "third-party/ptex")
+
+SET(PTEX_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/ptex/src/ptex)
+
+###########################################################################
+# double-conversion
+
+ADD_SUBDIRECTORY(${LOQUAT_THIRD_PARTY_DIR}/double-conversion)
+
+SET(DOUBLE_CONVERSION_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/double-conversion)
+
+SET_PROPERTY(TARGET double-conversion cctest PROPERTY FOLDER "third-party")
+
+###########################################################################
+# nanovdb
+
+SET(NANOVDB_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/openvdb/nanovdb)
+
+###########################################################################
+# FLIP
+
+SET(FLIP_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/flip)
+
+ADD_LIBRARY(flip_lib STATIC ${LOQUAT_THIRD_PARTY_DIR}/flip/flip.cpp)
+
+SET_PROPERTY(TARGET flip_lib PROPERTY FOLDER "third-party")
+
+###########################################################################
+# utf8proc
+
+SET(UTF8PROC_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/utf8proc)
+
+ADD_SUBDIRECTORY(${LOQUAT_THIRD_PARTY_DIR}/utf8proc)
+
+###########################################################################
+# qoi
+
+SET(QOI_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/qoi)
+
+###########################################################################
+# glfw / glad
+
+SET(GLFW_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/glfw/include)
+SET(GLAD_INCLUDE ${LOQUAT_THIRD_PARTY_DIR}/glad/include)
+
+SET(GLFW_LIBRARY_TYPE STATIC CACHE STRING "" FORCE)
+SET(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+SET(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+SET(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+ADD_SUBDIRECTORY(${LOQUAT_THIRD_PARTY_DIR}/glfw)
+ADD_SUBDIRECTORY(${LOQUAT_THIRD_PARTY_DIR}/glad)
+
+SET_PROPERTY(TARGET glfw PROPERTY FOLDER "third-party")
+SET_PROPERTY(TARGET glad PROPERTY FOLDER "third-party")
+
+SET(ALL_LOQUAT_LIBS
+  #loquat_lib
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${OPENEXR_LIBS}
+  Ptex_static
+  ${ZLIB_LIBRARIES}
+  ${LIBDEFLATE_LIBRARIES}
+  double-conversion
+  ${LOQUAT_CUDA_LIB}
+  utf8proc
+  glfw
+  glad
+  OpenGL::GL
+  ZLIB::ZLIB
+  )
 
 # Main Loquat code
 ADD_SUBDIRECTORY(src/)
@@ -756,4 +932,4 @@ SET (LOQUAT_SOA_GENERATED ${LOQUAT_SOA_GENERATED} ${LOQUAT_RUNTIME_OUTPUT_DIRECT
 
 add_custom_target (loquat_soa_generated DEPENDS ${LOQUAT_SOA_GENERATED})
 
-set_property (TARGET soac PROPERTY FOLDER "cmd")
+SET_PROPERTY(TARGET soac PROPERTY FOLDER "cmd")
