@@ -106,19 +106,19 @@ namespace loquat
 		Frame(Vec3f x, Vec3f y, Vec3f z);
 
 		LOQUAT_CPU_GPU
-		static Frame from_XZ(Vec3f x, Vec3f z) noexcept
+		static Frame from_xz(Vec3f x, Vec3f z) noexcept
 		{
 			return Frame{ x, glm::cross(z, x), z };
 		}
 
 		LOQUAT_CPU_GPU
-		static Frame from_XY(Vec3f x, Vec3f y) noexcept
+		static Frame from_xy(Vec3f x, Vec3f y) noexcept
 		{
 			return Frame{ x, y, glm::cross(x, y) };
 		}
 
 		LOQUAT_CPU_GPU
-		static Frame from_X(Vec3f x) noexcept
+		static Frame from_x(Vec3f x) noexcept
 		{
 			Vec3f y;
 			Vec3f z;
@@ -127,7 +127,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		static Frame from_Y(Vec3f y) noexcept
+		static Frame from_y(Vec3f y) noexcept
 		{
 			Vec3f x;
 			Vec3f z;
@@ -136,7 +136,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		static Frame from_Z(Vec3f z) noexcept
+		static Frame from_z(Vec3f z) noexcept
 		{
 			Vec3f x;
 			Vec3f y;
@@ -262,6 +262,20 @@ namespace loquat
 		if (waxy == 0 || wbxy == 0)
 			return 1;
 		return clamp((wa.x * wb.x + wa.y * wb.y) / std::sqrt(waxy * wbxy), -1, 1);
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline auto distance(Point2<T> p1, Point2<T> p2) -> typename glm::length_t 
+	{
+		return glm::length(p1 - p2);
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline auto distance(Point3<T> p1, Point3<T> p2) -> typename glm::length_t
+	{
+		return glm::length(p1 - p2);
 	}
 
 	template <typename T>

@@ -21,7 +21,7 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		BSDF(Normal3f ns, Vec3f dpdus, BxDF bxdf) noexcept
 			: bxdf{ bxdf }
-			, shading_frame{ Frame::from_XZ(glm::normalize(dpdus), ns) }
+			, shading_frame{ Frame::from_xz(glm::normalize(dpdus), ns) }
 		{}
 
 		LOQUAT_CPU_GPU
