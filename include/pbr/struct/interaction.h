@@ -213,7 +213,7 @@ namespace loquat
 		Medium medium = nullptr;
 	};
 
-	class SurfaceInteraction : Interaction
+	class SurfaceInteraction : public Interaction
 	{
 	public:
 		SurfaceInteraction() = default;
@@ -352,7 +352,7 @@ namespace loquat
 		Float dvdy = 0;
 	};
 
-	class MediumInteraction : Interaction
+	class MediumInteraction : public Interaction
 	{
 	public:
 		LOQUAT_CPU_GPU
