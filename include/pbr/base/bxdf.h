@@ -14,11 +14,21 @@
 
 namespace loquat
 {
+    struct MeasuredBxDFData;
+    
     enum class TransportMode
     {
         Radiance,
         Importance
     };
+
+    LOQUAT_CPU_GPU
+    inline TransportMode operator!(TransportMode mode)
+    {
+        return (mode == TransportMode::Radiance) 
+            ? TransportMode::Importance
+            : TransportMode::Radiance;
+    }
 
     /// <summary>
     /// Flags to indicate whether we are calculating reflectance and/or
@@ -152,31 +162,31 @@ namespace loquat
         {}
 
         LOQUAT_CPU_GPU
-        bool is_reflection() const noexcept
+        bool is_reflection() const
         {
             return loquat::is_reflective(flags);
         }
 
         LOQUAT_CPU_GPU
-        bool is_transmissive() const noexcept
+        bool is_transmissive() const
         {
             return loquat::is_transmissive(flags);
         }
 
         LOQUAT_CPU_GPU
-        bool is_diffuse() const noexcept
+        bool is_diffuse() const
         {
             return loquat::is_diffuse(flags);
         }
 
         LOQUAT_CPU_GPU
-        bool is_glossy() const noexcept
+        bool is_glossy() const
         {
             return loquat::is_glossy(flags);
         }
 
         LOQUAT_CPU_GPU
-        bool is_specular() const noexcept
+        bool is_specular() const
         {
             return loquat::is_specular(flags);
         }
@@ -211,14 +221,14 @@ namespace loquat
         using TaggedPointer::TaggedPointer;
 
         [[nodiscard]]
-        std::string to_string() const noexcept;
+        std::string to_string() const;
 
         LOQUAT_CPU_GPU
-        inline BxDFFlags get_flags() const noexcept;
+        inline BxDFFlags get_flags() const;
 
         [[nodiscard]]
         inline SampledSpectrum f(Vec3f outgoing, Vec3f incoming,
-            TransportMode mode) const noexcept;
+            TransportMode mode) const;
 
         LOQUAT_CPU_GPU
         [[nodiscard]]
@@ -226,18 +236,18 @@ namespace loquat
             Float sample_1D, Point2f sample_2D,
             TransportMode mode = TransportMode::Radiance,
             BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
-            const noexcept;
+            const;
 
         LOQUAT_CPU_GPU
         [[nodiscard]]
         inline Float PDF(Vec3f outgoing, Vec3f incoming, TransportMode mode,
             BxDFReflTransFlags sample_flags = BxDFReflTransFlags::All)
-            const noexcept;
+            const;
 
         LOQUAT_CPU_GPU
         SampledSpectrum reflectance(Vec3f outgoing,
             std::span<const Float> sample_1D,
-            std::span<const Point2f> sample_2D) const noexcept;
+            std::span<const Point2f> sample_2D) const;
 
         /// <summary>
         /// Hemispherical-hemispherical reflectance of a BRDF, calculating
@@ -253,10 +263,10 @@ namespace loquat
         /// <returns></returns>
         SampledSpectrum reflectance(std::span<const Point2f> hemisphere_sample,
             std::span<const Float> sample_1D,
-            std::span<const Point2f> sample_2D) const noexcept;
+            std::span<const Point2f> sample_2D) const;
 
         LOQUAT_CPU_GPU
-        inline void regularize() noexcept;
+        inline void regularize();
     };
 
     template<typename T>
