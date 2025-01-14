@@ -149,7 +149,8 @@ namespace loquat
 
     std::string to_string(BxDFReflTransFlags flags);
 
-    struct BSDFSample {
+    struct BSDFSample
+    {
         BSDFSample() = default;
         BSDFSample(SampledSpectrum spectrum, Vec3f incoming, Float pdf,
             BxDFFlags flags, Float eta = 1, bool pdf_is_proportional = false)

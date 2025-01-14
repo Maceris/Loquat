@@ -34,25 +34,25 @@ namespace loquat
 		PointType max;
 
 		LOQUAT_CPU_GPU
-		constexpr AABB() noexcept
+		constexpr AABB()
 			: min{ 0 }
 			, max{ 0 }
 		{}
-		constexpr ~AABB() noexcept = default;
+		constexpr ~AABB() = default;
 		LOQUAT_CPU_GPU
-		constexpr AABB(const AABB& aabb) noexcept
+		constexpr AABB(const AABB& aabb)
 			: min{ aabb.min }
 			, max{ aabb.max }
 		{}
 		LOQUAT_CPU_GPU
-		constexpr AABB& operator=(const AABB& aabb) noexcept
+		constexpr AABB& operator=(const AABB& aabb)
 		{
 			this->min = aabb.min;
 			this->max = aabb.max;
 			return *this;
 		}
 		LOQUAT_CPU_GPU
-		constexpr AABB(AABB&& aabb) noexcept
+		constexpr AABB(AABB&& aabb)
 			: min{ std::move(aabb.min) }
 			, max{ std::move(aabb.max) }
 		{}
@@ -65,24 +65,24 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		constexpr AABB(const PointType& min, const PointType& max) noexcept
+		constexpr AABB(const PointType& min, const PointType& max)
 			: min{ min }
 			, max{ max }
 		{}
 		LOQUAT_CPU_GPU
-		constexpr AABB(PointType&& min, PointType&& max) noexcept
+		constexpr AABB(PointType&& min, PointType&& max)
 			: min{ std::move(min) }
 			, max{ std::move(max) }
 		{}
 
-		std::string to_string() const noexcept
+		std::string to_string() const
 		{
 			return std::format("[ %s - %s ]", vector::to_string(min),
 				vector::to_string(max));
 		}
 
 		LOQUAT_CPU_GPU
-		T area() const noexcept
+		T area() const
 			requires requires (PointType p) { p.x; p.y; }
 		{
 			PointType diagonal = PointType(max - min);
@@ -103,7 +103,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Vec2<T> offset(Point2<T> p) const noexcept
+		Vec2<T> offset(Point2<T> p) const
 		{
 			Vec2<T> result = p - min;
 			if (max.x > min.x)
@@ -116,6 +116,26 @@ namespace loquat
 			}
 			return result;
 		}
+
+		LOQUAT_CPU_GPU
+		Vec3<T> offset(Point3<T> p) const
+		{
+			Vec3<T> result = p - min;
+			if (max.x > min.x)
+			{
+				result.x /= max.x - min.x;
+			}
+			if (max.y > min.y)
+			{
+				result.y /= max.y - min.y;
+			}
+			if (max.z > min.z)
+			{
+				result.z /= max.z - min.z;
+			}
+			return result;
+		}
+
 		//TODO(ches) add more functions
 	};
 }

@@ -6,15 +6,25 @@
 
 #pragma once
 
+#include <algorithm>
 #include <array>
+#include <cmath>
+#include <functional>
+#include <memory>
+#include <numeric>
 #include <ranges>
 #include <span>
+#include <string>
 #include <vector>
 
 #include "main/loquat.h"
 #include "pbr/util/color.h"
+#include "pbr/math/float.h"
 #include "pbr/math/hash.h"
+#include "pbr/math/math.h"
 #include "pbr/math/sampling.h"
+#include "pbr/util/pstd.h"
+#include "pbr/util/sampling.h"
 #include "pbr/util/tagged_pointer.h"
 
 namespace loquat
