@@ -54,7 +54,6 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/gpu/optix/aggregate.h
   ${HEADER_PATH}/pbr/gpu/optix/denoiser.h
   ${HEADER_PATH}/pbr/gpu/optix/optix.h
-  ${HEADER_PATH}/pbr/math/aabb.h
   ${HEADER_PATH}/pbr/math/blue_noise.h
   ${HEADER_PATH}/pbr/math/float.h
   ${HEADER_PATH}/pbr/math/hash.h

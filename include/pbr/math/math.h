@@ -803,7 +803,9 @@ namespace loquat
         *t0 = q / a;
         *t1 = c / q;
         if (*t0 > *t1)
+        {
             pstd::swap(*t0, *t1);
+        }
 
         return true;
     }

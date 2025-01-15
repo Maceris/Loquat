@@ -7,6 +7,8 @@
 #pragma once
 
 #include <format>
+#include <limits>
+#include <type_traits>
 
 #include "main/loquat.h"
 #include "pbr/math/float.h"
@@ -326,6 +328,311 @@ namespace loquat
 
 	template <typename T>
 	LOQUAT_CPU_GPU
+	inline auto lerp(Float t, Vec3<T> t0, Vec3<T> t1) {
+		return (1 - t) * t0 + t * t1;
+	}
+
+	LOQUAT_CPU_GPU
+	inline bool same_hemisphere(Vec3f w, Vec3f wp) {
+		return w.z * wp.z > 0;
+	}
+
+	template <template<typename U> typename PointBase, typename T>
+		requires is_point<PointBase<T>>
+	struct AABB;
+
+	using AABB1f = AABB<Point1, Float>;
+	using AABB1i = AABB<Point1, int>;
+
+	using AABB2f = AABB<Point2, Float>;
+	using AABB2i = AABB<Point2, int>;
+
+	using AABB3f = AABB<Point3, Float>;
+	using AABB3i = AABB<Point3, int>;
+
+	template <template<typename U> typename PointBase, typename T>
+		requires is_point<PointBase<T>>
+	struct AABB
+	{
+	public:
+		using PointType = PointBase<T>;
+
+		PointType min;
+		PointType max;
+
+		LOQUAT_CPU_GPU
+		constexpr AABB()
+			: min{ std::numeric_limits<T>::lowest() }
+			, max{ std::numeric_limits<T>::max() }
+		{}
+		constexpr ~AABB() = default;
+		LOQUAT_CPU_GPU
+		constexpr AABB(const AABB& aabb)
+			: min{ aabb.min }
+			, max{ aabb.max }
+		{
+			if (aabb.is_empty())
+			{
+				*this = AABB();
+			}
+			else
+			{
+				min = PointType(aabb.min);
+				max = PointType(aabb.max);
+			}
+		}
+
+		LOQUAT_CPU_GPU
+		constexpr AABB& operator=(const AABB& aabb)
+		{
+			this->min = aabb.min;
+			this->max = aabb.max;
+			return *this;
+		}
+		LOQUAT_CPU_GPU
+		constexpr AABB(AABB&& aabb)
+			: min{ std::move(aabb.min) }
+			, max{ std::move(aabb.max) }
+		{}
+		LOQUAT_CPU_GPU
+		constexpr AABB& operator=(AABB&& aabb)
+		{
+			this->min = std::move(aabb.min);
+			this->max = std::move(aabb.max);
+			return *this;
+		}
+
+		LOQUAT_CPU_GPU
+		constexpr AABB(const PointType& min, const PointType& max)
+			: min{ min }
+			, max{ max }
+		{}
+		LOQUAT_CPU_GPU
+		constexpr AABB(PointType&& min, PointType&& max)
+			: min{ std::move(min) }
+			, max{ std::move(max) }
+		{}
+
+		std::string to_string() const
+		{
+			return std::format("[ {} - {} ]", vector::to_string(min),
+				vector::to_string(max));
+		}
+
+		LOQUAT_CPU_GPU
+		T area() const
+			requires requires (PointType p) { p.x; p.y; }
+		{
+			PointType diagonal = PointType(max - min);
+			return diagonal.x * diagonal.y;
+		}
+
+		LOQUAT_CPU_GPU
+		bool constexpr is_empty() const
+		{
+			for (int dim = 0; dim < PointType::length(); ++dim)
+			{
+				if (min[dim] >= max[dim])
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		template<typename Base = T, std::enable_if_t<std::is_same<PointBase<Base>, Point1<Base>>::value>* = nullptr>
+		LOQUAT_CPU_GPU
+		auto offset(PointBase<T> p) const
+		{
+			Vec1<T> result = p - min;
+			if (max.x > min.x)
+			{
+				result.x /= max.x - min.x;
+			}
+			return result;
+		}
+
+		template<typename Base = T, std::enable_if_t<std::is_same<PointBase<Base>, Point2<Base>>::value>* = nullptr>
+		LOQUAT_CPU_GPU
+		auto offset(PointBase<T> p) const
+		{
+			Vec2<T> result = p - min;
+			if (max.x > min.x)
+			{
+				result.x /= max.x - min.x;
+			}
+			if (max.y > min.y)
+			{
+				result.y /= max.y - min.y;
+			}
+			return result;
+		}
+
+		template<typename Base = T, std::enable_if_t<std::is_same<PointBase<Base>, Point3<Base>>::value>* = nullptr>
+		LOQUAT_CPU_GPU
+		auto offset(PointBase<T> p) const
+		{
+			Vec3<T> result = p - min;
+			if (max.x > min.x)
+			{
+				result.x /= max.x - min.x;
+			}
+			if (max.y > min.y)
+			{
+				result.y /= max.y - min.y;
+			}
+			if (max.z > min.z)
+			{
+				result.z /= max.z - min.z;
+			}
+			return result;
+		}
+
+		LOQUAT_CPU_GPU
+		PointType operator[](int i) const
+		{
+			LOG_ASSERT(i == 0 || i == 1);
+			return (i == 0) ? min : max;
+		}
+
+		LOQUAT_CPU_GPU
+		PointType& operator[](int i)
+		{
+			LOG_ASSERT(i == 0 || i == 1);
+			return (i == 0) ? min : max;
+		}
+
+		LOQUAT_CPU_GPU
+		PointType corner(int choice) const
+		{
+			if constexpr (PointType::length() == 2)
+			{
+				LOG_ASSERT(choice >= 0 && choice < 4);
+				return PointType(
+					(*this)[(choice & 1)].x, 
+					(*this)[(choice & 2) ? 1 : 0].y
+				);
+			}
+			else if constexpr (PointType::length() == 3)
+			{
+				LOG_ASSERT(choice >= 0 && choice < 8);
+				return PointType(
+					(*this)[(choice & 1)].x, 
+					(*this)[(choice & 2) ? 1 : 0].y,
+					(*this)[(choice & 4) ? 1 : 0].z);
+			}
+			else
+			{
+				LOG_FATAL("Unexpected point type dimensions");
+			}
+		}
+
+		LOQUAT_CPU_GPU
+		Vec3<T> diagonal() const { return max - min; }
+
+		LOQUAT_CPU_GPU
+		T surface_area() const
+		{
+			Vec3<T> d = diagonal();
+			return 2 * (d.x * d.y + d.x * d.z + d.y * d.z);
+		}
+
+		LOQUAT_CPU_GPU
+		T volume() const
+		{
+			Vec3<T> d = diagonal();
+			return d.x * d.y * d.z;
+		}
+
+		LOQUAT_CPU_GPU
+		int max_dimension() const
+		{
+			Vec3<T> d = diagonal();
+			if (d.x > d.y && d.x > d.z)
+				return 0;
+			else if (d.y > d.z)
+				return 1;
+			else
+				return 2;
+		}
+
+		LOQUAT_CPU_GPU
+		PointType lerp(PointType t) const
+		{
+			if constexpr (PointType::length() == 2)
+			{
+				return PointType(loquat::lerp(t.x, min.x, max.x), loquat::lerp(t.y, min.y, max.y));
+			}
+			else if constexpr (PointType::length() == 3)
+			{
+				return PointType(loquat::lerp(t.x, min.x, max.x), loquat::lerp(t.y, min.y, max.y),
+					loquat::lerp(t.z, min.z, max.z));
+			}
+			else
+			{
+				LOG_FATAL("Unexpected point type dimensions");
+			}
+		}
+
+		LOQUAT_CPU_GPU
+		void bounding_sphere(PointType* center, Float* radius) const
+		{
+			*center = (min + max) / 2;
+			*radius = inside(*center, *this) ? distance(*center, max) : 0;
+		}
+
+		LOQUAT_CPU_GPU
+		bool is_degenerate() const
+		{
+			for (int dim = 0; dim < PointType::length(); ++dim)
+			{
+				if (min[dim] > max[dim])
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		LOQUAT_CPU_GPU
+		bool operator==(const AABB& b) const
+		{
+			return b.min == min && b.max == max;
+		}
+
+		LOQUAT_CPU_GPU
+		bool operator!=(const AABB& b) const
+		{
+			return b.min != min || b.max != max;
+		}
+
+		LOQUAT_CPU_GPU
+		bool has_intersection(Point3f origin, Vec3f direction, 
+			Float t_max = Infinity,
+			Float* hit_t0 = nullptr, Float* hit_t1 = nullptr) const;
+
+		LOQUAT_CPU_GPU
+		bool has_intersection(Point3f origin, Vec3f direction, 
+			Float t_max, Vec3f inv_dir, const int dir_is_negative[3]) const;
+	
+	};
+
+	LOQUAT_CPU_GPU
+	inline Vec3f spherical_direction(Float sin_theta, Float cos_theta,
+		Float phi) noexcept
+	{
+		LOG_ASSERT(sin_theta >= -1.0001 && sin_theta <= 1.0001);
+		LOG_ASSERT(cos_theta >= -1.0001 && cos_theta <= 1.0001);
+
+		return {
+			clamp(sin_theta, -1, 1) * std::cos(phi),
+			clamp(sin_theta, -1, 1) * std::sin(phi),
+			clamp(cos_theta, -1, 1)
+		};
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
 	inline bool inside_exclusive(Point2<T> point,
 		const AABB<Point2, T>& bounds)
 	{
@@ -346,31 +653,6 @@ namespace loquat
 			&& point.y < bounds.min.y
 			&& point.z >= bounds.min.z
 			&& point.z < bounds.min.z;
-	}
-
-	template <typename T>
-	LOQUAT_CPU_GPU
-		inline auto lerp(Float t, Vec3<T> t0, Vec3<T> t1) {
-		return (1 - t) * t0 + t * t1;
-	}
-
-	LOQUAT_CPU_GPU
-	inline bool same_hemisphere(Vec3f w, Vec3f wp) {
-		return w.z * wp.z > 0;
-	}
-
-	LOQUAT_CPU_GPU
-	inline Vec3f spherical_direction(Float sin_theta, Float cos_theta,
-		Float phi) noexcept
-	{
-		LOG_ASSERT(sin_theta >= -1.0001 && sin_theta <= 1.0001);
-		LOG_ASSERT(cos_theta >= -1.0001 && cos_theta <= 1.0001);
-
-		return {
-			clamp(sin_theta, -1, 1) * std::cos(phi),
-			clamp(sin_theta, -1, 1) * std::sin(phi),
-			clamp(cos_theta, -1, 1)
-		};
 	}
 
 	/// <summary>
