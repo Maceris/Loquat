@@ -79,19 +79,19 @@ namespace loquat
 		using TaggedPointer::TaggedPointer;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
-		Float operator()(Float lambda) const noexcept;
+		Float operator()(Float lambda) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept;
+		Float max_value() const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		SampledSpectrum sample(const SampledWavelengths& lambda)
-			const noexcept;
+			const;
 	};
 
 	/// <summary>
@@ -134,14 +134,14 @@ namespace loquat
 	{
 	public:
 		LOQUAT_CPU_GPU
-		SampledSpectrum operator+(const SampledSpectrum& s) const noexcept
+		SampledSpectrum operator+(const SampledSpectrum& s) const
 		{
 			SampledSpectrum result = *this;
 			return result += s;
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum& operator-=(const SampledSpectrum& s) noexcept
+		SampledSpectrum& operator-=(const SampledSpectrum& s)
 		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
@@ -151,7 +151,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum operator-(const SampledSpectrum& s) const noexcept
+		SampledSpectrum operator-(const SampledSpectrum& s) const
 		{
 			SampledSpectrum result = *this;
 			return result -= s;
@@ -171,7 +171,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum& operator*=(const SampledSpectrum& s) noexcept
+		SampledSpectrum& operator*=(const SampledSpectrum& s)
 		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
@@ -181,14 +181,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum operator*(const SampledSpectrum& s) const noexcept
+		SampledSpectrum operator*(const SampledSpectrum& s) const
 		{
 			SampledSpectrum result = *this;
 			return result *= s;
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum operator*(Float a) const noexcept
+		SampledSpectrum operator*(Float a) const
 		{
 			LOG_ASSERT(!is_NaN(a) && "Trying to multiply by a NaN");
 			SampledSpectrum result = *this;
@@ -200,7 +200,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum& operator*=(Float a) noexcept
+		SampledSpectrum& operator*=(Float a)
 		{
 			LOG_ASSERT(!is_NaN(a) && "Trying to multiply by a NaN");
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -218,7 +218,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum& operator/=(const SampledSpectrum& s) noexcept
+		SampledSpectrum& operator/=(const SampledSpectrum& s)
 		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
@@ -229,14 +229,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum operator/(const SampledSpectrum& s) const noexcept
+		SampledSpectrum operator/(const SampledSpectrum& s) const
 		{
 			SampledSpectrum result = *this;
 			return result /= s;
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum& operator/=(Float a) noexcept
+		SampledSpectrum& operator/=(Float a)
 		{
 			LOG_ASSERT(a != 0 && "Trying to divide by zero");
 			LOG_ASSERT(!is_NaN(a) && "Trying to divide by NaN");
@@ -248,14 +248,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum operator/(Float a) const noexcept
+		SampledSpectrum operator/(Float a) const
 		{
 			SampledSpectrum result = *this;
 			return result /= a;
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum operator-() const noexcept
+		SampledSpectrum operator-() const
 		{
 			SampledSpectrum result;
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -266,22 +266,22 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		bool operator==(const SampledSpectrum& s) const noexcept
+		bool operator==(const SampledSpectrum& s) const
 		{
 			return values == s.values;
 		}
 
 		LOQUAT_CPU_GPU
-		bool operator!=(const SampledSpectrum& s) const noexcept
+		bool operator!=(const SampledSpectrum& s) const
 		{
 			return values != s.values;
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
-		bool has_NaNs() const noexcept
+		bool has_NaNs() const
 		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
@@ -294,25 +294,25 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		XYZ to_XYZ(const SampledWavelengths& lambda) const noexcept;
+		XYZ to_XYZ(const SampledWavelengths& lambda) const;
 		
 		LOQUAT_CPU_GPU
 		RGB to_RGB(const SampledWavelengths& lambda,
-			const RGBColorSpace& color_space) const noexcept;
+			const RGBColorSpace& color_space) const;
 		
 		LOQUAT_CPU_GPU
-		Float y(const SampledWavelengths& lambda) const noexcept;
+		Float y(const SampledWavelengths& lambda) const;
 
-		SampledSpectrum() noexcept = default;
+		SampledSpectrum() = default;
 
 		LOQUAT_CPU_GPU
-		explicit SampledSpectrum(Float c) noexcept
+		explicit SampledSpectrum(Float c)
 		{
 			values.fill(c);
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum(std::span<const Float> v) noexcept
+		SampledSpectrum(std::span<const Float> v)
 		{
 			LOG_ASSERT(v.size() == SPECTRUM_SAMPLE_COUNT
 				&& "Not the same number of sample counts");
@@ -323,7 +323,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float operator[](int i) const noexcept
+		Float operator[](int i) const
 		{
 			LOG_ASSERT(i >= 0 && i < SPECTRUM_SAMPLE_COUNT
 				&& "Index out of bounds");
@@ -331,7 +331,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float& operator[](int i) noexcept
+		Float& operator[](int i)
 		{
 			LOG_ASSERT(i >= 0 && i < SPECTRUM_SAMPLE_COUNT
 				&& "Index out of bounds");
@@ -339,7 +339,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		explicit operator bool() const noexcept
+		explicit operator bool() const
 		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
@@ -352,7 +352,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum& operator+=(const SampledSpectrum& s) noexcept
+		SampledSpectrum& operator+=(const SampledSpectrum& s)
 		{
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
@@ -362,7 +362,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float min_component_value() const noexcept
+		Float min_component_value() const
 		{
 			Float min = values[0];
 			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -373,7 +373,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float max_component_value() const noexcept
+		Float max_component_value() const
 		{
 			Float max = values[0];
 			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -384,7 +384,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float average() const noexcept
+		Float average() const
 		{
 			Float sum = values[0];
 			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -404,19 +404,19 @@ namespace loquat
 	public:
 
 		LOQUAT_CPU_GPU
-		bool operator==(const SampledWavelengths& other) const noexcept
+		bool operator==(const SampledWavelengths& other) const
 		{
 			return wavelengths == other.wavelengths && pdf == other.pdf;
 		}
 
 		LOQUAT_CPU_GPU
-		bool operator!=(const SampledWavelengths& other) const noexcept
+		bool operator!=(const SampledWavelengths& other) const
 		{
 			return wavelengths != other.wavelengths || pdf != other.pdf;
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
 		static SampledWavelengths sample_uniform(Float u,
@@ -449,25 +449,25 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float operator[](int i) const noexcept
+		Float operator[](int i) const
 		{
 			return wavelengths[i];
 		}
 		
 		LOQUAT_CPU_GPU
-		Float& operator[](int i) noexcept
+		Float& operator[](int i)
 		{
 			return wavelengths[i];
 		}
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum PDF() const noexcept
+		SampledSpectrum PDF() const
 		{
 			return SampledSpectrum(pdf);
 		}
 
 		LOQUAT_CPU_GPU
-		void terminate_secondary() noexcept
+		void terminate_secondary()
 		{
 			if (secondary_terminated())
 			{
@@ -482,7 +482,7 @@ namespace loquat
 		
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		bool secondary_terminated() const noexcept
+		bool secondary_terminated() const
 		{
 			for (int i = 1; i < SPECTRUM_SAMPLE_COUNT; ++i)
 			{
@@ -530,24 +530,24 @@ namespace loquat
 		{}
 
 		LOQUAT_CPU_GPU
-		Float operator()(Float wavelength) const noexcept
+		Float operator()(Float wavelength) const
 		{
 			return constant;
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		SampledSpectrum sample(const SampledWavelengths&) const noexcept;
+		SampledSpectrum sample(const SampledWavelengths&) const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept
+		Float max_value() const
 		{
 			return constant;
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		Float constant;
@@ -575,7 +575,7 @@ namespace loquat
 		{}
 
 		DenselySampledSpectrum(const DenselySampledSpectrum& spectrum, 
-			Allocator allocator) noexcept
+			Allocator allocator)
 			: wavelength_min{ wavelength_min }
 			, wavelength_max{ wavelength_max }
 			, values{ spectrum.values.begin(), spectrum.values.end(), 
@@ -585,7 +585,7 @@ namespace loquat
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		SampledSpectrum sample(const SampledWavelengths& wavelengths)
-			const noexcept
+			const
 		{
 			SampledSpectrum result;
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -604,7 +604,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		void scale(Float scale) noexcept
+		void scale(Float scale)
 		{
 			for (Float& v : values)
 			{
@@ -613,13 +613,13 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept
+		Float max_value() const
 		{
 			return *std::ranges::max_element(values.begin(), values.end());
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		DenselySampledSpectrum(Spectrum spectrum,
 			int wavelength_min = WAVELENGTH_MIN,
@@ -659,7 +659,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float operator()(Float wavelength) const noexcept
+		Float operator()(Float wavelength) const
 		{
 			LOG_ASSERT(wavelength > 0);
 			int offset = std::lround(wavelength) - wavelength_min;
@@ -671,7 +671,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		bool operator==(const DenselySampledSpectrum& other) const noexcept
+		bool operator==(const DenselySampledSpectrum& other) const
 		{
 			if (wavelength_min != other.wavelength_min
 				|| wavelength_max != other.wavelength_max
@@ -711,10 +711,10 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept;
+		Float max_value() const;
 
 		LOQUAT_CPU_GPU
-		SampledSpectrum sample(const SampledWavelengths& wavelengths) const noexcept
+		SampledSpectrum sample(const SampledWavelengths& wavelengths) const
 		{
 			SampledSpectrum result;
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -725,16 +725,16 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float operator()(Float wavelength) const noexcept;
+		Float operator()(Float wavelength) const;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		PiecewiseLinearSpectrum(std::span<const Float> wavelengths,
-			std::span<const Float> values, Allocator allcator = {}) noexcept;
+			std::span<const Float> values, Allocator allcator = {});
 
 		static pstd::optional<Spectrum> read(const std::string_view filename,
-			Allocator allocator) noexcept;
+			Allocator allocator);
 
 		static PiecewiseLinearSpectrum* from_interleaved(
 			std::span<const Float> samples, bool normalize,
@@ -749,7 +749,7 @@ namespace loquat
 	{
 	public:
 		LOQUAT_CPU_GPU
-		BlackbodySpectrum(Float temperature) noexcept
+		BlackbodySpectrum(Float temperature)
 			: temperature{ temperature }
 		{
 			const Float max_wavelength = 2.8977721e-3f / temperature;
@@ -758,7 +758,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float operator()(Float wavelength) const noexcept
+		Float operator()(Float wavelength) const
 		{
 			return blackbody(wavelength, temperature) * normalization_factor;
 		}
@@ -766,7 +766,7 @@ namespace loquat
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		SampledSpectrum sample(const SampledWavelengths& wavelengths)
-			const noexcept
+			const
 		{
 			SampledSpectrum result;
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -778,13 +778,13 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept
+		Float max_value() const
 		{
 			return 1.0f;
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		Float temperature;
@@ -795,23 +795,23 @@ namespace loquat
 	{
 	public:
 		LOQUAT_CPU_GPU
-		Float operator()(Float wavelength) const noexcept
+		Float operator()(Float wavelength) const
 		{
 			return rsp(wavelength);
 		}
 
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept
+		Float max_value() const
 		{
 			return rsp.max_value();
 		}
 
 		LOQUAT_CPU_GPU
-		RGBAlbedoSpectrum(const RGBColorSpace& color_space, RGB rgb) noexcept;
+		RGBAlbedoSpectrum(const RGBColorSpace& color_space, RGB rgb);
 
 		LOQUAT_CPU_GPU
 		SampledSpectrum sample(const SampledWavelengths& wavelengths)
-			const noexcept
+			const
 		{
 			SampledSpectrum result;
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -822,7 +822,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		RGBSigmoidPolynomial rsp;
@@ -833,13 +833,13 @@ namespace loquat
 	{
 	public:
 		LOQUAT_CPU_GPU
-		Float operator()(Float wavelength) const noexcept
+		Float operator()(Float wavelength) const
 		{
 			return scale * rsp(wavelength);
 		}
 
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept
+		Float max_value() const
 		{
 			return scale * rsp.max_value();
 		}
@@ -856,7 +856,7 @@ namespace loquat
 
 		LOQUAT_CPU_GPU
 		SampledSpectrum sample(const SampledWavelengths& wavelengths)
-			const noexcept
+			const
 		{
 			SampledSpectrum result;
 			for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -867,7 +867,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		Float scale = 1;
@@ -885,7 +885,7 @@ namespace loquat
 			noexcept;
 
 		LOQUAT_CPU_GPU
-		Float operator()(Float wavelength) const noexcept
+		Float operator()(Float wavelength) const
 		{
 			if (!illuminant)
 			{
@@ -895,7 +895,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Float max_value() const noexcept
+		Float max_value() const
 		{
 			if (!illuminant)
 			{
@@ -905,14 +905,14 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		const DenselySampledSpectrum* get_illuminant() const noexcept
+		const DenselySampledSpectrum* get_illuminant() const
 		{
 			return illuminant;
 		}
 
 		LOQUAT_CPU_GPU
 		SampledSpectrum sample(const SampledWavelengths& wavelengths)
-			const noexcept
+			const
 		{
 			if (!illuminant)
 			{
@@ -927,7 +927,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		Float scale;
@@ -950,7 +950,7 @@ namespace loquat
 	template <number U, number V>
 	LOQUAT_CPU_GPU
 	inline SampledSpectrum clamp(const SampledSpectrum& spectrum, U low,
-		V high) noexcept
+		V high)
 	{
 		SampledSpectrum result;
 		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -962,7 +962,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline SampledSpectrum clamp_zero(const SampledSpectrum& spectrum) noexcept
+	inline SampledSpectrum clamp_zero(const SampledSpectrum& spectrum)
 	{
 		SampledSpectrum result;
 		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -974,7 +974,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline SampledSpectrum sqrt(const SampledSpectrum& spectrum) noexcept
+	inline SampledSpectrum sqrt(const SampledSpectrum& spectrum)
 	{
 		SampledSpectrum result;
 		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -986,7 +986,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline SampledSpectrum safe_sqrt(const SampledSpectrum& spectrum) noexcept
+	inline SampledSpectrum safe_sqrt(const SampledSpectrum& spectrum)
 	{
 		SampledSpectrum result;
 		for (int i = 0; i < SPECTRUM_SAMPLE_COUNT; ++i)
@@ -1037,7 +1037,7 @@ namespace loquat
 
 	LOQUAT_CPU_GPU
 	inline SampledSpectrum bilerp(std::array<Float, 2> p,
-		std::span<const SampledSpectrum> spectrum) noexcept
+		std::span<const SampledSpectrum> spectrum)
 	{
 		LOG_ASSERT(spectrum.size() >= 3);
 		return (
@@ -1049,7 +1049,14 @@ namespace loquat
 
 	LOQUAT_CPU_GPU
 	inline SampledSpectrum bilerp(Float t, const SampledSpectrum& s1,
-		const SampledSpectrum& s2 ) noexcept
+		const SampledSpectrum& s2 )
+	{
+		return (1 - t) * s1 + t * s2;
+	}
+
+	LOQUAT_CPU_GPU
+	inline SampledSpectrum lerp(Float t, const SampledSpectrum& s1,
+			const SampledSpectrum& s2)
 	{
 		return (1 - t) * s1 + t * s2;
 	}
@@ -1110,7 +1117,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline Float inner_product(Spectrum f, Spectrum g) noexcept
+	inline Float inner_product(Spectrum f, Spectrum g)
 	{
 		Float integral = 0;
 		for (Float wavelength = WAVELENGTH_MIN; wavelength <= WAVELENGTH_MAX;
@@ -1122,7 +1129,7 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline Float Spectrum::operator()(Float wavelength) const noexcept
+	inline Float Spectrum::operator()(Float wavelength) const
 	{
 		auto op = [&](auto ptr) { return (*ptr)(wavelength); };
 		return dispatch(op);
@@ -1130,14 +1137,14 @@ namespace loquat
 
 	LOQUAT_CPU_GPU
 	inline SampledSpectrum Spectrum::sample(
-		const SampledWavelengths& wavelengths) const noexcept
+		const SampledWavelengths& wavelengths) const
 	{
 		auto op = [&](auto ptr) { return ptr->sample(wavelengths); };
 		return dispatch(op);
 	}
 
 	LOQUAT_CPU_GPU
-	inline Float Spectrum::max_value() const noexcept
+	inline Float Spectrum::max_value() const
 	{
 		auto op = [&](auto ptr) { return ptr->max_value(); };
 		return dispatch(op);
@@ -1152,7 +1159,7 @@ namespace std
 	{
 		LOQUAT_CPU_GPU
 		size_t operator()(const loquat::DenselySampledSpectrum& spectrum)
-			const noexcept
+			const
 		{
 			return loquat::hash_buffer(spectrum.values.data(),
 				spectrum.values.size());

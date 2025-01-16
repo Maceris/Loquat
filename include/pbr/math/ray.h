@@ -71,6 +71,12 @@ namespace loquat
 			return *this;
 		}
 
+		LOQUAT_CPU_GPU
+		Point3f operator()(Float t) const
+		{
+			return origin + direction * t;
+		}
+
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
 		bool has_NaN() const noexcept

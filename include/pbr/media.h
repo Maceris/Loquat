@@ -20,6 +20,7 @@
 #include "pbr/struct/parameter_dictionary.h"
 #include "pbr/util/color_space.h"
 #include "pbr/util/memory.h"
+#include "pbr/util/noise.h"
 #include "pbr/util/parallel.h"
 #include "pbr/util/pstd.h"
 #include "pbr/util/scattering.h"
@@ -33,8 +34,6 @@
 #include "nanovdb/util/CudaDeviceBuffer.h"
 #endif
 
-//TODO(ches) enable after updating AABB and containers
-#if 0
 namespace loquat
 {
 	bool get_medium_scattering_properties(const std::string& name, Spectrum* sigma_a,
@@ -50,7 +49,7 @@ namespace loquat
         {}
 
         LOQUAT_CPU_GPU
-        Float p(Vec3f wo, Vec3f wi) const
+        Float phase(Vec3f wo, Vec3f wi) const
         {
             return henyey_greenstein(dot(wo, wi), g);
         }
@@ -66,7 +65,7 @@ namespace loquat
         LOQUAT_CPU_GPU
         Float PDF(Vec3f wo, Vec3f wi) const
         {
-            return p(wo, wi);
+            return phase(wo, wi);
         }
 
         static const char* name()
@@ -168,7 +167,7 @@ namespace loquat
             , sigma_t(sigma_t)
         {
             // set up 3D DDA for ray through the majorant grid
-            Vec3f diag = grid->bounds.get_diagonal();
+            Vec3f diag = grid->bounds.diagonal();
             Ray ray_grid(Point3f(grid->bounds.offset(ray.origin)),
                 Vec3f(ray.direction.x / diag.x, ray.direction.y / diag.y, ray.direction.z / diag.z));
             Point3f grid_intersect = ray_grid(tMin);
@@ -484,7 +483,10 @@ namespace loquat
             return std::format("[ CloudMedium bounds: {} renderFromMedium: {} phase: {} "
                 "sigma_a_spec: {} sigma_s_spec: {} density: {} wispiness: {} "
                 "frequency: {} ]",
-                bounds, renderFromMedium, phase, sigma_a_spec, sigma_s_spec,
+                bounds.to_string(), renderFromMedium.to_string(),
+                phase.to_string(),
+                sigma_a_spec.to_string(),
+                sigma_s_spec.to_string(),
                 density, wispiness, frequency);
         }
 
@@ -508,7 +510,7 @@ namespace loquat
         MediumProperties sample_point(Point3f p, const SampledWavelengths& lambda) const
         {
             // Compute sampled spectra for cloud $\sigmaa$ and $\sigmas$ at _p_
-            Float density = density(renderFromMedium.apply_inverse(p));
+            Float density = get_density(renderFromMedium.apply_inverse(p));
             SampledSpectrum sigma_a = density * sigma_a_spec.sample(lambda);
             SampledSpectrum sigma_s = density * sigma_s_spec.sample(lambda);
 
@@ -537,7 +539,7 @@ namespace loquat
 
     private:
         LOQUAT_CPU_GPU
-        Float density(Point3f p) const
+        Float get_density(Point3f p) const
         {
             Point3f pp = frequency * p;
             if (wispiness > 0) {
@@ -799,11 +801,11 @@ namespace loquat
             // Return _RayMajorantIterator_ for medium's majorant iterator
             using ConcreteMedium = typename std::remove_reference_t<decltype(*medium)>;
             using Iter = typename ConcreteMedium::MajorantIterator;
-            Iter* iter = (Iter*)buf.Alloc(sizeof(Iter), alignof(Iter));
+            Iter* iter = (Iter*)buf.alloc(sizeof(Iter), alignof(Iter));
             *iter = medium->sample_ray(ray, tMax, lambda);
             return RayMajorantIterator(iter);
             };
-        return dispatch_cpu(sample);
+        return dispatchCPU(sample);
     }
 
     template <typename F>
@@ -823,12 +825,12 @@ namespace loquat
     SampledSpectrum sample_t_maj(Ray ray, Float tMax, Float u, RNG& rng,
         const SampledWavelengths& lambda, F callback)
     {
-        // Normalize ray direction and update _tMax_ accordingly
-        tMax *= Length(ray.direction);
-        ray.direction = Normalize(ray.direction);
+        // normalize ray direction and update _tMax_ accordingly
+        tMax *= length(ray.direction);
+        ray.direction = normalize(ray.direction);
 
         // Initialize _MajorantIterator_ for ray majorant sampling
-        ConcreteMedium* medium = ray.medium.Cast<ConcreteMedium>();
+        ConcreteMedium* medium = ray.medium.cast<ConcreteMedium>();
         typename ConcreteMedium::MajorantIterator iter = medium->sample_ray(ray, tMax, lambda);
 
         // Generate ray majorant samples until termination
@@ -850,7 +852,7 @@ namespace loquat
                     dt = std::numeric_limits<Float>::max();
                 }
 
-                T_maj *= FastExp(-dt * seg->sigma_maj);
+                T_maj *= fast_exp(-dt * seg->sigma_maj);
                 continue;
             }
 
@@ -862,12 +864,12 @@ namespace loquat
                 Float t = tMin + SampleExponential(u, seg->sigma_maj[0]);
                 LOG_INFO(std::format("Sampled t = {} from tMin {} u {} sigma_maj[0] {}\n", t, tMin, u,
                     seg->sigma_maj[0]));
-                u = rng.Uniform<Float>();
+                u = rng.uniform<Float>();
                 if (t < seg->tMax)
                 {
                     // Call callback function for sample within segment
-                    PBRT_DBG("t < seg->tMax\n");
-                    T_maj *= FastExp(-(t - tMin) * seg->sigma_maj);
+                    LOG_INFO("t < seg->tMax\n");
+                    T_maj *= fast_exp(-(t - tMin) * seg->sigma_maj);
                     MediumProperties mp = medium->sample_point(ray(t), lambda);
                     if (!callback(ray(t), mp, seg->sigma_maj, T_maj)) {
                         // Returning out of doubly-nested while loop is not as good perf. wise
@@ -887,7 +889,7 @@ namespace loquat
                     if (IsInf(dt))
                         dt = std::numeric_limits<Float>::max();
 
-                    T_maj *= FastExp(-dt * seg->sigma_maj);
+                    T_maj *= fast_exp(-dt * seg->sigma_maj);
                     LOG_ASSERT(std::format("Past end, added dt {} * maj[0] {}\n", dt, seg->sigma_maj[0]));
                     break;
                 }
@@ -897,5 +899,3 @@ namespace loquat
     }
 };
 
-
-#endif

@@ -639,7 +639,7 @@ namespace loquat
                 Float uc = r();
                 pstd::optional<BSDFSample> wos = enterInterface.sample_f(
                     wo, uc, Point2f(r(), r()), mode, BxDFReflTransFlags::Transmission);
-                if (!wos || !wos->f || wos->pdf == 0 || wos->incoming.z == 0)
+                if (!wos || !wos->spectrum || wos->pdf == 0 || wos->incoming.z == 0)
                 {
                     continue;
                 }
@@ -648,13 +648,13 @@ namespace loquat
                 uc = r();
                 pstd::optional<BSDFSample> wis = exitInterface.sample_f(
                     incoming, uc, Point2f(r(), r()), !mode, BxDFReflTransFlags::Transmission);
-                if (!wis || !wis->f || wis->pdf == 0 || wis->incoming.z == 0)
+                if (!wis || !wis->spectrum || wis->pdf == 0 || wis->incoming.z == 0)
                 {
                     continue;
                 }
 
                 // Declare state for random walk through BSDF layers
-                SampledSpectrum beta = wos->f * abs_cos_theta(wos->incoming) / wos->pdf;
+                SampledSpectrum beta = wos->spectrum * abs_cos_theta(wos->incoming) / wos->pdf;
                 Float z = enteredTop ? thickness : 0;
                 Vec3f w = wos->incoming;
                 HGPhaseFunction phase(g);
@@ -692,7 +692,7 @@ namespace loquat
                         Float sigma_t = 1;
                         Float dz = sample_exponential(r(), sigma_t / std::abs(w.z));
                         Float zp = w.z > 0 ? (z + dz) : (z - dz);
-                        DCHECK_RARE(1e-5, z == zp);
+                        //LOG_ASSERT(z == zp);
                         if (z == zp)
                         {
                             continue;
@@ -706,17 +706,17 @@ namespace loquat
                             {
                                 wt = power_heuristic(1, wis->pdf, 1, phase.PDF(-w, -wis->incoming));
                             }
-                            f += beta * albedo * phase.p(-w, -wis->incoming) * wt *
-                                tr(zp - exitZ, wis->incoming) * wis->f / wis->pdf;
+                            f += beta * albedo * phase.phase(-w, -wis->incoming) * wt *
+                                tr(zp - exitZ, wis->incoming) * wis->spectrum / wis->pdf;
 
                             // Sample phase function and update layered path state
                             Point2f u{ r(), r() };
-                            pstd::optional<PhaseFunctionSample> ps = phase.Sample_p(-w, u);
+                            pstd::optional<PhaseFunctionSample> ps = phase.sample_phase(-w, u);
                             if (!ps || ps->pdf == 0 || ps->incoming.z == 0)
                             {
                                 continue;
                             }
-                            beta *= albedo * ps->p / ps->pdf;
+                            beta *= albedo * ps->probability / ps->pdf;
                             w = ps->incoming;
                             z = zp;
 
@@ -764,7 +764,7 @@ namespace loquat
                                     nonExitInterface.PDF(-w, -wis->incoming, mode));
                             }
                             f += beta * nonExitInterface.f(-w, -wis->incoming, mode) *
-                                abs_cos_theta(wis->incoming) * wt * tr(thickness, wis->incoming) * wis->f /
+                                abs_cos_theta(wis->incoming) * wt * tr(thickness, wis->incoming) * wis->spectrum /
                                 wis->pdf;
                         }
                         // Sample new direction using BSDF at _nonExitInterface_
@@ -882,7 +882,7 @@ namespace loquat
                     {
                         // Update path state for valid scattering event between interfaces
                         pstd::optional<PhaseFunctionSample> ps =
-                            phase.Sample_p(-w, Point2f(r(), r()));
+                            phase.sample_phase(-w, Point2f(r(), r()));
                         if (!ps || ps->pdf == 0 || ps->incoming.z == 0)
                         {
                             return {};

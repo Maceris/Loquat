@@ -35,20 +35,20 @@ namespace loquat
 		using TaggedPointer::TaggedPointer;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
-		inline Float phase(Vec3f outgoing, Vec3f incoming) const noexcept;
+		inline Float phase(Vec3f outgoing, Vec3f incoming) const;
 
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline pstd::optional<PhaseFunctionSample> sample_phase(Vec3f outgoing,
-			Point2f sample_2D) const noexcept;
+			Point2f sample_2D) const;
 
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
-		inline Float PDF(Vec3f outgoing, Vec3f incoming) const noexcept;
+		inline Float PDF(Vec3f outgoing, Vec3f incoming) const;
 	};
 
 
@@ -66,7 +66,7 @@ namespace loquat
 		SampledSpectrum sigma_maj;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 	};
 
 	class HomogeneousMajorantIterator;
@@ -79,10 +79,10 @@ namespace loquat
 		using TaggedPointer::TaggedPointer;
 
 		LOQUAT_CPU_GPU
-		pstd::optional<RayMajorantSegment> next() noexcept;
+		pstd::optional<RayMajorantSegment> next();
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 	};
 
 	class Medium : public TaggedPointer<HomogeneousMedium, GridMedium, 
@@ -92,7 +92,7 @@ namespace loquat
 		using TaggedPointer::TaggedPointer;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
 		bool is_emissive() const;
@@ -113,7 +113,7 @@ namespace loquat
 	{
 	public:
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		MediumInterface() = default;
 
@@ -131,7 +131,7 @@ namespace loquat
 
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
-		bool is_medium_transition() const noexcept
+		bool is_medium_transition() const
 		{
 			return inside != outside;
 		}

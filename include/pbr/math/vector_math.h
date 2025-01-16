@@ -332,6 +332,12 @@ namespace loquat
 		return (1 - t) * t0 + t * t1;
 	}
 
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline auto lerp(Float t, Point3<T> t0, Point3<T> t1) {
+		return (1 - t) * t0 + t * t1;
+	}
+
 	LOQUAT_CPU_GPU
 	inline bool same_hemisphere(Vec3f w, Vec3f wp) {
 		return w.z * wp.z > 0;
