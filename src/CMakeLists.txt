@@ -81,6 +81,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/color.h
   ${HEADER_PATH}/pbr/util/color_space.h
   ${HEADER_PATH}/pbr/util/display.h
+  ${HEADER_PATH}/pbr/util/error.h
   ${HEADER_PATH}/pbr/util/gui.h
   ${HEADER_PATH}/pbr/util/loop_subdivide.h
   ${HEADER_PATH}/pbr/util/memory.h
