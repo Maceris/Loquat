@@ -28,6 +28,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/materials.h
   ${HEADER_PATH}/pbr/media.h
   ${HEADER_PATH}/pbr/options.h
+  ${HEADER_PATH}/pbr/parser.h
   ${HEADER_PATH}/pbr/samplers.h
   ${HEADER_PATH}/pbr/scene.h
   ${HEADER_PATH}/pbr/shapes.h
