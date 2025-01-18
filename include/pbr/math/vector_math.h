@@ -623,6 +623,88 @@ namespace loquat
 	
 	};
 
+	template <template<typename U> typename PointBase, typename T>
+		requires is_point<PointBase<T>>
+	class BoundsIterator : public std::forward_iterator_tag {
+	public:
+		LOQUAT_CPU_GPU
+		BoundsIterator(const AABB<PointBase, T>& b, const PointBase<T>& pt)
+			: p(pt)
+			, bounds(&b)
+		{}
+
+		LOQUAT_CPU_GPU
+		BoundsIterator operator++()
+		{
+			advance();
+			return *this;
+		}
+
+		LOQUAT_CPU_GPU
+		BoundsIterator operator++(int)
+		{
+			BoundsIterator old = *this;
+			advance();
+			return old;
+		}
+
+		LOQUAT_CPU_GPU
+		bool operator==(const BoundsIterator& bi) const
+		{
+			return p == bi.p && bounds == bi.bounds;
+		}
+
+		LOQUAT_CPU_GPU
+		bool operator!=(const BoundsIterator& bi) const
+		{
+			return p != bi.p || bounds != bi.bounds;
+		}
+
+		LOQUAT_CPU_GPU
+		PointBase<T> operator*() const { return p; }
+
+	private:
+		LOQUAT_CPU_GPU
+		void advance()
+		{
+			++p.x;
+			if (p.x == bounds->max.x)
+			{
+				p.x = bounds->min.x;
+				++p.y;
+			}
+		}
+		PointBase<T> p;
+		const AABB<PointBase, T>* bounds;
+	};
+
+	template <template<typename U> typename PointBase, typename T>
+		requires is_point<PointBase<T>>
+	LOQUAT_CPU_GPU
+	inline BoundsIterator<PointBase, T> begin(const AABB<PointBase, T>& b)
+	{
+		return BoundsIterator<PointBase, T>(b, b.min);
+	}
+
+	template <template<typename U> typename PointBase, typename T>
+		requires is_point<PointBase<T>>
+	LOQUAT_CPU_GPU
+	inline BoundsIterator<PointBase, T> end(const AABB<PointBase, T>& b)
+	{
+		// Normally, the ending point is at the minimum x value and one past
+		// the last valid y value.
+		Point2i pEnd(b.min.x, b.max.y);
+		// However, if the bounds are degenerate, override the end point to
+		// equal the start point so that any attempt to iterate over the bounds
+		// exits out immediately.
+		if (b.min.x >= b.max.x || b.min.y >= b.max.y)
+		{
+			pEnd = b.min;
+		}
+		return BoundsIterator<PointBase, T>(b, pEnd);
+	}
+
+
 	LOQUAT_CPU_GPU
 	inline Vec3f spherical_direction(Float sin_theta, Float cos_theta,
 		Float phi) noexcept
