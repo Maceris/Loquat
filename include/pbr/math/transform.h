@@ -217,7 +217,7 @@ namespace loquat
     Transform perspective(Float fov, Float znear, Float zfar);
 
     LOQUAT_CPU_GPU
-    inline Transform Inverse(const Transform& t)
+    inline Transform inverse(const Transform& t)
     {
         return Transform(t.get_inverse_matrix(), t.get_matrix());
     }
