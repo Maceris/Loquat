@@ -6,9 +6,6 @@
 
 #pragma once
 
-//TODO(ches) fill this out
-
-
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -27,12 +24,11 @@
 
 namespace loquat
 {
-    // CameraTransform Definition
-    class CameraTransform {
+    class CameraTransform
+    {
     public:
-        // CameraTransform Public Methods
         CameraTransform() = default;
-        explicit CameraTransform(const AnimatedTransform& worldFromCamera);
+        explicit CameraTransform(const AnimatedTransform& world_from_camera);
 
         LOQUAT_CPU_GPU
         Point3f get_render_from_camera(Point3f p, Float time) const
@@ -120,528 +116,596 @@ namespace loquat
         Transform world_from_render;
     };
 
-    // CameraWiSample Definition
-    struct CameraWiSample {
-        // CameraWiSample Public Methods
+    struct CameraWiSample
+    {
         CameraWiSample() = default;
         LOQUAT_CPU_GPU
-            CameraWiSample(const SampledSpectrum& Wi, const Vec3f& wi, Float pdf,
-                Point2f pRaster, const Interaction& pRef, const Interaction& pLens)
-            : Wi(Wi), wi(wi), pdf(pdf), pRaster(pRaster), pRef(pRef), pLens(pLens) {}
+        CameraWiSample(const SampledSpectrum& incoming_spectrum, const Vec3f& incoming,
+            Float pdf,
+            Point2f p_raster, const Interaction& p_ref, const Interaction& p_lens)
+            : incoming_spectrum(incoming_spectrum)
+            , incoming(incoming)
+            , pdf(pdf)
+            , p_raster(p_raster)
+            , p_ref(p_ref)
+            , p_lens(p_lens)
+        {}
 
-        SampledSpectrum Wi;
-        Vec3f wi;
+        SampledSpectrum incoming_spectrum;
+        Vec3f incoming;
         Float pdf;
-        Point2f pRaster;
-        Interaction pRef, pLens;
+        Point2f p_raster;
+        Interaction p_ref;
+        Interaction p_lens;
     };
 
-    // CameraRay Definition
-    struct CameraRay {
+    struct CameraRay
+    {
         Ray ray;
         SampledSpectrum weight = SampledSpectrum(1);
     };
 
-    // CameraRayDifferential Definition
     struct CameraRayDifferential {
         RayDifferential ray;
         SampledSpectrum weight = SampledSpectrum(1);
     };
 
-    // CameraBaseParameters Definition
-    struct CameraBaseParameters {
-        CameraTransform cameraTransform;
-        Float shutterOpen = 0, shutterClose = 1;
+    struct CameraBaseParameters
+    {
+        CameraTransform camera_transform;
+        Float shutter_open = 0;
+        Float shutter_close = 1;
         Film film;
         Medium medium;
         CameraBaseParameters() = default;
-        CameraBaseParameters(const CameraTransform& cameraTransform, Film film, Medium medium,
-            const ParameterDictionary& parameters, const FileLoc* loc);
+        CameraBaseParameters(const CameraTransform& camera_transform,
+            Film film, Medium medium, const ParameterDictionary& parameters,
+            const FileLoc* loc);
     };
 
-    // CameraBase Definition
-    class CameraBase {
+    class CameraBase
+    {
     public:
-        // CameraBase Public Methods
         LOQUAT_CPU_GPU
-            Film GetFilm() const { return film; }
+        Film get_film() const
+        {
+            return film;
+        }
         LOQUAT_CPU_GPU
-            const CameraTransform& GetCameraTransform() const { return cameraTransform; }
+        const CameraTransform& get_camera_transform() const
+        {
+            return camera_transform;
+        }
 
         LOQUAT_CPU_GPU
-            Float SampleTime(Float u) const { return Lerp(u, shutterOpen, shutterClose); }
+        Float sample_time(Float u) const
+        {
+            return lerp(u, shutter_open, shutter_close);
+        }
 
-        void InitMetadata(ImageMetadata* metadata) const;
+        void init_metadata(ImageMetadata* metadata) const;
         std::string to_string() const;
 
         LOQUAT_CPU_GPU
-            void Approximate_dp_dxy(Point3f p, Normal3f n, Float time, int samplesPerPixel,
-                Vec3f* dpdx, Vec3f* dpdy) const {
+        void approximate_dp_dxy(Point3f p, Normal3f n, Float time,
+            int samples_per_pixel, Vec3f* dpdx, Vec3f* dpdy) const
+        {
             // Compute tangent plane equation for ray differential intersections
             Point3f pCamera = camera_from_render(p, time);
-            Transform DownZFromCamera =
-                RotateFromTo(Normalize(Vec3f(pCamera)), Vec3f(0, 0, 1));
-            Point3f pDownZ = DownZFromCamera(pCamera);
-            Normal3f nDownZ = DownZFromCamera(camera_from_render(n, time));
+            Transform down_z_from_camera =
+                rotate_from_to(normalize(Vec3f(pCamera)), Vec3f(0, 0, 1));
+            Point3f pDownZ = down_z_from_camera(pCamera);
+            Normal3f nDownZ = down_z_from_camera(camera_from_render(n, time));
             Float d = nDownZ.z * pDownZ.z;
 
             // Find intersection points for approximated camera differential rays
             Ray xRay(Point3f(0, 0, 0) + minPosDifferentialX,
                 Vec3f(0, 0, 1) + minDirDifferentialX);
-            Float tx = -(Dot(nDownZ, Vec3f(xRay.o)) - d) / Dot(nDownZ, xRay.d);
+            Float tx = -(dot(nDownZ, Vec3f(xRay.origin)) - d) / dot(nDownZ, xRay.direction);
             Ray yRay(Point3f(0, 0, 0) + minPosDifferentialY,
                 Vec3f(0, 0, 1) + minDirDifferentialY);
-            Float ty = -(Dot(nDownZ, Vec3f(yRay.o)) - d) / Dot(nDownZ, yRay.d);
+            Float ty = -(dot(nDownZ, Vec3f(yRay.origin)) - d) / dot(nDownZ, yRay.direction);
             Point3f px = xRay(tx), py = yRay(ty);
 
             // Estimate $\dpdx$ and $\dpdy$ in tangent plane at intersection point
             Float sppScale =
-                GetOptions().disablePixelJitter
+                get_options().disable_pixel_jitter
                 ? 1
-                : std::max<Float>(.125, 1 / std::sqrt((Float)samplesPerPixel));
+                : std::max<Float>(.125, 1 / std::sqrt((Float)samples_per_pixel));
             *dpdx =
-                sppScale * render_from_camera(DownZFromCamera.apply_inverse(px - pDownZ), time);
+                sppScale * render_from_camera(down_z_from_camera.apply_inverse(px - pDownZ), time);
             *dpdy =
-                sppScale * render_from_camera(DownZFromCamera.apply_inverse(py - pDownZ), time);
+                sppScale * render_from_camera(down_z_from_camera.apply_inverse(py - pDownZ), time);
         }
 
     protected:
-        // CameraBase Protected Members
-        CameraTransform cameraTransform;
-        Float shutterOpen, shutterClose;
+        CameraTransform camera_transform;
+        Float shutter_open;
+        Float shutter_close;
         Film film;
         Medium medium;
-        Vec3f minPosDifferentialX, minPosDifferentialY;
-        Vec3f minDirDifferentialX, minDirDifferentialY;
+        Vec3f minPosDifferentialX;
+        Vec3f minPosDifferentialY;
+        Vec3f minDirDifferentialX;
+        Vec3f minDirDifferentialY;
 
-        // CameraBase Protected Methods
         CameraBase() = default;
         CameraBase(CameraBaseParameters p);
 
         LOQUAT_CPU_GPU
-            static pstd::optional<CameraRayDifferential> GenerateRayDifferential(
-                Camera camera, CameraSample sample, SampledWavelengths& lambda);
+        static pstd::optional<CameraRayDifferential> generate_ray_differential(
+            Camera camera, CameraSample sample, SampledWavelengths& lambda);
 
         LOQUAT_CPU_GPU
-            Ray render_from_camera(const Ray& r) const {
-            return cameraTransform.render_from_camera(r);
+        Ray render_from_camera(const Ray& r) const
+        {
+            return camera_transform.get_render_from_camera(r);
         }
 
         LOQUAT_CPU_GPU
-            RayDifferential render_from_camera(const RayDifferential& r) const {
-            return cameraTransform.render_from_camera(r);
+        RayDifferential render_from_camera(const RayDifferential& r) const
+        {
+            return camera_transform.get_render_from_camera(r);
         }
 
         LOQUAT_CPU_GPU
-            Vec3f render_from_camera(Vec3f v, Float time) const {
-            return cameraTransform.render_from_camera(v, time);
+        Vec3f render_from_camera(Vec3f v, Float time) const
+        {
+            return camera_transform.get_render_from_camera(v, time);
         }
 
         LOQUAT_CPU_GPU
-            Normal3f render_from_camera(Normal3f v, Float time) const {
-            return cameraTransform.render_from_camera(v, time);
+        Normal3f render_from_camera(Normal3f v, Float time) const
+        {
+            return camera_transform.get_render_from_camera(v, time);
         }
 
         LOQUAT_CPU_GPU
-            Point3f render_from_camera(Point3f p, Float time) const {
-            return cameraTransform.render_from_camera(p, time);
+        Point3f render_from_camera(Point3f p, Float time) const
+        {
+            return camera_transform.get_render_from_camera(p, time);
         }
 
         LOQUAT_CPU_GPU
-            Vec3f camera_from_render(Vec3f v, Float time) const {
-            return cameraTransform.camera_from_render(v, time);
+        Vec3f camera_from_render(Vec3f v, Float time) const
+        {
+            return camera_transform.camera_from_render(v, time);
         }
 
         LOQUAT_CPU_GPU
-            Normal3f camera_from_render(Normal3f v, Float time) const {
-            return cameraTransform.camera_from_render(v, time);
+        Normal3f camera_from_render(Normal3f v, Float time) const
+        {
+            return camera_transform.camera_from_render(v, time);
         }
 
         LOQUAT_CPU_GPU
-            Point3f camera_from_render(Point3f p, Float time) const {
-            return cameraTransform.camera_from_render(p, time);
+        Point3f camera_from_render(Point3f p, Float time) const
+        {
+            return camera_transform.camera_from_render(p, time);
         }
 
-        void FindMinimumDifferentials(Camera camera);
+        void find_minimum_differentials(Camera camera);
     };
 
-    // ProjectiveCamera Definition
-    class ProjectiveCamera : public CameraBase {
+    class ProjectiveCamera : public CameraBase
+    {
     public:
-        // ProjectiveCamera Public Methods
         ProjectiveCamera() = default;
-        void InitMetadata(ImageMetadata* metadata) const;
+        void init_metadata(ImageMetadata* metadata) const;
 
-        std::string Baseto_string() const;
+        std::string base_to_string() const;
 
-        ProjectiveCamera(CameraBaseParameters baseParameters,
-            const Transform& screenFromCamera, Bounds2f screenWindow,
-            Float lensRadius, Float focalDistance)
-            : CameraBase(baseParameters),
-            screenFromCamera(screenFromCamera),
-            lensRadius(lensRadius),
-            focalDistance(focalDistance) {
+        ProjectiveCamera(CameraBaseParameters base_parameters,
+            const Transform& screen_from_camera, AABB2f screen_window,
+            Float lens_radius, Float focal_distance)
+            : CameraBase(base_parameters)
+            , screen_from_camera(screen_from_camera)
+            , lens_radius(lens_radius)
+            , focal_distance(focal_distance)
+        {
             // Compute projective camera transformations
             // Compute projective camera screen transformations
             Transform NDCFromScreen =
-                Scale(1 / (screenWindow.pMax.x - screenWindow.pMin.x),
-                    1 / (screenWindow.pMax.y - screenWindow.pMin.y), 1) *
-                Translate(Vec3f(-screenWindow.pMin.x, -screenWindow.pMax.y, 0));
+                scale(1 / (screen_window.max.x - screen_window.min.x),
+                    1 / (screen_window.max.y - screen_window.min.y), 1) *
+                translate(Vec3f(-screen_window.min.x, -screen_window.max.y, 0));
             Transform rasterFromNDC =
-                Scale(film.FullResolution().x, -film.FullResolution().y, 1);
-            rasterFromScreen = rasterFromNDC * NDCFromScreen;
-            screenFromRaster = inverse(rasterFromScreen);
+                scale(film.get_full_resolution().x, -film.get_full_resolution().y, 1);
+            raster_from_screen = rasterFromNDC * NDCFromScreen;
+            screen_from_raster = inverse(raster_from_screen);
 
-            cameraFromRaster = inverse(screenFromCamera) * screenFromRaster;
+            camera_from_raster = inverse(screen_from_camera) * screen_from_raster;
         }
 
     protected:
-        // ProjectiveCamera Protected Members
-        Transform screenFromCamera, cameraFromRaster;
-        Transform rasterFromScreen, screenFromRaster;
-        Float lensRadius, focalDistance;
+        Transform screen_from_camera;
+        Transform camera_from_raster;
+        Transform raster_from_screen;
+        Transform screen_from_raster;
+        Float lens_radius;
+        Float focal_distance;
     };
 
-    // OrthographicCamera Definition
-    class OrthographicCamera : public ProjectiveCamera {
+    class OrthographicCamera : public ProjectiveCamera
+    {
     public:
-        // OrthographicCamera Public Methods
-        OrthographicCamera(CameraBaseParameters baseParameters, Bounds2f screenWindow,
-            Float lensRadius, Float focalDist)
-            : ProjectiveCamera(baseParameters, Orthographic(0, 1), screenWindow, lensRadius,
-                focalDist) {
+        OrthographicCamera(CameraBaseParameters base_parameters,
+            AABB2f screen_window, Float lens_radius, Float focalDist)
+            : ProjectiveCamera(base_parameters, orthographic(0, 1),
+                screen_window, lens_radius, focalDist)
+        {
             // Compute differential changes in origin for orthographic camera rays
-            dxCamera = cameraFromRaster(Vec3f(1, 0, 0));
-            dyCamera = cameraFromRaster(Vec3f(0, 1, 0));
+            dx_camera = camera_from_raster(Vec3f(1, 0, 0));
+            dy_camera = camera_from_raster(Vec3f(0, 1, 0));
 
             // Compute minimum differentials for orthographic camera
             minDirDifferentialX = minDirDifferentialY = Vec3f(0, 0, 0);
-            minPosDifferentialX = dxCamera;
-            minPosDifferentialY = dyCamera;
+            minPosDifferentialX = dx_camera;
+            minPosDifferentialY = dy_camera;
         }
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraRay> GenerateRay(CameraSample sample,
-                SampledWavelengths& lambda) const;
+        pstd::optional<CameraRay> generate_ray(CameraSample sample,
+            SampledWavelengths& lambda) const;
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraRayDifferential> GenerateRayDifferential(
-                CameraSample sample, SampledWavelengths& lambda) const;
+        pstd::optional<CameraRayDifferential> generate_ray_differential(
+            CameraSample sample, SampledWavelengths& lambda) const;
 
-        static OrthographicCamera* Create(const ParameterDictionary& parameters,
-            const CameraTransform& cameraTransform, Film film,
+        static OrthographicCamera* create(const ParameterDictionary& parameters,
+            const CameraTransform& camera_transform, Film film,
             Medium medium, const FileLoc* loc,
             Allocator alloc = {});
 
         LOQUAT_CPU_GPU
-            SampledSpectrum We(const Ray& ray, SampledWavelengths& lambda,
-                Point2f* pRaster2 = nullptr) const {
-            LOG_FATAL("We() unimplemented for OrthographicCamera");
+        SampledSpectrum importance(const Ray& ray, SampledWavelengths& lambda,
+            Point2f* pRaster2 = nullptr) const
+        {
+            LOG_FATAL("importance() unimplemented for OrthographicCamera");
             return {};
         }
 
         LOQUAT_CPU_GPU
-            void PDF_We(const Ray& ray, Float* pdfPos, Float* pdfDir) const {
-            LOG_FATAL("PDF_We() unimplemented for OrthographicCamera");
+        void importance_PDF(const Ray& ray, Float* pdf_position,
+            Float* pdf_direction) const
+        {
+            LOG_FATAL("importance_PDF() unimplemented for OrthographicCamera");
         }
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraWiSample> SampleWi(const Interaction& ref, Point2f u,
-                SampledWavelengths& lambda) const {
-            LOG_FATAL("SampleWi() unimplemented for OrthographicCamera");
+        pstd::optional<CameraWiSample> sample_light_incoming(
+            const Interaction& ref, Point2f u, SampledWavelengths& lambda) const
+        {
+            LOG_FATAL("sample_light_incoming() unimplemented for OrthographicCamera");
             return {};
         }
 
         std::string to_string() const;
 
     private:
-        // OrthographicCamera Private Members
-        Vec3f dxCamera, dyCamera;
+        Vec3f dx_camera;
+        Vec3f dy_camera;
     };
 
     // PerspectiveCamera Definition
-    class PerspectiveCamera : public ProjectiveCamera {
+    class PerspectiveCamera : public ProjectiveCamera
+    {
     public:
         // PerspectiveCamera Public Methods
-        PerspectiveCamera(CameraBaseParameters baseParameters, Float fov,
-            Bounds2f screenWindow, Float lensRadius, Float focalDist)
-            : ProjectiveCamera(baseParameters, Perspective(fov, 1e-2f, 1000.f), screenWindow,
-                lensRadius, focalDist) {
+        PerspectiveCamera(CameraBaseParameters base_parameters, Float fov,
+            AABB2f screen_window, Float lens_radius, Float focalDist)
+            : ProjectiveCamera(base_parameters, perspective(fov, 1e-2f, 1000.f), screen_window,
+                lens_radius, focalDist) {
             // Compute differential changes in origin for perspective camera rays
-            dxCamera =
-                cameraFromRaster(Point3f(1, 0, 0)) - cameraFromRaster(Point3f(0, 0, 0));
-            dyCamera =
-                cameraFromRaster(Point3f(0, 1, 0)) - cameraFromRaster(Point3f(0, 0, 0));
+            dx_camera =
+                camera_from_raster(Point3f(1, 0, 0)) - camera_from_raster(Point3f(0, 0, 0));
+            dy_camera =
+                camera_from_raster(Point3f(0, 1, 0)) - camera_from_raster(Point3f(0, 0, 0));
 
             // Compute _cosTotalWidth_ for perspective camera
-            Point2f radius = Point2f(film.GetFilter().Radius());
+            Point2f radius = Point2f(film.get_filter().get_radius());
             Point3f pCorner(-radius.x, -radius.y, 0.f);
-            Vec3f wCornerCamera = Normalize(Vec3f(cameraFromRaster(pCorner)));
-            cosTotalWidth = wCornerCamera.z;
-            DCHECK_LT(.9999 * cosTotalWidth, std::cos(Radians(fov / 2)));
+            Vec3f wCornerCamera = normalize(Vec3f(camera_from_raster(pCorner)));
+            cos_total_width = wCornerCamera.z;
+            LOG_ASSERT(.9999 * cos_total_width < std::cos(radians(fov / 2)));
 
             // Compute image plane area at $z=1$ for _PerspectiveCamera_
-            Point2i res = film.FullResolution();
-            Point3f pMin = cameraFromRaster(Point3f(0, 0, 0));
-            Point3f pMax = cameraFromRaster(Point3f(res.x, res.y, 0));
-            pMin /= pMin.z;
-            pMax /= pMax.z;
-            A = std::abs((pMax.x - pMin.x) * (pMax.y - pMin.y));
+            Point2i res = film.get_full_resolution();
+            Point3f min = camera_from_raster(Point3f(0, 0, 0));
+            Point3f max = camera_from_raster(Point3f(res.x, res.y, 0));
+            min /= min.z;
+            max /= max.z;
+            A = std::abs((max.x - min.x) * (max.y - min.y));
 
             // Compute minimum differentials for _PerspectiveCamera_
-            FindMinimumDifferentials(this);
+            find_minimum_differentials(this);
         }
 
         PerspectiveCamera() = default;
 
-        static PerspectiveCamera* Create(const ParameterDictionary& parameters,
-            const CameraTransform& cameraTransform, Film film,
+        static PerspectiveCamera* create(const ParameterDictionary& parameters,
+            const CameraTransform& camera_transform, Film film,
             Medium medium, const FileLoc* loc,
             Allocator alloc = {});
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraRay> GenerateRay(CameraSample sample,
-                SampledWavelengths& lambda) const;
+        pstd::optional<CameraRay> generate_ray(CameraSample sample,
+            SampledWavelengths& lambda) const;
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraRayDifferential> GenerateRayDifferential(
-                CameraSample sample, SampledWavelengths& lambda) const;
+        pstd::optional<CameraRayDifferential> generate_ray_differential(
+            CameraSample sample, SampledWavelengths& lambda) const;
 
         LOQUAT_CPU_GPU
-            SampledSpectrum We(const Ray& ray, SampledWavelengths& lambda,
-                Point2f* pRaster2 = nullptr) const;
+        SampledSpectrum importance(const Ray& ray, SampledWavelengths& lambda,
+            Point2f* pRaster2 = nullptr) const;
         LOQUAT_CPU_GPU
-            void PDF_We(const Ray& ray, Float* pdfPos, Float* pdfDir) const;
+        void importance_PDF(const Ray& ray, Float* pdf_position,
+            Float* pdf_direction) const;
         LOQUAT_CPU_GPU
-            pstd::optional<CameraWiSample> SampleWi(const Interaction& ref, Point2f u,
-                SampledWavelengths& lambda) const;
+        pstd::optional<CameraWiSample> sample_light_incoming(
+            const Interaction& ref, Point2f u, SampledWavelengths& lambda) const;
 
         std::string to_string() const;
 
     private:
-        // PerspectiveCamera Private Members
-        Vec3f dxCamera, dyCamera;
-        Float cosTotalWidth;
+        Vec3f dx_camera;
+        Vec3f dy_camera;
+        Float cos_total_width;
         Float A;
     };
 
-    // SphericalCamera Definition
-    class SphericalCamera : public CameraBase {
+    class SphericalCamera : public CameraBase
+    {
     public:
-        // SphericalCamera::Mapping Definition
-        enum Mapping { EquiRectangular, EqualArea };
+        enum Mapping
+        {
+            EquiRectangular,
+            EqualArea
+        };
 
-        // SphericalCamera Public Methods
-        SphericalCamera(CameraBaseParameters baseParameters, Mapping mapping)
-            : CameraBase(baseParameters), mapping(mapping) {
+        SphericalCamera(CameraBaseParameters base_parameters, Mapping mapping)
+            : CameraBase(base_parameters)
+            , mapping(mapping)
+        {
             // Compute minimum differentials for _SphericalCamera_
-            FindMinimumDifferentials(this);
+            find_minimum_differentials(this);
         }
 
-        static SphericalCamera* Create(const ParameterDictionary& parameters,
-            const CameraTransform& cameraTransform, Film film,
+        static SphericalCamera* create(const ParameterDictionary& parameters,
+            const CameraTransform& camera_transform, Film film,
             Medium medium, const FileLoc* loc,
             Allocator alloc = {});
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraRay> GenerateRay(CameraSample sample,
-                SampledWavelengths& lambda) const;
+        pstd::optional<CameraRay> generate_ray(CameraSample sample,
+            SampledWavelengths& lambda) const;
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraRayDifferential> GenerateRayDifferential(
-                CameraSample sample, SampledWavelengths& lambda) const {
-            return CameraBase::GenerateRayDifferential(this, sample, lambda);
+        pstd::optional<CameraRayDifferential> generate_ray_differential(
+            CameraSample sample, SampledWavelengths& lambda) const
+        {
+            return CameraBase::generate_ray_differential(this, sample, lambda);
         }
 
         LOQUAT_CPU_GPU
-            SampledSpectrum We(const Ray& ray, SampledWavelengths& lambda,
-                Point2f* pRaster2 = nullptr) const {
-            LOG_FATAL("We() unimplemented for SphericalCamera");
+        SampledSpectrum importance(const Ray& ray, SampledWavelengths& lambda,
+            Point2f* pRaster2 = nullptr) const
+        {
+            LOG_FATAL("importance() unimplemented for SphericalCamera");
             return {};
         }
 
         LOQUAT_CPU_GPU
-            void PDF_We(const Ray& ray, Float* pdfPos, Float* pdfDir) const {
-            LOG_FATAL("PDF_We() unimplemented for SphericalCamera");
+        void importance_PDF(const Ray& ray, Float* pdf_position,
+            Float* pdf_direction) const
+        {
+            LOG_FATAL("importance_PDF() unimplemented for SphericalCamera");
         }
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraWiSample> SampleWi(const Interaction& ref, Point2f u,
-                SampledWavelengths& lambda) const {
-            LOG_FATAL("SampleWi() unimplemented for SphericalCamera");
+        pstd::optional<CameraWiSample> sample_light_incoming(
+            const Interaction& ref, Point2f u, SampledWavelengths& lambda) const
+        {
+            LOG_FATAL("sample_light_incoming() unimplemented for SphericalCamera");
             return {};
         }
 
         std::string to_string() const;
 
     private:
-        // SphericalCamera Private Members
         Mapping mapping;
     };
 
-    // ExitPupilSample Definition
-    struct ExitPupilSample {
-        Point3f pPupil;
+    struct ExitPupilSample
+    {
+        Point3f p_pupil;
         Float pdf;
     };
 
-    // RealisticCamera Definition
-    class RealisticCamera : public CameraBase {
+    class RealisticCamera : public CameraBase
+    {
     public:
-        // RealisticCamera Public Methods
-        RealisticCamera(CameraBaseParameters baseParameters,
+        RealisticCamera(CameraBaseParameters base_parameters,
             std::vector<Float>& lensParameters, Float focusDistance,
-            Float apertureDiameter, Image apertureImage, Allocator alloc);
+            Float apertureDiameter, Image aperture_image, Allocator alloc);
 
-        static RealisticCamera* Create(const ParameterDictionary& parameters,
-            const CameraTransform& cameraTransform, Film film,
+        static RealisticCamera* create(const ParameterDictionary& parameters,
+            const CameraTransform& camera_transform, Film film,
             Medium medium, const FileLoc* loc,
             Allocator alloc = {});
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraRay> GenerateRay(CameraSample sample,
-                SampledWavelengths& lambda) const;
+        pstd::optional<CameraRay> generate_ray(CameraSample sample,
+            SampledWavelengths& lambda) const;
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraRayDifferential> GenerateRayDifferential(
-                CameraSample sample, SampledWavelengths& lambda) const {
-            return CameraBase::GenerateRayDifferential(this, sample, lambda);
+        pstd::optional<CameraRayDifferential> generate_ray_differential(
+            CameraSample sample, SampledWavelengths& lambda) const
+        {
+            return CameraBase::generate_ray_differential(this, sample, lambda);
         }
 
         LOQUAT_CPU_GPU
-            SampledSpectrum We(const Ray& ray, SampledWavelengths& lambda,
-                Point2f* pRaster2 = nullptr) const {
-            LOG_FATAL("We() unimplemented for RealisticCamera");
+        SampledSpectrum importance(const Ray& ray, SampledWavelengths& lambda,
+            Point2f* pRaster2 = nullptr) const
+        {
+            LOG_FATAL("importance() unimplemented for RealisticCamera");
             return {};
         }
 
         LOQUAT_CPU_GPU
-            void PDF_We(const Ray& ray, Float* pdfPos, Float* pdfDir) const {
-            LOG_FATAL("PDF_We() unimplemented for RealisticCamera");
+        void importance_PDF(const Ray& ray, Float* pdf_position, Float* pdf_direction) const
+        {
+            LOG_FATAL("importance_PDF() unimplemented for RealisticCamera");
         }
 
         LOQUAT_CPU_GPU
-            pstd::optional<CameraWiSample> SampleWi(const Interaction& ref, Point2f u,
-                SampledWavelengths& lambda) const {
-            LOG_FATAL("SampleWi() unimplemented for RealisticCamera");
+        pstd::optional<CameraWiSample> sample_light_incoming(const Interaction& ref, Point2f u,
+            SampledWavelengths& lambda) const
+        {
+            LOG_FATAL("sample_light_incoming() unimplemented for RealisticCamera");
             return {};
         }
 
         std::string to_string() const;
 
     private:
-        // RealisticCamera Private Declarations
-        struct LensElementInterface {
-            Float curvatureRadius;
+        struct LensElementInterface
+        {
+            Float curvature_radius;
             Float thickness;
             Float eta;
-            Float apertureRadius;
+            Float aperture_radius;
             std::string to_string() const;
         };
 
-        // RealisticCamera Private Methods
         LOQUAT_CPU_GPU
-            Float LensRearZ() const { return elementInterfaces.back().thickness; }
+        Float lens_rear_z() const { return element_interfaces.back().thickness; }
 
         LOQUAT_CPU_GPU
-            Float LensFrontZ() const {
-            Float zSum = 0;
-            for (const LensElementInterface& element : elementInterfaces)
-                zSum += element.thickness;
-            return zSum;
+        Float lens_front_z() const
+        {
+            Float z_sum = 0;
+            for (const LensElementInterface& element : element_interfaces)
+            {
+                z_sum += element.thickness;
+            }
+            return z_sum;
         }
 
         LOQUAT_CPU_GPU
-            Float RearElementRadius() const { return elementInterfaces.back().apertureRadius; }
+        Float rear_element_radius() const
+        {
+            return element_interfaces.back().aperture_radius;
+        }
 
         LOQUAT_CPU_GPU
-            Float TraceLensesFromFilm(const Ray& rCamera, Ray* rOut) const;
+        Float trace_lenses_from_film(const Ray& ray_camera, Ray* ray_out) const;
 
         LOQUAT_CPU_GPU
-            static bool IntersectSphericalElement(Float radius, Float zCenter, const Ray& ray,
-                Float* t, Normal3f* n) {
+        static bool IntersectSphericalElement(Float radius, Float z_center,
+            const Ray& ray,  Float* t, Normal3f* n)
+        {
             // Compute _t0_ and _t1_ for ray--element intersection
-            Point3f o = ray.o - Vec3f(0, 0, zCenter);
-            Float A = ray.d.x * ray.d.x + ray.d.y * ray.d.y + ray.d.z * ray.d.z;
-            Float B = 2 * (ray.d.x * o.x + ray.d.y * o.y + ray.d.z * o.z);
+            Point3f o = ray.origin - Vec3f(0, 0, z_center);
+            Float A = ray.direction.x * ray.direction.x 
+                    + ray.direction.y * ray.direction.y 
+                    + ray.direction.z * ray.direction.z;
+            Float B = 2 * (ray.direction.x * o.x 
+                         + ray.direction.y * o.y 
+                         + ray.direction.z * o.z);
             Float C = o.x * o.x + o.y * o.y + o.z * o.z - radius * radius;
             Float t0, t1;
-            if (!Quadratic(A, B, C, &t0, &t1))
+            if (!quadratic(A, B, C, &t0, &t1))
+            {
                 return false;
+            }
 
             // Select intersection $t$ based on ray direction and element curvature
-            bool useCloserT = (ray.d.z > 0) ^ (radius < 0);
+            bool useCloserT = (ray.direction.z > 0) ^ (radius < 0);
             *t = useCloserT ? std::min(t0, t1) : std::max(t0, t1);
             if (*t < 0)
+            {
                 return false;
+            }
 
             // Compute surface normal of element at ray intersection point
-            *n = Normal3f(Vec3f(o + *t * ray.d));
-            *n = FaceForward(Normalize(*n), -ray.d);
+            *n = Normal3f(Vec3f(o + *t * ray.direction));
+            *n = face_forward(normalize(*n), -ray.direction);
 
             return true;
         }
 
         LOQUAT_CPU_GPU
-            Float TraceLensesFromScene(const Ray& rCamera, Ray* rOut) const;
+        Float trace_lenses_from_scene(const Ray& ray_camera, Ray* ray_out) const;
 
-        void DrawLensSystem() const;
-        void DrawRayPathFromFilm(const Ray& r, bool arrow, bool toOpticalIntercept) const;
-        void DrawRayPathFromScene(const Ray& r, bool arrow, bool toOpticalIntercept) const;
+        void draw_lens_system() const;
+        void draw_ray_path_from_file(const Ray& r, bool arrow, bool to_optical_intercept) const;
+        void draw_ray_path_from_scene(const Ray& r, bool arrow, bool to_optical_intercept) const;
 
-        static void ComputeCardinalPoints(Ray rIn, Ray rOut, Float* p, Float* f);
-        void ComputeThickLensApproximation(Float pz[2], Float f[2]) const;
-        Float FocusThickLens(Float focusDistance);
-        Bounds2f BoundExitPupil(Float filmX0, Float filmX1) const;
-        void RenderExitPupil(Float sx, Float sy, const char* filename) const;
+        static void compute_cardinal_points(Ray ray_in, Ray ray_out, Float* p, Float* f);
+        void compute_thick_lens_approximation(Float pz[2], Float f[2]) const;
+        Float focus_thick_lens(Float focusDistance);
+        AABB2f bound_exit_pupil(Float film_x0, Float film_x1) const;
+        void render_exit_pupil(Float sx, Float sy, const char* filename) const;
 
         LOQUAT_CPU_GPU
-            pstd::optional<ExitPupilSample> SampleExitPupil(Point2f pFilm, Point2f uLens) const;
+        pstd::optional<ExitPupilSample> simple_exit_pupil(Point2f pFilm, Point2f uLens) const;
 
-        void TestExitPupilBounds() const;
+        void test_exit_pupil_bounds() const;
 
-        // RealisticCamera Private Members
-        Bounds2f physicalExtent;
-        pstd::vector<LensElementInterface> elementInterfaces;
-        Image apertureImage;
-        pstd::vector<Bounds2f> exitPupilBounds;
+        AABB2f physical_extent;
+        pstd::vector<LensElementInterface> element_interfaces;
+        Image aperture_image;
+        pstd::vector<AABB2f> exit_pupil_bounds;
     };
 
-    LOQUAT_CPU_GPU inline pstd::optional<CameraRay> Camera::GenerateRay(CameraSample sample,
+    LOQUAT_CPU_GPU
+    inline pstd::optional<CameraRay> Camera::generate_ray(CameraSample sample,
         SampledWavelengths& lambda) const {
-        auto generate = [&](auto ptr) { return ptr->GenerateRay(sample, lambda); };
-        return Dispatch(generate);
+        auto generate = [&](auto ptr) { return ptr->generate_ray(sample, lambda); };
+        return dispatch(generate);
     }
 
-    LOQUAT_CPU_GPU inline Film Camera::GetFilm() const {
-        auto getfilm = [&](auto ptr) { return ptr->GetFilm(); };
-        return Dispatch(getfilm);
+    LOQUAT_CPU_GPU
+    inline Film Camera::get_film() const
+    {
+        auto getfilm = [&](auto ptr) { return ptr->get_film(); };
+        return dispatch(getfilm);
     }
 
-    LOQUAT_CPU_GPU inline Float Camera::SampleTime(Float u) const {
-        auto sample = [&](auto ptr) { return ptr->SampleTime(u); };
-        return Dispatch(sample);
+    LOQUAT_CPU_GPU
+    inline Float Camera::sample_time(Float u) const
+    {
+        auto sample = [&](auto ptr) { return ptr->sample_time(u); };
+        return dispatch(sample);
     }
 
-    LOQUAT_CPU_GPU inline const CameraTransform& Camera::GetCameraTransform() const {
+    LOQUAT_CPU_GPU
+    inline const CameraTransform& Camera::get_camera_transform() const
+    {
         auto gtc = [&](auto ptr) -> const CameraTransform& {
-            return ptr->GetCameraTransform();
+            return ptr->get_camera_transform();
             };
-        return Dispatch(gtc);
+        return dispatch(gtc);
     }
 
-    LOQUAT_CPU_GPU inline void Camera::Approximate_dp_dxy(Point3f p, Normal3f n, Float time,
-        int samplesPerPixel, Vec3f* dpdx,
-        Vec3f* dpdy) const {
-        if constexpr (AllInheritFrom<CameraBase>(Camera::Types())) {
-            return ((const CameraBase*)ptr())
-                ->Approximate_dp_dxy(p, n, time, samplesPerPixel, dpdx, dpdy);
+    LOQUAT_CPU_GPU
+    inline void Camera::approximate_dp_dxy(Point3f p, Normal3f n, Float time,
+        int samples_per_pixel, Vec3f* dpdx,
+        Vec3f* dpdy) const
+    {
+        if constexpr (all_inherit_from<CameraBase>(Camera::Types())) {
+            return ((const CameraBase*)pointer())
+                ->approximate_dp_dxy(p, n, time, samples_per_pixel, dpdx, dpdy);
         }
-        else {
+        else
+        {
             auto approx = [&](auto ptr) {
-                return ptr->Approximate_dp_dxy(p, n, time, samplesPerPixel, dpdx, dpdy);
+                return ptr->approximate_dp_dxy(p, n, time, samples_per_pixel, dpdx, dpdy);
                 };
-            return Dispatch(approx);
+            return dispatch(approx);
         }
     }
 }

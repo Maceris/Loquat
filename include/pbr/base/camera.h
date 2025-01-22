@@ -39,44 +39,44 @@ namespace loquat
 			Allocator allocactor);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
 		inline pstd::optional<CameraRay> generate_ray(CameraSample sample,
-			SampledWavelengths& wavelengths) const noexcept;
+			SampledWavelengths& wavelengths) const;
 
 		LOQUAT_CPU_GPU
 		inline pstd::optional<CameraRay> generate_ray_differential(
 			CameraSample sample, 
-			SampledWavelengths& wavelengths) const noexcept;
+			SampledWavelengths& wavelengths) const;
 
 		LOQUAT_CPU_GPU
-		inline Film get_film() const noexcept;
+		inline Film get_film() const;
 
 		LOQUAT_CPU_GPU
-		inline Float sample_time(Float sample_1D) const noexcept;
+		inline Float sample_time(Float sample_1D) const;
 
-		void init_metadata(ImageMetadata* metadata) const noexcept;
-
-		LOQUAT_CPU_GPU
-		inline const CameraTransform& get_camera_transform() const noexcept;
+		void init_metadata(ImageMetadata* metadata) const;
 
 		LOQUAT_CPU_GPU
-		void approximate_dp_dxy(Point2f point, Normal3f normal, Float time,
-			int samples_per_pixel, Vec3f* dpdx, Vec3f dpdy) const noexcept;
+		inline const CameraTransform& get_camera_transform() const;
+
+		LOQUAT_CPU_GPU
+		void approximate_dp_dxy(Point3f point, Normal3f normal, Float time,
+			int samples_per_pixel, Vec3f* dpdx, Vec3f* dpdy) const;
 
 		LOQUAT_CPU_GPU
 		SampledSpectrum importance(const Ray& ray,
 			SampledWavelengths& wavelengths, Point2f* raster_out = nullptr)
-			const noexcept;
+			const;
 
 		LOQUAT_CPU_GPU
 		void importance_PDF(const Ray& ray, Float* pdf_position,
-			Float* pdf_direction) const noexcept;
+			Float* pdf_direction) const;
 
 		LOQUAT_CPU_GPU
 		pstd::optional<CameraWiSample> sample_light_incoming(
 			const Interaction& reference, Point2f sample_2D,
-			SampledWavelengths& wavelengths) const noexcept;
+			SampledWavelengths& wavelengths) const;
 	};
 }
