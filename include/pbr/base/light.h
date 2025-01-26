@@ -91,16 +91,15 @@ namespace loquat
 		/// </param>
 		/// <returns>The total output of the light.</returns>
 		[[nodiscard]]
-		SampledSpectrum total_emitted_power(SampledWavelengths lambda)
-			const noexcept;
+		SampledSpectrum total_emitted_power(SampledWavelengths lambda) const;
 
 		/// <summary>
 		/// What kind of light this is.
 		/// </summary>
-		/// <returns>The type of light.</returns>
+		/// <returns>The get_type of light.</returns>
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
-		inline LightType type() const noexcept;
+		inline LightType get_type() const;
 
 		/// <summary>
 		/// Samples lights in the scen based on the directions where light is
@@ -108,7 +107,7 @@ namespace loquat
 		/// </summary>
 		/// <param name="context">Light information about a reference point
 		/// in the scene.</param>
-		/// <param name="point">The sampled point.</param>
+		/// <param name="sample">The sampled point.</param>
 		/// <param name="lambda">The range of wavelengths we are sampling.
 		/// </param>
 		/// <param name="allow_incomplete_PDF">Whether we can skip generating
@@ -121,9 +120,9 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline pstd::optional<LightIncidentSample> sample_light_incoming(
-			LightSampleContext context, Point2f point,
+			LightSampleContext context, Point2f sample,
 			SampledWavelengths lambda, bool allow_incomplete_PDF = false)
-			const noexcept;
+			const;
 
 		/// <summary>
 		/// Calculates the PDF for sampling a point in a given direction.
@@ -137,10 +136,10 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline Float sample_PDF(LightSampleContext context, Vec3f direction,
-			bool allow_incomplete_PDF = false) const noexcept;
+			bool allow_incomplete_PDF = false) const;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		/// <summary>
 		/// Takes in local information about an intersection point and outgoing
@@ -157,7 +156,7 @@ namespace loquat
 		[[nodiscard]]
 		inline SampledSpectrum radiance_reflected_back(Point3f point,
 			Normal3f normal, Point2f uv, Vec3f direction, 
-			const SampledWavelengths& lambda) const noexcept;
+			const SampledWavelengths& lambda) const;
 
 		/// <summary>
 		/// Calculates infinite area light contributions to rays that don't hit
@@ -169,16 +168,16 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		[[nodiscard]]
 		inline SampledSpectrum infinite_light_contribution(const Ray& ray,
-			const SampledWavelengths& lambda) const noexcept;
+			const SampledWavelengths& lambda) const;
 
 		void preprocess(const AABB3f& sceneBounds);
 
-		pstd::optional<LightBounds> bounds() const noexcept;
+		pstd::optional<LightBounds> bounds() const;
 
 		LOQUAT_CPU_GPU
 		pstd::optional<LightEmissiveSample> sample_emissive(Point2f sample1,
 			Point2f sample2, SampledWavelengths& lambda, Float time)
-			const noexcept;
+			const;
 
 		/// <summary>
 		/// Fetch the position and direction PDFs for a given ray.
@@ -190,7 +189,7 @@ namespace loquat
 		/// </param>
 		LOQUAT_CPU_GPU
 		void get_PDFs(const Ray& ray, Float* pdf_position, 
-			Float* pdf_direction) const noexcept;
+			Float* pdf_direction) const;
 
 		/// <summary>
 		/// Fetch the position and direction pdfs, given an interaction and
@@ -204,6 +203,6 @@ namespace loquat
 		/// </param>
 		LOQUAT_CPU_GPU
 		void get_PDFs(const Interaction& interaction, Vec3f direction, 
-			Float* pdf_position, Float* pdf_direction) const noexcept;
+			Float* pdf_position, Float* pdf_direction) const;
 	};
 }

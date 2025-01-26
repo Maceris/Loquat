@@ -82,7 +82,7 @@ namespace loquat
 			for (auto& light : lights)
 			{
 				light.preprocess(scene_bounds);
-				if (light.type() == LightType::Infinite)
+				if (light.get_type() == LightType::Infinite)
 				{
 					infinite_lights.push_back(light);
 				}

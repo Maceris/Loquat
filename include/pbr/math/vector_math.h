@@ -281,6 +281,24 @@ namespace loquat
 	}
 
 	template <typename T>
+	LOQUAT_CPU_GPU
+	inline auto distance_squared(Point2<T> p1, Point2<T> p2) ->
+		typename glm::length_t
+	{
+		glm::length_t length = glm::length(p1 - p2);
+		return length * length;
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline auto distance_squared(Point3<T> p1, Point3<T> p2) ->
+		typename glm::length_t
+	{
+		glm::length_t length = glm::length(p1 - p2);
+		return length * length;
+	}
+
+	template <typename T>
 	[[nodiscard]]
 	LOQUAT_CPU_GPU
 	inline Normal3<T> face_forward(Normal3<T> normal, Vec3<T> vector)
@@ -704,7 +722,6 @@ namespace loquat
 		return BoundsIterator<PointBase, T>(b, pEnd);
 	}
 
-
 	LOQUAT_CPU_GPU
 	inline Vec3f spherical_direction(Float sin_theta, Float cos_theta,
 		Float phi) noexcept
@@ -717,6 +734,39 @@ namespace loquat
 			clamp(sin_theta, -1, 1) * std::sin(phi),
 			clamp(cos_theta, -1, 1)
 		};
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline AABB<Point2, T> bounds_union(const AABB<Point2, T>& b1,
+		const AABB<Point2, T>& b2)
+	{
+		// Be careful to not run the two-point Bounds constructor.
+		AABB<Point2, T> ret;
+		ret.min = min(b1.min, b2.min);
+		ret.max = min(b1.max, b2.max);
+		return ret;
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline AABB<Point3, T> bounds_union(const AABB<Point3, T>& b, Point3<T> p)
+	{
+		AABB<Point3, T> ret;
+		ret.min = Min(b.min, p);
+		ret.max = Max(b.max, p);
+		return ret;
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline AABB<Point3, T> bounds_union(const AABB<Point3, T>& b1,
+		const AABB<Point3, T>& b2)
+	{
+		AABB<Point3, T> ret;
+		ret.min = Min(b1.min, b2.min);
+		ret.max = Max(b1.max, b2.max);
+		return ret;
 	}
 
 	template <typename T>
@@ -778,6 +828,9 @@ namespace loquat
 		ret.max = max(b1.max, b2.max);
 		return ret;
 	}
+
+	LOQUAT_CPU_GPU
+	DirectionCone bounds_union(const DirectionCone& a, const DirectionCone& b);
 
 	//TODO(ches) finish this
 }

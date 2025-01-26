@@ -80,6 +80,8 @@ constexpr void safe_delete(T* ptr) noexcept
 // NOTE(ches) the math includes are in a somewhat specific order
 
 #include "glm/glm.hpp"
+#include "glm/gtc/integer.hpp"
+#include "glm/gtx/integer.hpp"
 
 #include "pbr/math/float.h"
 #include "pbr/math/vec.h"

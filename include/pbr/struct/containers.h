@@ -66,17 +66,17 @@ namespace loquat
 					typename std::iterator_traits<InputIt>::iterator_category>::value>>
 		Array2D(InputIt first, InputIt last, int nx, int ny,
 			allocator_type allocator = {})
-			: Array2D{ {0,0}, {nx, ny}, allocator }
+			: Array2D{ {{0,0}, {nx, ny}}, allocator }
 		{
 			std::copy(first, last, begin());
 		}
 
 		Array2D(int nx, int ny, allocator_type allocator = {})
-			: Array2D{ {0,0}, {nx, ny}, allocator }
+			: Array2D{ {{0,0}, {nx, ny}}, allocator }
 		{}
 
 		Array2D(int nx, int ny, T def, allocator_type allocator = {})
-			: Array2D{ {0,0}, {nx, ny}, def, allocator }
+			: Array2D{ {{0,0}, {nx, ny}}, def, allocator }
 		{}
 
 		Array2D(const Array2D& array, allocator_type allocator = {})

@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <format>
 #include <map>
 #include <memory>
 #include <vector>
@@ -381,7 +382,7 @@ namespace loquat
         }
 
         LOQUAT_CPU_GPU
-        Float bilerpChannel(Point2f p, int c,
+        Float bilerp_channel(Point2f p, int c,
             WrapMode2D wrap_mode = WrapMode::Clamp) const
         {
             // Compute discrete pixel coordinates and offsets for _p_
@@ -558,8 +559,8 @@ namespace loquat
     inline void Image::set_channel(Point2i p, int c, Float value) {
         if (is_NaN(value))
         {
-#ifndef PBRT_IS_GPU_CODE
-            LOG_ERROR("NaN at pixel %d,%d comp %d", p.x, p.y, c);
+#ifndef LOQUAT_IS_GPU_CODE
+            LOG_ERROR(std::format("NaN at pixel {},{} comp {}", p.x, p.y, c));
 #endif
             value = 0;
         }
