@@ -24,6 +24,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/cameras.h
   ${HEADER_PATH}/pbr/films.h
   ${HEADER_PATH}/pbr/filters.h
+  ${HEADER_PATH}/pbr/lights.h
   ${HEADER_PATH}/pbr/light_samplers.h
   ${HEADER_PATH}/pbr/materials.h
   ${HEADER_PATH}/pbr/media.h
