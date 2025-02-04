@@ -71,7 +71,8 @@ namespace loquat
     void copy_options_to_gpu();
 #endif
 
-    LOQUAT_CPU_GPU inline const BasicPBROptions& get_options()
+    LOQUAT_CPU_GPU
+    inline const BasicPBROptions& get_options()
     {
 #if defined(LOQUAT_IS_GPU_CODE)
         return options_GPU;
