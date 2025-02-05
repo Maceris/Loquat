@@ -45,13 +45,13 @@ namespace loquat
 		static FloatTexture create(std::string_view name,
 			const Transform& render_from_texture,
 			const TextureParameterDictionary& parameters,
-			Allocator allocator, bool gpu) noexcept;
+			const FileLoc* loc, Allocator allocator, bool gpu);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
-		inline Float evaluate(TextureEvalContext context) const noexcept;
+		inline Float evaluate(TextureEvalContext context) const;
 	};
 	
 	class RGBConstantTexture;
@@ -82,13 +82,14 @@ namespace loquat
 		static SpectrumTexture create(std::string_view name,
 			const Transform& render_from_texture,
 			const TextureParameterDictionary& parameters,
-			SpectrumType spectrum_type, Allocator allocator, bool gpu)
-			noexcept;
+			SpectrumType spectrum_type, const FileLoc* loc,
+			Allocator allocator, bool gpu);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
-		inline Float evaluate(TextureEvalContext context) const noexcept;
+		inline SampledSpectrum evaluate(TextureEvalContext context,
+			SampledWavelengths lambda) const;
 	};
 }

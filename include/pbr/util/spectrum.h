@@ -1036,8 +1036,8 @@ namespace loquat
 	}
 
 	LOQUAT_CPU_GPU
-	inline SampledSpectrum bilerp(std::array<Float, 2> p,
-		std::span<const SampledSpectrum> spectrum)
+	inline SampledSpectrum bilerp(pstd::array<Float, 2> p,
+		pstd::span<const SampledSpectrum> spectrum)
 	{
 		LOG_ASSERT(spectrum.size() >= 3);
 		return (
