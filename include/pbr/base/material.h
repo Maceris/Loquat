@@ -49,7 +49,7 @@ namespace loquat
         std::string to_string() const noexcept;
 
         template <typename TextureEvaluator>
-        inline BSDF GetBSDF(TextureEvaluator texture_evaluator,
+        inline BSDF get_BSDF(TextureEvaluator texture_evaluator,
             MaterialEvalContext context, SampledWavelengths& lambda,
             ScratchBuffer& buffer) const noexcept;
 

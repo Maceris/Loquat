@@ -191,6 +191,40 @@ namespace loquat
 		return std::abs(glm::dot(v1, v2));
 	}
 
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Float angle_between(Normal3<T> a, Normal3<T> b)
+	{
+		if (dot(a, b) < 0)
+		{
+			return PI - 2 * safe_asin(length(a + b) / 2);
+		}
+		else
+		{
+			return 2 * safe_asin(length(b - a) / 2);
+		}
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec3<T> gram_schmidt(Vec3<T> v, Vec3<T> w)
+	{
+		return v - dot(v, w) * w;
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec3<T> cross(Vec3<T> v, Vec3<T> w)
+	{
+		LOG_ASSERT(!has_NaN(v) && !has_NaN(w));
+		return {
+			difference_of_products(v.y, w.z, v.z, w.y),
+			difference_of_products(v.z, w.x, v.x, w.z),
+			difference_of_products(v.x, w.y, v.y, w.x)
+		};
+	}
+
 	LOQUAT_CPU_GPU
 	inline Float absolute_cos_theta(Vec3f w)
 	{

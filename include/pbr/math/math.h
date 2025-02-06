@@ -723,7 +723,7 @@ namespace loquat
     template <typename Ta, typename Tb, typename Tc, typename Td>
     LOQUAT_CPU_GPU
     inline auto difference_of_products(Ta a, Tb b, Tc c, Td d)
-{
+    {
         auto cd = c * d;
         auto differenceOfProducts = FMA(a, b, -cd);
         auto error = FMA(-c, d, cd);
