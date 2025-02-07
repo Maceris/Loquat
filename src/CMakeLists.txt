@@ -275,6 +275,8 @@ FIND_PROGRAM(glslc_executable NAMES glslc HINTS Vulkan::glslc)
   
 TARGET_LINK_LIBRARIES(loquat ${ALL_LOQUAT_LIBS} Vulkan::Vulkan)
 
+ADD_DEPENDENCIES(loquat loquat_soa_generated)
+
 TARGET_INCLUDE_DIRECTORIES (loquat PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>

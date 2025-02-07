@@ -914,8 +914,9 @@ add_executable (soac ${LOQUAT_ROOT_DIRECTORY}/src/pbr/cmd/soac.cpp)
 TARGET_USE_COMMON_OUTPUT_DIRECTORY(soac)
 add_executable (loquat::soac ALIAS soac)
 
-TARGET_COMPILE_DEFINITIONS (soac PRIVATE ${COMPILE_DEFINITIONS})
-TARGET_COMPILE_OPTIONS (soac PUBLIC ${CMAKE_CXX_FLAGS})
+#TODO(ches) check compile definitions
+#TARGET_COMPILE_DEFINITIONS (soac PRIVATE ${COMPILE_DEFINITIONS})
+#TARGET_COMPILE_OPTIONS (soac PUBLIC ${CMAKE_CXX_FLAGS})
 TARGET_LINK_LIBRARIES (soac PRIVATE loquat_warnings loquat_opt)
 
 set_target_properties (soac PROPERTIES OUTPUT_NAME soac)

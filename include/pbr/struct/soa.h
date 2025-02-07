@@ -312,6 +312,6 @@ namespace loquat
 
     };
 
-    //TODO(ches) finish the SOA setup
-    //#include "pbrt_soa.h"
+    //NOTE(ches) Try running soac if this is giving errors
+    #include "pbrt_soa.h"
 }
