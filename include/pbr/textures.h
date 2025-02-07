@@ -30,6 +30,7 @@ namespace loquat
     struct TextureEvalContext
     {
         TextureEvalContext() = default;
+
         LOQUAT_CPU_GPU
         TextureEvalContext(const Interaction& intr)
             : p(intr.p())

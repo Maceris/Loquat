@@ -32,19 +32,19 @@ namespace loquat
 			noexcept;
 
 		LOQUAT_CPU_GPU
-		inline Vec2f get_radius() const noexcept;
+		inline Vec2f get_radius() const;
 
 		LOQUAT_CPU_GPU
-		inline Float evaluate(Point2f point) const noexcept;
+		inline Float evaluate(Point2f point) const;
 
 		LOQUAT_CPU_GPU
-		inline Float integral() const noexcept;
+		inline Float integral() const;
 
 		LOQUAT_CPU_GPU
-		inline FilterSample sample(Point2f sample_2D) const noexcept;
+		inline FilterSample sample(Point2f sample_2D) const;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 	};
 
 }

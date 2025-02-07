@@ -131,7 +131,7 @@ namespace loquat
         if (du == 0)
             du = .0005f;
         shiftedCtx.p = ctx.p + du * ctx.shading.dpdu;
-        shiftedCtx.uv = ctx.uv + Vector2f(du, 0.f);
+        shiftedCtx.uv = ctx.uv + Vec2f(du, 0.f);
 
         Float uDisplace = tex_eval(displacement, shiftedCtx);
         // Shift _shiftedCtx_ _dv_ in the $v$ direction
@@ -139,7 +139,7 @@ namespace loquat
         if (dv == 0)
             dv = .0005f;
         shiftedCtx.p = ctx.p + dv * ctx.shading.dpdv;
-        shiftedCtx.uv = ctx.uv + Vector2f(0.f, dv);
+        shiftedCtx.uv = ctx.uv + Vec2f(0.f, dv);
 
         Float vDisplace = tex_eval(displacement, shiftedCtx);
         Float displace = tex_eval(displacement, ctx);
@@ -204,16 +204,21 @@ namespace loquat
         {
             // Compute index of refraction for dielectric material
             Float sampledEta = eta(lambda[0]);
-            if (!eta.template Is<ConstantSpectrum>())
-                lambda.TerminateSecondary();
+            if (!eta.template is<ConstantSpectrum>())
+            {
+                lambda.terminate_secondary();
+            }
             // Handle edge case in case lambda[0] is beyond the wavelengths stored by the
             // Spectrum.
             if (sampledEta == 0)
+            {
                 sampledEta = 1;
+            }
 
             // create microfacet distribution for dielectric material
             Float urough = tex_eval(u_roughness, ctx), vrough = tex_eval(v_roughness, ctx);
-            if (remap_roughness) {
+            if (remap_roughness)
+            {
                 urough = TrowbridgeReitzDistribution::RoughnessToAlpha(urough);
                 vrough = TrowbridgeReitzDistribution::RoughnessToAlpha(vrough);
             }
@@ -252,8 +257,8 @@ namespace loquat
         {
             // Compute index of refraction for dielectric material
             Float sampledEta = eta(lambda[0]);
-            if (!eta.template Is<ConstantSpectrum>())
-                lambda.TerminateSecondary();
+            if (!eta.template is<ConstantSpectrum>())
+                lambda.terminate_secondary();
             // Handle edge case in case lambda[0] is beyond the wavelengths stored by the
             // Spectrum.
             if (sampledEta == 0)
@@ -325,7 +330,7 @@ namespace loquat
                 return materials[0];
             if (amt >= 1)
                 return materials[1];
-            Float u = HashFloat(ctx.p, ctx.outgoing, materials[0], materials[1]);
+            Float u = hash_float(ctx.p, ctx.outgoing, materials[0], materials[1]);
             return (amt < u) ? materials[0] : materials[1];
         }
 
@@ -1119,7 +1124,7 @@ namespace loquat
             else
             {
                 // Allocate memory for _ConcreteBxDF_ and return _BSDF_ for material
-                ConcreteBxDF* bxdf = scratchBuffer.Alloc<ConcreteBxDF>();
+                ConcreteBxDF* bxdf = scratchBuffer.alloc<ConcreteBxDF>();
                 *bxdf = mtl->get_BxDF(tex_eval, ctx, lambda);
                 return BSDF(ctx.normal, ctx.dpdus, bxdf);
             }
@@ -1147,7 +1152,7 @@ namespace loquat
             if constexpr (std::is_same_v<MaterialBSSRDF, void>)
                 return nullptr;
             else {
-                MaterialBSSRDF* bssrdf = scratchBuffer.Alloc<MaterialBSSRDF>();
+                MaterialBSSRDF* bssrdf = scratchBuffer.alloc<MaterialBSSRDF>();
                 *bssrdf = mtl->get_BSSRDF(tex_eval, ctx, lambda);
                 return BSSRDF(bssrdf);
             }

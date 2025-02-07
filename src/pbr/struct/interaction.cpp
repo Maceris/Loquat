@@ -4,10 +4,29 @@
 
 // This file has been modified from the original, original notice is above.
 
+#include <cmath>
+
 #include "pbr/struct/interaction.h"
+
+#include "pbr/base/camera.h"
+#include "pbr/cameras.h"
+#include "pbr/lights.h"
+#include "pbr/materials.h"
+#include "pbr/options.h"
+#include "pbr/samplers.h"
+#include "pbr/math/math.h"
+#include "pbr/math/rng.h"
+#include "pbr/struct/parameter_dictionary.h"
+#include "pbr/util/print.h"
 
 namespace loquat
 {
+
+	std::string Interaction::to_string() const
+	{
+		//TODO(ches) finish this
+		return "";
+	}
 
 	BSDF SurfaceInteraction::get_BSDF(const RayDifferential& ray,
 		SampledWavelengths& lambda, Camera camera,
@@ -15,12 +34,6 @@ namespace loquat
 	{
 		//TODO(ches) fill out
 		return {};
-	}
-
-	std::string Interaction::to_string() const
-	{
-		//TODO(ches) finish this
-		return "";
 	}
 
 	std::string SurfaceInteraction::to_string() const

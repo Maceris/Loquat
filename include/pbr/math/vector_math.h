@@ -93,6 +93,18 @@ namespace loquat
 		*v2 = Vec3<T>{ 1 + sign * square(v1.x) * a, sign * b, -sign * v1.x };
 		*v3 = Vec3<T>{ b, sign + square(v1.y) * a, -v1.y };
 	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+		inline Vec3<T> cross(Vec3<T> v, Vec3<T> w)
+	{
+		LOG_ASSERT(!vector::has_NaN(v) && !vector::has_NaN(w));
+		return {
+			difference_of_products(v.y, w.z, v.z, w.y),
+			difference_of_products(v.z, w.x, v.x, w.z),
+			difference_of_products(v.x, w.y, v.y, w.x)
+		};
+	}
 	
 	class Frame
 	{
@@ -110,13 +122,13 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		static Frame from_xz(Vec3f x, Vec3f z) noexcept
 		{
-			return Frame{ x, glm::cross(z, x), z };
+			return Frame{ x, cross(z, x), z };
 		}
 
 		LOQUAT_CPU_GPU
 		static Frame from_xy(Vec3f x, Vec3f y) noexcept
 		{
-			return Frame{ x, y, glm::cross(x, y) };
+			return Frame{ x, y, cross(x, y) };
 		}
 
 		LOQUAT_CPU_GPU
@@ -149,8 +161,7 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		Vec3f to_local(Vec3f vector) const noexcept
 		{
-			return Vec3f{ glm::dot(vector, x), glm::dot(vector, y),
-				glm::dot(vector, z) };
+			return Vec3f{ dot(vector, x), dot(vector, y), dot(vector, z) };
 		}
 
 		LOQUAT_CPU_GPU
@@ -172,13 +183,66 @@ namespace loquat
 	};
 
 	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec2<T> abs(Vec2<T> v)
+	{
+		return { std::abs(v.x), std::abs(v.y)};
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec3<T> abs(Vec3<T> v)
+	{
+		return { std::abs(v.x), std::abs(v.y), std::abs(v.z) };
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec4<T> abs(Vec4<T> v)
+	{
+		return { std::abs(v.x), std::abs(v.y), std::abs(v.z), std::abs(v.w)};
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline T dot(Normal3<T> n, Vec3<T> v)
+	{
+		LOG_ASSERT(!vector::has_NaN(n) && !vector::has_NaN(v));
+		return FMA(n.x, v.x, sum_of_products(n.y, v.y, n.z, v.z));
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline T dot(Vec3<T> v, Normal3<T> n)
+	{
+		LOG_ASSERT(!vector::has_NaN(n) && !vector::has_NaN(v));
+		return FMA(n.x, v.x, sum_of_products(n.y, v.y, n.z, v.z));
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline T dot(Normal3<T> n1, Normal3<T> n2)
+	{
+		LOG_ASSERT(!vector::has_NaN(n1) && !vector::has_NaN(n2));
+		return FMA(n1.x, n2.x, sum_of_products(n1.y, n2.y, n1.z, n2.z));
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline T dot(Vec3<T> v, Vec3<T> w)
+	{
+		LOG_ASSERT(!vector::has_NaN(v) && !vector::has_NaN(w));
+		return v.x * w.x + v.y * w.y + v.z * w.z;
+	}
+
+	template <typename T>
 	[[nodiscard]]
 	LOQUAT_CPU_GPU
 	inline T absolute_dot(Vec2<T> v1, Vec2<T> v2)
 	{
 		LOG_ASSERT(!has_NaN(v1) && !has_NaN(v1) 
 			&& "Calculating dot products of vectors with NaNs");
-		return std::abs(glm::dot(v1, v2));
+		return std::abs(dot(v1, v2));
 	}
 
 	template <typename T>
@@ -188,9 +252,40 @@ namespace loquat
 	{
 		LOG_ASSERT(!vector::has_NaN(v1) && !vector::has_NaN(v1)
 			&& "Calculating dot products of vectors with NaNs");
-		return std::abs(glm::dot(v1, v2));
+		return std::abs(dot(v1, v2));
 	}
 
+	template <typename T>
+	[[nodiscard]]
+	LOQUAT_CPU_GPU
+	inline Normal3<T> face_forward(Normal3<T> n, Vec3<T> v)
+	{
+		return (dot(n, v) < 0.0f) ? -n : n;
+	}
+
+	template <typename T>
+	[[nodiscard]]
+	LOQUAT_CPU_GPU
+	inline Normal3<T> face_forward(Normal3<T> n, Normal3<T> n2)
+	{
+		return (dot(n, n2) < 0.0f) ? -n : n;
+	}
+
+	template <typename T>
+	[[nodiscard]]
+	LOQUAT_CPU_GPU
+	inline Vec3<T> face_forward(Vec3<T> v, Vec3<T> v2)
+	{
+		return (dot(v, v2) < 0.0f) ? -v : v;
+	}
+
+	template <typename T>
+	[[nodiscard]]
+	LOQUAT_CPU_GPU
+	inline Vec3<T> face_forward(Vec3<T> v, Normal3<T> n2)
+	{
+		return (dot(v, n2) < 0.0f) ? -v : v;
+	}
 
 	template <typename T>
 	LOQUAT_CPU_GPU
@@ -211,18 +306,6 @@ namespace loquat
 	inline Vec3<T> gram_schmidt(Vec3<T> v, Vec3<T> w)
 	{
 		return v - dot(v, w) * w;
-	}
-
-	template <typename T>
-	LOQUAT_CPU_GPU
-	inline Vec3<T> cross(Vec3<T> v, Vec3<T> w)
-	{
-		LOG_ASSERT(!has_NaN(v) && !has_NaN(w));
-		return {
-			difference_of_products(v.y, w.z, v.z, w.y),
-			difference_of_products(v.z, w.x, v.x, w.z),
-			difference_of_products(v.x, w.y, v.y, w.x)
-		};
 	}
 
 	LOQUAT_CPU_GPU
@@ -332,12 +415,26 @@ namespace loquat
 		return length * length;
 	}
 
+
 	template <typename T>
-	[[nodiscard]]
 	LOQUAT_CPU_GPU
-	inline Normal3<T> face_forward(Normal3<T> normal, Vec3<T> vector)
+		inline auto normalize(Vec2<T> v)
 	{
-		return glm::dot(normal, vector) < 0.0f ? -normal : normal;
+		return v / glm::length(v);
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline auto normalize(Vec3<T> v)
+	{
+		return v / glm::length(v);
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline auto normalize(Vec4<T> v)
+	{
+		return v / glm::length(v);
 	}
 
 	class DirectionCone
@@ -347,7 +444,7 @@ namespace loquat
 
 		LOQUAT_CPU_GPU
 		DirectionCone(Vec3f direction, Float cos_theta) noexcept
-			: direction{ glm::normalize(direction) }
+			: direction{ normalize(direction) }
 			, cos_theta{ cos_theta }
 		{}
 

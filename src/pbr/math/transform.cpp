@@ -19,13 +19,13 @@ namespace loquat
 		if (point.is_exact())
 		{
 			Vec4f gamma{ loquat::gamma(3) };
-			error = gamma * glm::abs(transformed);
+			error = gamma * loquat::abs(transformed);
 		}
 		else
 		{
 			Vec4f error_input = Vec4f(point.error(), 1);
 			Vec4f gamma{ loquat::gamma(3) + 1 };
-			error = gamma * glm::abs(transformed);
+			error = gamma * loquat::abs(transformed);
 		}
 
 		if (transformed.w == 1)

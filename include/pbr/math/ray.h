@@ -123,9 +123,9 @@ namespace loquat
 	inline Point3f offset_ray_origin(Point3fi point_interval, Normal3f normal,
 		Vec3f direction)
 	{
-		Float d = glm::dot(glm::abs(normal), point_interval.error());
+		Float d = dot(loquat::abs(normal), point_interval.error());
 		Vec3f offset = d * Vec3f(normal);
-		if (glm::dot(direction, normal) < 0)
+		if (dot(direction, normal) < 0)
 		{
 			offset = -offset;
 		}

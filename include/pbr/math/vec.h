@@ -37,12 +37,6 @@ namespace loquat
 	using Vec4f = Vec4<FloatGLM>;
 	using Vec4i = Vec4<int>;
 
-	template <typename T>
-	using Normal3 = Vec3<T>;
-	
-	using Normal3f = Normal3<FloatGLM>;
-	using Normal3i = Normal3<int>;
-
 	/// <summary>
 	/// A Vec4f full of NaN values.
 	/// </summary>
@@ -121,5 +115,75 @@ namespace loquat
 			+ vector.y * vector.y
 			+ vector.z * vector.z;
 	}
-	
+
+	template <typename T>
+	struct Normal3 : public Vec3<T>
+	{
+		using loquat::Vec3<T>::x;
+		using loquat::Vec3<T>::y;
+		using loquat::Vec3<T>::z;
+		using loquat::Vec3<T>::operator[];
+
+		LOQUAT_CPU_GPU
+			Normal3()
+			: Vec3<T>()
+		{}
+
+		LOQUAT_CPU_GPU
+			Normal3(T x)
+			: Vec3<T>(x)
+		{}
+
+		LOQUAT_CPU_GPU
+			Normal3(T x, T y, T z)
+			: Vec3<T>(x, y, z)
+		{}
+
+		LOQUAT_CPU_GPU
+			Normal3(glm::vec3 v)
+			: Vec3<T>(v)
+		{}
+
+		template <typename U>
+		LOQUAT_CPU_GPU
+			explicit Normal3(Normal3<U> v)
+			: Vec3<T>(T(v.x), T(v.y), T(v.z))
+		{}
+
+	};
+
+	using Normal3f = Normal3<FloatGLM>;
+	using Normal3i = Normal3<int>;
+
+	/// <summary>
+	/// Checks if a type is one of our normal types.
+	/// </summary>
+	template<typename T>
+	concept is_normal =
+		std::same_as<T, Normal3f>
+		|| std::same_as<T, Normal3i>;
+
+	namespace vector
+	{
+		template<typename T>
+			requires is_normal<T>
+		LOQUAT_CPU_GPU
+		bool has_NaN(T normal) noexcept
+		{
+			for (glm::length_t i = 0; i < normal.length(); ++i)
+			{
+				bool NaN;
+#ifdef LOQUAT_IS_GPU_CODE
+				NaN = isnan(normal[i]);
+#else
+				NaN = std::isnan(normal[i]);
+#endif
+				if (NaN)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 }

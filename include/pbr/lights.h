@@ -945,10 +945,10 @@ namespace loquat
         SampledWavelengths lambda,
         bool allow_incomplete_PDF) const
     {
-        auto sample = [&](auto ptr) {
+        auto sample_func = [&](auto ptr) {
             return ptr->sample_light_incoming(context, sample, lambda, allow_incomplete_PDF);
             };
-        return dispatch(sample);
+        return dispatch(sample_func);
     }
 
     LOQUAT_CPU_GPU

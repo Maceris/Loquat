@@ -28,10 +28,10 @@ namespace loquat
 
         LOQUAT_CPU_GPU
         inline pstd::optional<BSSRDFProbeSegment> sample(Float sample_1D,
-            Point2f sample_2D) const noexcept;
+            Point2f sample_2D) const;
 
         inline BSSRDFSample probe_intersection_to_sample(
             const SubsurfaceInteraction& interaction,
-            ScratchBuffer& scratch_buffer) const noexcept;
+            ScratchBuffer& scratch_buffer) const;
     };
 }

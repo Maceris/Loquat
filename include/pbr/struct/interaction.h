@@ -14,10 +14,10 @@
 #include "pbr/base/medium.h"
 #include "pbr/base/sampler.h"
 #include "pbr/math/ray.h"
+#include "pbr/math/vector_math.h"
 
 namespace loquat
 {
-
 	class Interaction
 	{
 	public:
@@ -29,7 +29,7 @@ namespace loquat
 			: point{ point }
 			, normal{ normal }
 			, uv{ uv }
-			, outgoing{ glm::normalize(outgoing) }
+			, outgoing{ normalize(outgoing) }
 			, time{ time }
 		{}
 
@@ -183,7 +183,7 @@ namespace loquat
 		{
 			if (medium_interface)
 			{
-				if (glm::dot(direction, normal) > 0)
+				if (dot(direction, normal) > 0)
 				{
 					return medium_interface->outside;
 				}
@@ -223,7 +223,7 @@ namespace loquat
 			Vec3f dpdu, Vec3f dpdv, Normal3f dndu, Normal3f dndv, Float time,
 			bool flip_normal)
 			: Interaction{ point,
-				Normal3f(glm::normalize(glm::cross(dpdu, dpdv))), uv, outgoing,
+				Normal3f(glm::normalize(cross(dpdu, dpdv))), uv, outgoing,
 				time }
 			, dpdu{ dpdu }
 			, dpdv{ dpdv }
@@ -290,7 +290,7 @@ namespace loquat
 		{
 			this->material = material;
 			area_light = area;
-			LOG_ASSERT(glm::dot(normal, shading.normal) >= 0
+			LOG_ASSERT(dot(normal, shading.normal) >= 0
 				&& "Shading normal perpendicular to normal");
 			if (primary_medium_interface 
 				&& primary_medium_interface->is_medium_transition())

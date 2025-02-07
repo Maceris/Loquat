@@ -1058,13 +1058,13 @@ namespace loquat
 	{
 		FilterSample filter_sample = filter.sample(sampler.get_pixel_2D());
 		CameraSample camera_sample;
-		camera_sample.pFilm = pPixel + filter_sample.p + Vector2f(0.5f, 0.5f);
+		camera_sample.pFilm = pixel + filter_sample.p + Vec2f(0.5f, 0.5f);
 		camera_sample.time = sampler.get_1D();
 		camera_sample.pLens = sampler.get_2D();
 		camera_sample.filterWeight = filter_sample.weight;
 
-		if (GetOptions().disablePixelJitter) {
-			camera_sample.pFilm = pPixel + Vec2f{ 0.5f, 0.5f };
+		if (get_options().disable_pixel_jitter) {
+			camera_sample.pFilm = Vec2f(pixel) + Vec2f{ 0.5f, 0.5f };
 			camera_sample.time = 0.5f;
 			camera_sample.pLens = Point2f{ 0.5f, 0.5f };
 			camera_sample.filterWeight = 1;

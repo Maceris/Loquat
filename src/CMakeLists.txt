@@ -83,6 +83,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/color_space.h
   ${HEADER_PATH}/pbr/util/display.h
   ${HEADER_PATH}/pbr/util/error.h
+  ${HEADER_PATH}/pbr/util/file.h
   ${HEADER_PATH}/pbr/util/gui.h
   ${HEADER_PATH}/pbr/util/loop_subdivide.h
   ${HEADER_PATH}/pbr/util/memory.h
@@ -90,6 +91,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/util/mipmap.h
   ${HEADER_PATH}/pbr/util/noise.h
   ${HEADER_PATH}/pbr/util/parallel.h
+  ${HEADER_PATH}/pbr/util/print.h
   ${HEADER_PATH}/pbr/util/progress_reporter.h
   ${HEADER_PATH}/pbr/util/pstd.h
   ${HEADER_PATH}/pbr/util/scattering.h

@@ -7,6 +7,7 @@
 #pragma once
 
 #include <atomic>
+#include <format>
 #include <map>
 #include <string>
 #include <thread>
@@ -199,8 +200,8 @@ namespace loquat
             LOG_ASSERT(pixel_bounds.max.x <= full_resolution.x);
             LOG_ASSERT(pixel_bounds.min.y >= 0);
             LOG_ASSERT(pixel_bounds.max.y <= full_resolution.y);
-            LOG_INFO("created film with full resolution %s, pixel_bounds %s",
-                full_resolution, pixel_bounds);
+            LOG_INFO(std::format("created film with full resolution {}, pixel_bounds {}",
+                full_resolution, pixel_bounds));
         }
 
         LOQUAT_CPU_GPU

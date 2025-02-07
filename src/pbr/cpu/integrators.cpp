@@ -4,20 +4,54 @@
 
 // This file has been modified from the original, original notice is above.
 
-#include "pbr/shapes.h"
+#include <algorithm>
+
 #include "pbr/cpu/integrators.h"
-#include "pbr/math/ray.h"
+
+#include "pbr/bsdf.h"
+#include "pbr/bssrdf.h"
+#include "pbr/cameras.h"
+#include "pbr/films.h"
+#include "pbr/filters.h"
+#include "pbr/lights.h"
+#include "pbr/materials.h"
+#include "pbr/media.h"
+#include "pbr/options.h"
+#include "pbr/samplers.h"
+#include "pbr/shapes.h"
+#include "pbr/math/blue_noise.h"
+#include "pbr/math/hash.h"
+#include "pbr/math/low_discrepancy.h"
+#include "pbr/math/math.h"
+#include "pbr/math/rng.h"
+#include "pbr/struct/containers.h"
+#include "pbr/struct/image.h"
+#include "pbr/struct/interaction.h"
+#include "pbr/struct/parameter_dictionary.h"
+#include "pbr/util/color.h"
+#include "pbr/util/color_space.h"
+#include "pbr/util/display.h"
+#include "pbr/util/error.h"
+#include "pbr/util/file.h"
+#include "pbr/util/memory.h"
+#include "pbr/util/parallel.h"
+#include "pbr/util/progress_reporter.h"
+#include "pbr/util/pstd.h"
+#include "pbr/util/sampling.h"
 #include "pbr/util/spectrum.h"
+#include "pbr/util/stats.h"
+#include "pbr/util/string.h"
 
 namespace loquat
 {
+#if ENABLE_WIP_CODE
 	[[nodiscard]]
 	SampledSpectrum RandomWalkIntegrator::light_incoming_random_walk(
 		RayDifferential ray,
 		SampledWavelengths& lambda, Sampler sampler,
 		ScratchBuffer& scratch_buffer, int depth) const noexcept
 	{
-#if ENABLE_WIP_CODE
+
 		std::optional<ShapeIntersection> intersection = intersect(ray);
 
 		if (!intersection)
@@ -64,8 +98,7 @@ namespace loquat
 		return emitted + fcos * light_incoming_random_walk(ray, lambda,
 			sampler, scratch_buffer, depth + 1) /
 			(1 / (4 * PI));
-#else
-		return {};
-#endif
+
 	}
+#endif
 }

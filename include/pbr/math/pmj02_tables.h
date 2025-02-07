@@ -31,8 +31,8 @@ namespace loquat
 	};
 #else
 		return Point2f {
-			pmj02bn_samples[set_index][sample_index][0] * 0x1p-32,
-			pmj02bn_samples[set_index][sample_index][1] * 0x1p-32
+			pmj02bn_samples[set_index][sample_index][0] * Float(0x1p-32),
+			pmj02bn_samples[set_index][sample_index][1] * Float(0x1p-32)
 		};
 #endif
 	}
