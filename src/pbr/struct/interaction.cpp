@@ -11,10 +11,21 @@ namespace loquat
 
 	BSDF SurfaceInteraction::get_BSDF(const RayDifferential& ray,
 		SampledWavelengths& lambda, Camera camera,
-		ScratchBuffer& scratch_buffer, Sampler sampler) noexcept
+		ScratchBuffer& scratch_buffer, Sampler sampler)
 	{
 		//TODO(ches) fill out
 		return {};
 	}
 
+	std::string Interaction::to_string() const
+	{
+		//TODO(ches) finish this
+		return "";
+	}
+
+	std::string SurfaceInteraction::to_string() const
+	{
+		//TODO(ches) finish this
+		return "";
+	}
 }

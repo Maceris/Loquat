@@ -35,28 +35,28 @@ namespace loquat
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Point3f p() const noexcept
+		Point3f p() const
 		{
 			return point.to_vec();
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		bool is_surface_interaction() const noexcept
+		bool is_surface_interaction() const
 		{
 			return normal != Normal3f{ 0, 0, 0 };
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		bool is_medium_interaction() const noexcept
+		bool is_medium_interaction() const
 		{
 			return !is_surface_interaction();
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		const SurfaceInteraction& as_surface() const noexcept
+		const SurfaceInteraction& as_surface() const
 		{
 			LOG_ASSERT(is_surface_interaction()
 				&& "Trying to cast a non-surface interaction to surface");
@@ -65,7 +65,7 @@ namespace loquat
 		
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		SurfaceInteraction& as_surface() noexcept
+		SurfaceInteraction& as_surface()
 		{
 			LOG_ASSERT(is_surface_interaction()
 				&& "Trying to cast a non-surface interaction to surface");
@@ -117,7 +117,7 @@ namespace loquat
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		const MediumInteraction& as_medium() const noexcept
+		const MediumInteraction& as_medium() const
 		{
 			LOG_ASSERT(is_medium_interaction()
 				&& "Trying to cast a non-medium interaction to medium");
@@ -126,7 +126,7 @@ namespace loquat
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		MediumInteraction& as_medium() noexcept
+		MediumInteraction& as_medium()
 		{
 			LOG_ASSERT(is_medium_interaction()
 				&& "Trying to cast a non-medium interaction to medium");
@@ -134,25 +134,25 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Point3f offset_ray_origin(Vec3f direction) const noexcept
+		Point3f offset_ray_origin(Vec3f direction) const
 		{
 			return loquat::offset_ray_origin(point, normal, direction);
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Point3f offset_ray_origin_dest(Point3f destination) const noexcept
+		Point3f offset_ray_origin_dest(Point3f destination) const
 		{
 			return offset_ray_origin(Vec3f(destination) - p());
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		RayDifferential spawn_ray(Vec3f direction) const noexcept
+		RayDifferential spawn_ray(Vec3f direction) const
 		{
 			return RayDifferential(offset_ray_origin(direction), direction, 
 				time, get_medium(direction));
@@ -160,7 +160,7 @@ namespace loquat
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Ray spawn_ray_to(Point3f destination) const noexcept
+		Ray spawn_ray_to(Point3f destination) const
 		{
 			Ray ray = loquat::spawn_ray_to(point, normal, time, destination);
 			ray.medium = get_medium(ray.direction);
@@ -169,7 +169,7 @@ namespace loquat
 		
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Ray spawn_ray_to(const Interaction& target) const noexcept
+		Ray spawn_ray_to(const Interaction& target) const
 		{
 			Ray ray = loquat::spawn_ray_to(point, normal, time, 
 				target.point, target.normal);
@@ -179,7 +179,7 @@ namespace loquat
 		
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Medium get_medium(Vec3f direction) const noexcept
+		Medium get_medium(Vec3f direction) const
 		{
 			if (medium_interface)
 			{
@@ -283,7 +283,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		void set_intersection_properties(Material material, Light area,
 			const MediumInterface* primary_medium_interface, Medium ray_medium)
@@ -308,25 +308,25 @@ namespace loquat
 			int samples_per_pixel);
 
 		LOQUAT_CPU_GPU
-		void skip_intersection(RayDifferential* ray, Float t) const noexcept;
+		void skip_intersection(RayDifferential* ray, Float t) const;
 
 		using Interaction::spawn_ray;
 
 		LOQUAT_CPU_GPU
 		RayDifferential spawn_ray(const RayDifferential& ray,
 			const BSDF& bsdf, Vec3f incoming, int flags, Float eta)
-			const noexcept;
+			const;
 
 		BSDF get_BSDF(const RayDifferential& ray, SampledWavelengths& lambda,
-			Camera camera, ScratchBuffer& scratch_buffer, Sampler sampler) noexcept;
+			Camera camera, ScratchBuffer& scratch_buffer, Sampler sampler);
 
 		BSSRDF get_BSSRDF(const RayDifferential& ray,
 			SampledWavelengths& lambda, Camera camera,
-			ScratchBuffer& scratch_buffer, Sampler sampler) noexcept;
+			ScratchBuffer& scratch_buffer, Sampler sampler);
 
 		LOQUAT_CPU_GPU
 		SampledSpectrum emitted_radiance(Vec3f direction, 
-			const SampledWavelengths& lambda) const noexcept;
+			const SampledWavelengths& lambda) const;
 
 		Vec3f dpdu;
 		Vec3f dpdv;
@@ -368,7 +368,7 @@ namespace loquat
 		{}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		PhaseFunction phase;
 	};
