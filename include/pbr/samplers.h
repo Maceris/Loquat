@@ -471,7 +471,7 @@ namespace loquat
 					"Sobol sampler has a sample count of {}, which is suboptimal as it is not a power of 2."
 					, samples_per_pixel));
 			}
-			scale = round_up_pow2(std::max(full_resolution.x,
+			scale = round_up_pow_2(std::max(full_resolution.x,
 				full_resolution.y));
 		}
 
@@ -677,7 +677,7 @@ namespace loquat
 					, samples_per_pixel));
 			}
 			log2_samples_per_pixel = log2_int(samples_per_pixel);
-			int res = round_up_pow2(std::max(full_resolution.x,
+			int res = round_up_pow_2(std::max(full_resolution.x,
 				full_resolution.y));
 			int log4_samples_per_pixel = (log2_samples_per_pixel + 1) / 2;
 			base_4_digit_count = log2_int(res) + log4_samples_per_pixel;
