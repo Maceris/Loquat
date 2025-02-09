@@ -28,7 +28,7 @@ namespace loquat
 
 	class HGPhaseFunction;
 
-	class PhaseFunction : TaggedPointer<HGPhaseFunction>
+	class PhaseFunction : public TaggedPointer<HGPhaseFunction>
 	{
 	public:
 		using TaggedPointer::TaggedPointer;
