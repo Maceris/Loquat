@@ -13,8 +13,6 @@
 #include <memory>
 #include <vector>
 
-#include "pbr/util/color.h"
-
 #include "main/loquat.h"
 
 #include "pbr/math/float.h"

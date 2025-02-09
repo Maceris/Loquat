@@ -138,6 +138,19 @@ namespace loquat
 	template <typename T>
 	struct SOA;
 	class ScratchBuffer;
+
+	template <template<typename U> typename PointBase, typename T>
+		requires is_point<PointBase<T>>
+	struct AABB;
+
+	using AABB1f = AABB<Point1, Float>;
+	using AABB1i = AABB<Point1, int>;
+
+	using AABB2f = AABB<Point2, Float>;
+	using AABB2i = AABB<Point2, int>;
+
+	using AABB3f = AABB<Point3, Float>;
+	using AABB3i = AABB<Point3, int>;
 }
 
 /// <summary>

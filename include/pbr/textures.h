@@ -1400,7 +1400,9 @@ namespace loquat
             {
                 if (tex)
                 {
-                    LOG_FATAL(std::format("BasicTextureEvaluator::operator() called with {}", tex));
+                    LOG_FATAL(std::format(
+                        "BasicTextureEvaluator::operator() called with {}", 
+                        tex.to_string()));
                 }
                 return 0.0f;
             }
@@ -1430,7 +1432,9 @@ namespace loquat
             {
                 if (tex)
                 {
-                    LOG_FATAL(std::format("BasicTextureEvaluator::operator() called with {}", tex));
+                    LOG_FATAL(std::format(
+                        "BasicTextureEvaluator::operator() called with {}", 
+                        tex.to_string()));
                 }
                 return SampledSpectrum(0.f);
             }

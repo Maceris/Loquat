@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "main/loquat.h"
-#include "pbr/util/tagged_pointer.h"
 
 #include "pbr/math/rng.h"
 #include "pbr/util/pstd.h"

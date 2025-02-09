@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <algorithm>
+#include <sstream>
 #include <vector>
 
 #include "main/loquat.h"
@@ -909,7 +911,7 @@ namespace loquat
 				"large_step: {} last_large_step_iteration: {} "
 				"stream_index: {} sample_index: {}"
 				,
-				rng, sigma, large_step_probability, stream_count, X,
+				rng.to_string(), sigma, large_step_probability, stream_count, X,
 				current_iteration, large_step, last_large_step_iteration,
 				stream_index, sample_index);
 		}
@@ -954,7 +956,7 @@ namespace loquat
 		Float sigma;
 		Float large_step_probability;
 		int stream_count;
-		std::vector<PrimarySample> X;
+		pstd::vector<PrimarySample> X;
 		int64_t current_iteration = 0;
 		bool large_step = true;
 		int64_t last_large_step_iteration = 0;
@@ -995,10 +997,14 @@ namespace loquat
 		[[nodiscard]]
 		std::string to_string() const noexcept
 		{
+			std::stringstream result;
+			std::copy(sampler.begin(), sampler.end(),
+				std::ostream_iterator<int>(result, " "));
+
 			return std::format(
 				"[ DebugMLTSampler {} sampler: {} ",
 				static_cast<const MLTSampler*>(this)->to_string(),
-				sampler);
+				result.str().c_str());
 		}
 
 	private:

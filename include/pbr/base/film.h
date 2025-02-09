@@ -8,6 +8,7 @@
 
 #include "main/loquat.h"
 #include "pbr/base/filter.h"
+#include "pbr/util/pstd.h"
 #include "pbr/util/tagged_pointer.h"
 
 #include <string_view>
@@ -23,8 +24,6 @@ namespace loquat
 	class Film : public TaggedPointer<RGBFilm, GBufferFilm, SpectralFilm>
 	{
 	public:
-		using TaggedPointer::TaggedPointer;
-
 		LOQUAT_CPU_GPU
 		inline void add_sample(Point2i point_film, SampledSpectrum spectrum,
 			const SampledWavelengths& wavelengths,
@@ -41,8 +40,7 @@ namespace loquat
 			const SampledWavelengths& wavelengths);
 
 		LOQUAT_CPU_GPU
-		inline SampledWavelengths sample_wavelengths(Float sample_1D)
-			const;
+		inline SampledWavelengths sample_wavelengths(Float sample_1D) const;
 
 		LOQUAT_CPU_GPU
 		inline Point2i get_full_resolution() const;
@@ -51,15 +49,13 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		inline Float get_diagonal() const;
 
-		void write_image(ImageMetadata metadata, Float splat_scale = 1)
-			noexcept;
+		void write_image(ImageMetadata metadata, Float splat_scale = 1);
 
 		LOQUAT_CPU_GPU
 		inline RGB to_output_RGB(SampledSpectrum light_spectrum,
 			const SampledWavelengths& wavelengths) const;
 
-		Image get_image(ImageMetadata* metadata, Float splat_scale = 1)
-			noexcept;
+		Image get_image(ImageMetadata* metadata, Float splat_scale = 1);
 
 		LOQUAT_CPU_GPU
 		RGB get_pixel_RGB(Point2i point, Float splat_scale = 1) const;
@@ -71,10 +67,12 @@ namespace loquat
 
 		std::string get_filename() const;
 
+		using TaggedPointer::TaggedPointer;
+
 		static Film create(std::string_view name,
 			const ParameterDictionary& parameters, Float exposure_time,
 			const CameraTransform& camera_transform, Filter filter,
-			Allocator allocator);
+			const FileLoc* loc, Allocator allocator);
 
 		[[nodiscard]]
 		std::string to_string() const;

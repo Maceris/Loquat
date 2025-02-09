@@ -8,6 +8,8 @@
 
 #include "main/loquat.h"
 #include "pbr/bxdfs.h"
+#include "pbr/struct/interaction.h"
+#include "pbr/util/pstd.h"
 #include "pbr/math/vec.h"
 #include "pbr/math/vector_math.h"
 

@@ -14,10 +14,10 @@
 
 #include "main/loquat.h"
 
+#include "pbr/base/bxdf.h"
 #include "pbr/struct/interaction.h"
 #include "pbr/media.h"
 #include "pbr/options.h"
-#include "pbr/base/bxdf.h"
 #include "pbr/math/math.h"
 #include "pbr/math/vector_math.h"
 #include "pbr/util/memory.h"

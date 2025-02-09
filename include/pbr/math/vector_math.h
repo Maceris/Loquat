@@ -492,18 +492,42 @@ namespace loquat
 		return w.z * wp.z > 0;
 	}
 
-	template <template<typename U> typename PointBase, typename T>
-		requires is_point<PointBase<T>>
-	struct AABB;
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline bool inside(Point2<T> pt, const AABB<Point2, T>& b)
+	{
+		return (
+			pt.x >= b.min.x 
+			&& pt.x <= b.max.x 
+			&& pt.y >= b.min.y 
+			&& pt.y <= b.max.y
+		);
+	}
 
-	using AABB1f = AABB<Point1, Float>;
-	using AABB1i = AABB<Point1, int>;
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline bool inside(const AABB<Point2, T>& ba, const AABB<Point2, T>& bb)
+	{
+		return (
+			ba.min.x >= bb.min.x 
+			&& ba.max.x <= bb.max.x 
+			&& ba.min.y >= bb.min.y 
+			&& ba.max.y <= bb.max.y
+		);
+	}
 
-	using AABB2f = AABB<Point2, Float>;
-	using AABB2i = AABB<Point2, int>;
-
-	using AABB3f = AABB<Point3, Float>;
-	using AABB3i = AABB<Point3, int>;
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline bool inside(Point3<T> p, const AABB<Point3, T>& b) {
+		return (
+			p.x >= b.min.x 
+			&& p.x <= b.max.x 
+			&& p.y >= b.min.y 
+			&& p.y <= b.max.y 
+			&& p.z >= b.min.z 
+			&& p.z <= b.max.z
+		);
+	}
 
 	template <template<typename U> typename PointBase, typename T>
 		requires is_point<PointBase<T>>
@@ -732,7 +756,7 @@ namespace loquat
 		LOQUAT_CPU_GPU
 		void bounding_sphere(PointType* center, Float* radius) const
 		{
-			*center = (min + max) / 2;
+			*center = (min + max) / 2.0f;
 			*radius = inside(*center, *this) ? distance(*center, max) : 0;
 		}
 
@@ -869,6 +893,70 @@ namespace loquat
 
 	template <typename T>
 	LOQUAT_CPU_GPU
+	inline Point2<T> max(Point2<T> v1, Point2<T> v2)
+	{
+		using std::max;
+		return { max(v1.x, v2.x), max(v1.y, v2.y) };
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Point3<T> max(Point3<T> v1, Point3<T> v2)
+	{
+		using std::max;
+		return { max(v1.x, v2.x), max(v1.y, v2.y), max(v1.z, v2.z) };
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec2<T> max(Vec2<T> v1, Vec2<T> v2)
+	{
+		using std::max;
+		return { max(v1.x, v2.x), max(v1.y, v2.y) };
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec3<T> max(Vec3<T> v1, Vec3<T> v2)
+	{
+		using std::max;
+		return { max(v1.x, v2.x), max(v1.y, v2.y), max(v1.z, v2.z) };
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Point2<T> min(Point2<T> v1, Point2<T> v2)
+	{
+		using std::min;
+		return { min(v1.x, v2.x), min(v1.y, v2.y) };
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Point3<T> min(Point3<T> v1, Point3<T> v2)
+	{
+		using std::min;
+		return { min(v1.x, v2.x), min(v1.y, v2.y), min(v1.z, v2.z) };
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec2<T> min(Vec2<T> v1, Vec2<T> v2)
+	{
+		using std::min;
+		return { min(v1.x, v2.x), min(v1.y, v2.y)};
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline Vec3<T> min(Vec3<T> v1, Vec3<T> v2)
+	{
+		using std::min;
+		return { min(v1.x, v2.x), min(v1.y, v2.y), min(v1.z, v2.z) };
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
 	inline AABB<Point2, T> bounds_union(const AABB<Point2, T>& b1,
 		const AABB<Point2, T>& b2)
 	{
@@ -884,8 +972,8 @@ namespace loquat
 	inline AABB<Point3, T> bounds_union(const AABB<Point3, T>& b, Point3<T> p)
 	{
 		AABB<Point3, T> ret;
-		ret.min = Min(b.min, p);
-		ret.max = Max(b.max, p);
+		ret.min = min(b.min, p);
+		ret.max = max(b.max, p);
 		return ret;
 	}
 
@@ -895,8 +983,8 @@ namespace loquat
 		const AABB<Point3, T>& b2)
 	{
 		AABB<Point3, T> ret;
-		ret.min = Min(b1.min, b2.min);
-		ret.max = Max(b1.max, b2.max);
+		ret.min = min(b1.min, b2.min);
+		ret.max = max(b1.max, b2.max);
 		return ret;
 	}
 

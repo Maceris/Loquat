@@ -7,7 +7,7 @@
 #pragma once
 
 #include "main/loquat.h"
-#include "pbr/bsdf.h"
+#include "pbr/base/bssrdf.h"
 #include "pbr/base/camera.h"
 #include "pbr/base/light.h"
 #include "pbr/base/material.h"
@@ -15,6 +15,8 @@
 #include "pbr/base/sampler.h"
 #include "pbr/math/ray.h"
 #include "pbr/math/vector_math.h"
+#include "pbr/util/spectrum.h"
+#include "pbr/util/tagged_pointer.h"
 
 namespace loquat
 {

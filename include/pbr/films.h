@@ -200,8 +200,8 @@ namespace loquat
             LOG_ASSERT(pixel_bounds.max.x <= full_resolution.x);
             LOG_ASSERT(pixel_bounds.min.y >= 0);
             LOG_ASSERT(pixel_bounds.max.y <= full_resolution.y);
-            LOG_INFO(std::format("created film with full resolution {}, pixel_bounds {}",
-                full_resolution, pixel_bounds));
+            LOG_INFO(std::format("created film with full resolution ({}, {}), pixel_bounds {}",
+                full_resolution.x, full_resolution.y , pixel_bounds.to_string()));
         }
 
         LOQUAT_CPU_GPU
@@ -623,7 +623,8 @@ namespace loquat
     }
 
     LOQUAT_CPU_GPU
-    inline AABB2f Film::sample_bounds() const {
+    inline AABB2f Film::sample_bounds() const
+    {
         auto sb = [&](auto ptr) { return ptr->sample_bounds(); };
         return dispatch(sb);
     }

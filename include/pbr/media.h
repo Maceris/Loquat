@@ -13,10 +13,10 @@
 
 #include "main/loquat.h"
 
-#include "pbr/textures.h"
 #include "pbr/base/medium.h"
-#include "pbr/math/transform.h"
 #include "pbr/struct/interaction.h"
+#include "pbr/textures.h"
+#include "pbr/math/transform.h"
 #include "pbr/struct/parameter_dictionary.h"
 #include "pbr/util/color_space.h"
 #include "pbr/util/memory.h"
