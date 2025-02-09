@@ -39,7 +39,7 @@ namespace loquat
             normal(si.normal),
             dpdu(si.dpdu),
             dpdv(si.dpdv),
-            ns(si.shading.normal),
+            shading_normal(si.shading.normal),
             dpdus(si.shading.dpdu),
             dpdvs(si.shading.dpdv) {}
 
@@ -50,7 +50,7 @@ namespace loquat
             si.normal = normal;
             si.dpdu = dpdu;
             si.dpdv = dpdv;
-            si.shading.normal = ns;
+            si.shading.normal = shading_normal;
             si.shading.dpdu = dpdus;
             si.shading.dpdv = dpdvs;
             return si;
@@ -61,7 +61,7 @@ namespace loquat
 
         Point3fi point;
         Normal3f normal;
-        Normal3f ns;
+        Normal3f shading_normal;
         Vec3f dpdu;
         Vec3f dpdv;
         Vec3f dpdus;
@@ -113,13 +113,13 @@ namespace loquat
 
         TabulatedBSSRDF() = default;
         LOQUAT_CPU_GPU
-        TabulatedBSSRDF(Point3f po, Normal3f ns, Vec3f outgoing, Float eta,
+        TabulatedBSSRDF(Point3f po, Normal3f shading_normal, Vec3f outgoing, Float eta,
             const SampledSpectrum& sigma_a, const SampledSpectrum& sigma_s,
             const BSSRDFTable* table)
             : po(po)
             , outgoing(outgoing)
             , eta(eta)
-            , ns(ns)
+            , shading_normal(shading_normal)
             , table(table)
         {
             sigma_t = sigma_a + sigma_s;
@@ -248,15 +248,15 @@ namespace loquat
             Frame f;
             if (u1 < 0.25f)
             {
-                f = Frame::from_x(ns);
+                f = Frame::from_x(shading_normal);
             }
             else if (u1 < 0.5f)
             {
-                f = Frame::from_y(ns);
+                f = Frame::from_y(shading_normal);
             }
             else
             {
-                f = Frame::from_z(ns);
+                f = Frame::from_z(shading_normal);
             }
 
             // Sample BSSRDF profile in polar coordinates
@@ -284,7 +284,7 @@ namespace loquat
             // Express $\pti-\pto$ and $\N{}_\roman{i}$ with respect to local coordinates at
             // $\pto$
             Vec3f d = point - po;
-            Frame f = Frame::from_z(ns);
+            Frame f = Frame::from_z(shading_normal);
             Vec3f dLocal = f.to_local(d);
             Normal3f nLocal = f.to_local(ni);
 
@@ -306,8 +306,8 @@ namespace loquat
                 NormalizedFresnelBxDF* bxdf) const
         {
             *bxdf = NormalizedFresnelBxDF(eta);
-            Vec3f outgoing = Vec3f(si.ns);
-            BSDF bsdf(si.ns, si.dpdus, bxdf);
+            Vec3f outgoing = Vec3f(si.shading_normal);
+            BSDF bsdf(si.shading_normal, si.dpdus, bxdf);
             return BSSRDFSample{ spatial_distribution(si.p()), pdf_spatial(si.p(), si.normal), bsdf, outgoing };
         }
 
@@ -317,7 +317,7 @@ namespace loquat
         friend struct SOA<TabulatedBSSRDF>;
         Point3f po;
         Vec3f outgoing;
-        Normal3f ns;
+        Normal3f shading_normal;
         Float eta;
         SampledSpectrum sigma_t;
         SampledSpectrum rho;

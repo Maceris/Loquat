@@ -23,53 +23,60 @@ soa Interval {
 soa Point2f { Float x, y; };
 soa Point2i { int x, y; };
 soa Point3f { Float x, y, z; };
-soa Vector3f { Float x, y, z; };
+soa Vec3f { Float x, y, z; };
 soa Normal3f { Float x, y, z; };
 soa Point3fi { Interval x, y, z; };
 
 soa Ray {
     Point3f origin;
-    Vector3f direction;
+    Vec3f direction;
     Float time;
     Medium medium;
 };
 
 soa SubsurfaceInteraction {
     Point3fi pi;
-    Normal3f n;
-    Vector3f dpdu, dpdv;
-    Normal3f ns;
-    Vector3f dpdus, dpdvs;
+    Normal3f normal;
+    Vec3f dpdu;
+    Vec3f dpdv;
+    Normal3f shading_normal;
+    Vec3f dpdus;
+    Vec3f dpdvs;
 };
 
 soa Frame {
-    Vector3f x, y, z;
+    Vec3f x, y, z;
 };
 
 soa VisibleSurface {
     bool set;
     Point3f p;
-    Normal3f n, ns;
+    Normal3f normal;
+    Normal3f shading_normal;
     Point2f uv;
     Float time;
-    Vector3f dpdx, dpdy;
+    Vec3f dpdx;
+    Vec3f dpdy;
     SampledSpectrum albedo;
 };
 
 soa MediumInterface {
-    Medium inside, outside;
+    Medium inside;
+    Medium outside;
 };
 
 soa TabulatedBSSRDF {
     Point3f po;
-    Vector3f wo;
-    Normal3f ns;
+    Vec3f outgoing;
+    Normal3f shading_normal;
     Float eta;
     const BSSRDFTable *table;
-    SampledSpectrum sigma_t, rho;
+    SampledSpectrum sigma_t;
+    SampledSpectrum rho;
 };
 
 soa LightSampleContext {
     Point3fi pi;
-    Normal3f n, ns;
+    Normal3f normal;
+    Normal3f shading_normal;
 };

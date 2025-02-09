@@ -33,14 +33,14 @@ namespace loquat
         MaterialEvalContext(const SurfaceInteraction& si)
         : TextureEvalContext(si)
             , outgoing(si.outgoing)
-            , normal(si.shading.normal)
+            , shading_normal(si.shading.normal)
             , dpdus(si.shading.dpdu)
         {}
 
         std::string to_string() const;
 
         Vec3f outgoing;
-        Normal3f normal;
+        Normal3f shading_normal;
         Vec3f dpdus;
     };
 

@@ -151,8 +151,8 @@ namespace loquat
         std::string to_string() const;
 
         Point3f p;
-        Normal3f n;
-        Normal3f ns;
+        Normal3f normal;
+        Normal3f shading_normal;
         Point2f uv;
         Float time = 0;
         Vec3f dpdx;
