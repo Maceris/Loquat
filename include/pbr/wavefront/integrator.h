@@ -34,7 +34,7 @@ namespace loquat
     public:
         virtual ~WavefrontAggregate() = default;
 
-        virtual AABB3f bounds() const = 0;
+        virtual AABB3f get_bounds() const = 0;
 
         virtual void intersect_closest(int max_rays, const RayQueue* ray_q,
             EscapedRayQueue* escaped_ray_q,
@@ -47,7 +47,7 @@ namespace loquat
         virtual void intersect_shadow(int max_rays,
             ShadowRayQueue* shadow_ray_queue,
             SOA<PixelSampleState>* pixel_sample_state) const = 0;
-        virtual void IntersectShadowTr(int max_rays,
+        virtual void intersect_shadow_tr(int max_rays,
             ShadowRayQueue* shadow_ray_queue,
             SOA<PixelSampleState>* pixel_sample_state) const = 0;
 
