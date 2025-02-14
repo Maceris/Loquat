@@ -19,12 +19,10 @@
 
 #include "main/loquat.h"
 
-
 #ifdef __GNUG__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif  // __GNUG__
-
 
 namespace loquat
 {

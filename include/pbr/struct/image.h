@@ -23,8 +23,6 @@
 #include "pbr/util/parallel.h"
 #include "pbr/util/pstd.h"
 
-//TODO(ches) fill this out
-
 namespace loquat
 {
     enum class PixelFormat

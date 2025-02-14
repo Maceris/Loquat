@@ -6,8 +6,6 @@
 
 #pragma once
 
-//TODO(ches) fill this out
-
 #include <format>
 #include <functional>
 #include <map>

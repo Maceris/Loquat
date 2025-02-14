@@ -6,9 +6,6 @@
 
 #pragma once
 
-//TODO(ches) fill this out
-
-
 #include <memory>
 #include <string>
 #include <vector>

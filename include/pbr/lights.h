@@ -10,8 +10,6 @@
 
 #pragma once
 
-//TODO(ches) fill this out
-
 #include <functional>
 #include <memory>
 #include <string>
