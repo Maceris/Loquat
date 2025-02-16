@@ -6,4 +6,11 @@
 
 #pragma once
 
-//TODO(ches) fill this out
+#include "main/loquat.h"
+
+#include "pbr/scene.h"
+
+namespace loquat
+{
+	void render_wavefront(BasicScene&);
+}
