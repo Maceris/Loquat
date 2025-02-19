@@ -129,10 +129,82 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/main/global_state.cpp
   ${SOURCE_PATH}/main/loquat.cpp
   ${SOURCE_PATH}/main/vulkan_instance.cpp
+  ${SOURCE_PATH}/pbr/bsdf.cpp
+  ${SOURCE_PATH}/pbr/bssrdf.cpp
+  ${SOURCE_PATH}/pbr/bxdfs.cpp
+  ${SOURCE_PATH}/pbr/cameras.cpp
+  ${SOURCE_PATH}/pbr/film.cpp
+  ${SOURCE_PATH}/pbr/filters.cpp
+  ${SOURCE_PATH}/pbr/interaction.cpp
+  ${SOURCE_PATH}/pbr/light_samplers.cpp
+  ${SOURCE_PATH}/pbr/lights.cpp
+  ${SOURCE_PATH}/pbr/materials.cpp
+  ${SOURCE_PATH}/pbr/media.cpp
+  ${SOURCE_PATH}/pbr/options.cpp
+  ${SOURCE_PATH}/pbr/parser.cpp
   ${SOURCE_PATH}/pbr/samplers.cpp
+  ${SOURCE_PATH}/pbr/scene.cpp
+  ${SOURCE_PATH}/pbr/shapes.cpp
+  ${SOURCE_PATH}/pbr/textures.cpp
+  ${SOURCE_PATH}/pbr/cmd/cyhair.cpp
+  ${SOURCE_PATH}/pbr/cmd/imgtool.cpp
+  ${SOURCE_PATH}/pbr/cmd/nanovdb.cpp
+  ${SOURCE_PATH}/pbr/cmd/plytool.cpp
+  ${SOURCE_PATH}/pbr/cmd/pspec.cpp
+  ${SOURCE_PATH}/pbr/cmd/pspec_gpu.cpp
+  ${SOURCE_PATH}/pbr/cmd/rgb2spec_opt.cpp
+  ${SOURCE_PATH}/pbr/cpu/aggregates.cpp
   ${SOURCE_PATH}/pbr/cpu/integrators.cpp
+  ${SOURCE_PATH}/pbr/cpu/primitive.cpp
+  ${SOURCE_PATH}/pbr/cpu/render.cpp
+  ${SOURCE_PATH}/pbr/gpu/memory.cpp
+  ${SOURCE_PATH}/pbr/gpu/util.cpp
+  ${SOURCE_PATH}/pbr/gpu/optix/aggregate.cpp
+  ${SOURCE_PATH}/pbr/gpu/optix/denoiser.cpp
+  ${SOURCE_PATH}/pbr/math/blue_noise.cpp
+  ${SOURCE_PATH}/pbr/math/float.cpp
+  ${SOURCE_PATH}/pbr/math/low_discrepancy.cpp
+  ${SOURCE_PATH}/pbr/math/math.cpp
+  ${SOURCE_PATH}/pbr/math/pmj02_tables.cpp
+  ${SOURCE_PATH}/pbr/math/primes.cpp
+  ${SOURCE_PATH}/pbr/math/rng.cpp
+  ${SOURCE_PATH}/pbr/math/sampling.cpp
+  ${SOURCE_PATH}/pbr/math/sobol_matrices.cpp
   ${SOURCE_PATH}/pbr/math/transform.cpp
+  ${SOURCE_PATH}/pbr/math/vector_math.cpp
+  ${SOURCE_PATH}/pbr/struct/image.cpp
   ${SOURCE_PATH}/pbr/struct/interaction.cpp
+  ${SOURCE_PATH}/pbr/struct/parameter_dictionary.cpp
+  ${SOURCE_PATH}/pbr/util/args.cpp
+  ${SOURCE_PATH}/pbr/util/buffer_cache.cpp
+  ${SOURCE_PATH}/pbr/util/color.cpp
+  ${SOURCE_PATH}/pbr/util/color_space.cpp
+  ${SOURCE_PATH}/pbr/util/display.cpp
+  ${SOURCE_PATH}/pbr/util/error.cpp
+  ${SOURCE_PATH}/pbr/util/file.cpp
+  ${SOURCE_PATH}/pbr/util/gui.cpp
+  ${SOURCE_PATH}/pbr/util/loop_subdivide.cpp
+  ${SOURCE_PATH}/pbr/util/memory.cpp
+  ${SOURCE_PATH}/pbr/util/mesh.cpp
+  ${SOURCE_PATH}/pbr/util/mipmap.cpp
+  ${SOURCE_PATH}/pbr/util/noise.cpp
+  ${SOURCE_PATH}/pbr/util/parallel.cpp
+  ${SOURCE_PATH}/pbr/util/print.cpp
+  ${SOURCE_PATH}/pbr/util/progress_reporter.cpp
+  ${SOURCE_PATH}/pbr/util/pstd.cpp
+  ${SOURCE_PATH}/pbr/util/scattering.cpp
+  ${SOURCE_PATH}/pbr/util/spectrum.cpp
+  ${SOURCE_PATH}/pbr/util/stats.cpp
+  ${SOURCE_PATH}/pbr/util/string.cpp
+  ${SOURCE_PATH}/pbr/wavefront/aggregate.cpp
+  ${SOURCE_PATH}/pbr/wavefront/camera.cpp
+  ${SOURCE_PATH}/pbr/wavefront/film.cpp
+  ${SOURCE_PATH}/pbr/wavefront/integrator.cpp
+  ${SOURCE_PATH}/pbr/wavefront/media.cpp
+  ${SOURCE_PATH}/pbr/wavefront/samples.cpp
+  ${SOURCE_PATH}/pbr/wavefront/subsurface.cpp
+  ${SOURCE_PATH}/pbr/wavefront/surface_scatter.cpp
+  ${SOURCE_PATH}/pbr/wavefront/wavefront.cpp
   ${SOURCE_PATH}/pipeline/pipeline.cpp
   ${SOURCE_PATH}/render/render.cpp
   ${SOURCE_PATH}/render/render_state.cpp
