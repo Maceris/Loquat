@@ -31,7 +31,7 @@ namespace loquat
     };
 
     void stats_enable_pixel_stats(const AABB2i& b, const std::string& baseName);
-    void stats_report_pixel_stats(Point2i p);
+    void stats_report_pixel_start(Point2i p);
     void stats_report_pixel_end(Point2i p);
 
     void print_stats(FILE* dest);
