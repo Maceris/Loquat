@@ -59,7 +59,7 @@ namespace loquat {
 		{}
 
 		LOQUAT_CPU_GPU
-		Point2(glm::vec2 v)
+		Point2(glm::vec<2, T> v)
 			: Vec2<T>(v)
 		{}
 
