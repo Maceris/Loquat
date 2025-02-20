@@ -37,12 +37,12 @@ namespace loquat
     {
     public:
         ThreadLocal()
-            : hash_table{ 4 * running_threads() }
+            : hash_table(4 * running_threads() )
             , create{ []() { return T(); } }
         {}
 
         ThreadLocal(std::function<T(void)>&& create)
-            : hash_table{ 4 * running_threads() }
+            : hash_table( 4 * running_threads() )
             , create{ create }
         {}
 
@@ -54,7 +54,7 @@ namespace loquat
     private:
         struct Entry
         {
-            std::thread::id t_id;
+            std::thread::id tid;
             T value;
         };
         std::shared_mutex mutex;

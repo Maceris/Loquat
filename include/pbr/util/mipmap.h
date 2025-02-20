@@ -86,7 +86,7 @@ namespace loquat
         Point2i level_resolution(int level) const
         {
             LOG_ASSERT(level >= 0 && level < pyramid.size());
-            return pyramid[level].get_resoution();
+            return pyramid[level].get_resolution();
         }
         int levels() const
         {

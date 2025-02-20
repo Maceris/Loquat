@@ -707,7 +707,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Vec3<T> diagonal() const { return max - min; }
+		PointType diagonal() const { return max - min; }
 
 		LOQUAT_CPU_GPU
 		T surface_area() const
