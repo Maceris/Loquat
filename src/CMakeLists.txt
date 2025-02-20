@@ -79,6 +79,7 @@ SET(PUBLIC_HEADERS
   ${HEADER_PATH}/pbr/struct/soa.h
   ${HEADER_PATH}/pbr/util/args.h
   ${HEADER_PATH}/pbr/util/buffer_cache.h
+  ${HEADER_PATH}/pbr/util/check.h
   ${HEADER_PATH}/pbr/util/color.h
   ${HEADER_PATH}/pbr/util/color_space.h
   ${HEADER_PATH}/pbr/util/display.h
@@ -177,6 +178,7 @@ SET(CORE_SRCS
   ${SOURCE_PATH}/pbr/struct/parameter_dictionary.cpp
   ${SOURCE_PATH}/pbr/util/args.cpp
   ${SOURCE_PATH}/pbr/util/buffer_cache.cpp
+  ${SOURCE_PATH}/pbr/util/check.cpp
   ${SOURCE_PATH}/pbr/util/color.cpp
   ${SOURCE_PATH}/pbr/util/color_space.cpp
   ${SOURCE_PATH}/pbr/util/display.cpp
