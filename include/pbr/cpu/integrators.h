@@ -41,20 +41,21 @@ namespace loquat
 		static std::unique_ptr<Integrator> create(
 		std::string_view name, const ParameterDictionary& parameters,
 			Camera camera, Sampler sampler, Primitive aggregate,
-			std::vector<Light> lights, const RGBColorSpace* color_space
+			std::vector<Light> lights, const RGBColorSpace* color_space,
+			const FileLoc* loc
 		);
 
 		[[nodiscard]]
 		bool has_intersection(const Ray& ray,
-			Float t_max = FLOAT_INFINITY) const noexcept;
+			Float t_max = FLOAT_INFINITY) const;
 		
 		[[nodiscard]]
 		std::optional<ShapeIntersection> intersect(const Ray& ray,
-			Float t_max = FLOAT_INFINITY) const noexcept;
+			Float t_max = FLOAT_INFINITY) const;
 
 		[[nodiscard]]
 		bool unoccluded(const Interaction& p0, const Interaction& p1)
-			const noexcept
+			const
 		{
 			return !has_intersection(p0.spawn_ray_to(p1), 1 - SHADOW_EPSILON);
 		}
@@ -62,10 +63,10 @@ namespace loquat
 		[[nodiscard]]
 		SampledSpectrum transmittance(const Interaction& p0,
 			const Interaction& p1, const SampledWavelengths& lambda) 
-			const noexcept;
+			const;
 
 		virtual void render() = 0;
-		virtual std::string to_string() const noexcept = 0;
+		virtual std::string to_string() const = 0;
 
 		Primitive aggregate;
 		std::vector<Light> lights;
@@ -139,10 +140,11 @@ namespace loquat
 		[[nodiscard]]
 		static std::unique_ptr<RandomWalkIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Sampler sampler, Primitive aggregate, std::vector<Light> lights);
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		[[nodiscard]]
 		SampledSpectrum light_incoming(RayDifferential ray,
@@ -159,7 +161,7 @@ namespace loquat
 		[[nodiscard]]
 		SampledSpectrum light_incoming_random_walk(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
-			ScratchBuffer& scratch_buffer, int depth) const noexcept;
+			ScratchBuffer& scratch_buffer, int depth) const;
 
 		int max_depth;
 	};
@@ -169,22 +171,23 @@ namespace loquat
 	public:
 		SimplePathIntegrator(int max_depth, bool sample_lights,
 			bool sample_BSDF, Camera camera, Sampler sampler,
-			Primitive aggregate, std::vector<Light> lights) noexcept;
+			Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc);
 
 		[[nodiscard]]
 		SampledSpectrum light_incoming(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		static std::unique_ptr<SimplePathIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
 			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
-			noexcept;
+			;
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		int max_depth;
@@ -205,22 +208,22 @@ namespace loquat
 		SampledSpectrum light_incoming(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		static std::unique_ptr<PathIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
-			noexcept;
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		[[nodiscard]]
 		SampledSpectrum light_direct(const SurfaceInteraction& interaction,
 			const BSDF* bsdf, SampledWavelengths& lambda, Sampler sampler)
-			const noexcept;
+			const;
 
 		int max_depth;
 		LightSampler light_sampler;
@@ -237,16 +240,16 @@ namespace loquat
 		SampledSpectrum light_incoming(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		static std::unique_ptr<SimpleVolumePathIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
-			noexcept;
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		int max_depth;
@@ -274,16 +277,16 @@ namespace loquat
 		SampledSpectrum light_incoming(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		static std::unique_ptr<VolumePathIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
-			noexcept;
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		[[nodiscard]]
@@ -291,7 +294,7 @@ namespace loquat
 			const SurfaceInteraction& interaction, const BSDF* bsdf,
 			SampledWavelengths& lambda, Sampler sampler,
 			SampledSpectrum beta, SampledSpectrum inverse_wu)
-			const noexcept;
+			const;
 
 		int max_depth;
 		LightSampler light_sampler;
@@ -309,17 +312,16 @@ namespace loquat
 		SampledSpectrum light_incoming(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		static std::unique_ptr<AOIntegrator> create(
 			const ParameterDictionary& parameters, Spectrum illuminant, 
 			Camera camera, Sampler sampler, Primitive aggregate,
-			std::vector<Light> lights)
-			noexcept;
+			std::vector<Light> lights, const FileLoc* loc);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		/// <summary>
@@ -337,19 +339,19 @@ namespace loquat
 	public:
 
 		LightPathIntegrator(int max_depth, Camera camera, Sampler sampler,
-			Primitive aggregate, std::vector<Light> lights) noexcept;
+			Primitive aggregate, std::vector<Light> lights);
 
 		void evaluate_pixel_sample(Point2i pixel, int sample_index,
-			Sampler sampler, ScratchBuffer& scratch_buffer) noexcept;
+			Sampler sampler, ScratchBuffer& scratch_buffer);
 
 		[[nodiscard]]
 		static std::unique_ptr<LightPathIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
-			noexcept;
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		int max_depth;
@@ -364,7 +366,7 @@ namespace loquat
 		BDPTIntegrator(Camera camera, Sampler sampler, Primitive aggregate,
 			std::vector<Light> lights, int max_depth,
 			bool visualize_strategies, bool visualize_weights,
-			bool regularize = false) noexcept
+			bool regularize = false)
 			:RayIntegrator(camera, sampler, aggregate, lights)
 			, max_depth{ max_depth }
 			, regularize{ regularize }
@@ -377,18 +379,18 @@ namespace loquat
 		SampledSpectrum light_incoming(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
 			ScratchBuffer& scratch_buffer, VisibleSurface* visible_surface)
-			const noexcept;
+			const;
 
 		[[nodiscard]]
 		static std::unique_ptr<BDPTIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
-			noexcept;
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
-		void render() const noexcept;
+		void render() const;
 
 	private:
 		int max_depth;
@@ -410,7 +412,7 @@ namespace loquat
 		MLTIntegrator(Camera camera, Primitive aggregate,
 			std::vector<Light> lights, int max_depth, int bootstrap_count,
 			int chain_count, int mutations_per_pixel, Float sigma,
-			Float large_step_probability, bool regularize) noexcept
+			Float large_step_probability, bool regularize)
 			: Integrator{ aggregate, lights }
 			, light_sampler{ new PowerLightSampler{lights, Allocator()} }
 			, camera{ camera }
@@ -423,15 +425,15 @@ namespace loquat
 			, regularize{ regularize }
 		{}
 
-		void render() noexcept;
+		void render();
 
 		[[nodiscard]]
 		static std::unique_ptr<MLTIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Primitive aggregate, std::vector<Light> lights) noexcept;
+			Primitive aggregate, std::vector<Light> lights);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 	private:
 		static constexpr int camera_stream_index = 0;
@@ -442,7 +444,7 @@ namespace loquat
 		[[nodiscard]]
 		SampledSpectrum radiance(ScratchBuffer& scratch_buffer,
 			MLTSampler& sampler, int depth, Point2f* raster,
-			SampledWavelengths* wavelengths) noexcept;
+			SampledWavelengths* wavelengths);
 
 		static Float c(const SampledSpectrum& radiance,
 			const SampledWavelengths& wavelengths)
@@ -470,7 +472,7 @@ namespace loquat
 		SPPMIntegrator(Camera camera, Sampler sampler, Primitive aggregate,
 			std::vector<Light> lights, int photons_per_iteration,
 			int max_depth, Float initial_search_radius, int seed,
-			const RGBColorSpace* color_space) noexcept
+			const RGBColorSpace* color_space)
 			: Integrator{ aggregate, lights }
 			, camera{ camera }
 			, sampler_prototype{ sampler }
@@ -485,10 +487,11 @@ namespace loquat
 		static std::unique_ptr<SPPMIntegrator> create(
 			const ParameterDictionary& parameters, 
 			const RGBColorSpace* color_space, Camera camera, Sampler sampler,
-			Primitive aggregate, std::vector<Light> lights) noexcept;
+			Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc);
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		void render();
 
@@ -498,7 +501,7 @@ namespace loquat
 		SampledSpectrum sample_direct_light(
 			const SurfaceInteraction& interaction, const BSDF& bsdf,
 			SampledWavelengths& wavelengths, Sampler sampler,
-			LightSampler light_sampler) const noexcept;
+			LightSampler light_sampler) const;
 
 		Camera camera;
 		Float initial_search_radius;
@@ -516,16 +519,16 @@ namespace loquat
 		FunctionIntegrator(std::function<double(Point2f)> function,
 			std::string_view output_filename, Camera camera,
 			Sampler sampler, bool skip_bad, std::string_view image_filename)
-			noexcept;
+			;
 
 		[[nodiscard]]
 		static std::unique_ptr<FunctionIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Sampler sampler) noexcept;
+			Sampler sampler, const FileLoc* loc);
 
 		void render();
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 
 	private:
