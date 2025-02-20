@@ -315,7 +315,7 @@ namespace loquat
         }
 
         LOQUAT_CPU_GPU
-        Point2i get_resoution() const
+        Point2i get_resolution() const
         {
             return resolution;
         }
