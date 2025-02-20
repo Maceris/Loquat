@@ -103,7 +103,7 @@ namespace loquat
 
 		void render();
 
-		virtual void evaulate_pixel_sample(Point2i pixel, int sample_index,
+		virtual void evaluate_pixel_sample(Point2i pixel, int sample_index,
 			Sampler sampler, ScratchBuffer& scratch_buffer) = 0;
 
 	protected:
@@ -119,7 +119,7 @@ namespace loquat
 			: ImageTileIntegrator{ camera, sampler, aggregate, lights }
 		{}
 		
-		void evaulate_pixel_sample(Point2i pixel, int sample_index,
+		void evaluate_pixel_sample(Point2i pixel, int sample_index,
 			Sampler sampler, ScratchBuffer& scratch_buffer) final;
 
 		[[nodiscard]]
@@ -131,6 +131,7 @@ namespace loquat
 
 	class RandomWalkIntegrator : public RayIntegrator
 	{
+	public:
 		RandomWalkIntegrator(int max_depth, Camera camera, Sampler sampler, 
 			Primitive aggregate, std::vector<Light> lights)
 			: RayIntegrator{ camera, sampler, aggregate,lights }
