@@ -46,9 +46,8 @@ namespace loquat
 			SampledWavelengths& wavelengths) const;
 
 		LOQUAT_CPU_GPU
-		inline pstd::optional<CameraRay> generate_ray_differential(
-			CameraSample sample, 
-			SampledWavelengths& wavelengths) const;
+		inline pstd::optional<CameraRayDifferential> generate_ray_differential(
+			CameraSample sample, SampledWavelengths& wavelengths) const;
 
 		LOQUAT_CPU_GPU
 		inline Film get_film() const;

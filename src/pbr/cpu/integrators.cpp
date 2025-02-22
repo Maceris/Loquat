@@ -70,7 +70,8 @@ namespace loquat
     void ImageTileIntegrator::render()
     {
         // Handle debug_start, if set
-        if (!options->debug_start.empty()) {
+        if (!options->debug_start.empty())
+        {
             std::vector<int> c = split_string_to_ints(options->debug_start, ',');
             if (c.empty())
             {
@@ -180,7 +181,8 @@ namespace loquat
         }
 
         // Render image in waves
-        while (wave_start < spp) {
+        while (wave_start < spp)
+        {
             // Render current wave's image tiles in parallel
             parallel_for_2D(pixel_bounds, [&](AABB2i tileBounds) {
                 // Render image tile given by _tileBounds_
@@ -211,9 +213,13 @@ namespace loquat
             wave_start = wave_end;
             wave_end = std::min(spp, wave_end + nextWaveSize);
             if (!reference_image)
+            {
                 nextWaveSize = std::min(2 * nextWaveSize, 64);
+            }
             if (wave_start == spp)
+            {
                 progress.done();
+            }
 
             // Optionally write current image to disk
             if (wave_start == spp || options->write_partial_images || reference_image)
@@ -248,6 +254,85 @@ namespace loquat
         disconnect_from_display_server();
         LOG_INFO("Rendering finished");
     }
+
+    void RayIntegrator::evaluate_pixel_sample(Point2i pixel, int sample_index,
+        Sampler sampler, ScratchBuffer& scratch_buffer)
+    {
+        // Sample wavelengths for the ray
+        Float lu = sampler.get_1D();
+        if (options->disable_wavelength_jitter)
+        {
+            lu = 0.5;
+        }
+        SampledWavelengths lambda = camera.get_film().sample_wavelengths(lu);
+
+        // Initialize _CameraSample_ for current sample
+        Filter filter = camera.get_film().get_filter();
+        CameraSample cameraSample = get_camera_sample(sampler, pixel, filter);
+
+        // Generate camera ray for current sample
+        pstd::optional<CameraRayDifferential> cameraRay =
+            camera.generate_ray_differential(cameraSample, lambda);
+
+        // Trace _cameraRay_ if valid
+        SampledSpectrum L(0.);
+        VisibleSurface visibleSurface;
+        if (cameraRay)
+        {
+            // Double check that the ray's direction is normalized.
+            DCHECK_GT(length(cameraRay->ray.direction), 0.999f);
+            DCHECK_LT(length(cameraRay->ray.direction), 1.001f);
+            // Scale camera ray differentials based on image sampling rate
+            Float rayDiffScale =
+                std::max<Float>(.125f, 1 
+                    / std::sqrt((Float)sampler.get_samples_per_pixel()));
+            if (!options->disable_pixel_jitter)
+            {
+                cameraRay->ray.scale_differentials(rayDiffScale);
+            }
+
+            ++camera_ray_count;
+            // Evaluate radiance along camera ray
+            bool initializeVisibleSurface = 
+                camera.get_film().uses_visible_surface();
+            L = cameraRay->weight * light_incoming(cameraRay->ray, lambda,
+                sampler, scratch_buffer,
+                initializeVisibleSurface ? &visibleSurface : nullptr);
+
+            // Issue warning if unexpected radiance value is returned
+            if (L.has_NaNs())
+            {
+                LOG_ERROR("Not-a-number radiance value returned for pixel (%d, "
+                    "%d), sample %d. Setting to black.",
+                    pixel.x, pixel.y, sample_index);
+                L = SampledSpectrum(0.f);
+            }
+            else if (is_inf(L.y(lambda)))
+            {
+                LOG_ERROR("Infinite radiance value returned for pixel (%d, %d), "
+                    "sample %d. Setting to black.",
+                    pixel.x, pixel.y, sample_index);
+                L = SampledSpectrum(0.f);
+            }
+
+            LOG_INFO(std::format(
+                "Camera sample: {} -> ray {} -> L = {}, visibleSurface {}\n",
+                cameraSample.to_string(), cameraRay->ray.to_string(),
+                L.to_string(),
+                (visibleSurface ? visibleSurface.to_string() : "(none)")));
+        }
+        else
+        {
+            LOG_INFO(std::format("Camera sample: {} -> no ray generated", 
+                cameraSample.to_string()));
+        }
+        // Add camera ray's contribution to image
+        camera.get_film().add_sample(pixel, L, lambda, &visibleSurface,
+            cameraSample.filterWeight);
+    }
+
+    STAT_COUNTER("Intersections/Regular ray intersection tests", intersection_test_count);
+    STAT_COUNTER("Intersections/Shadow ray intersection tests", shadow_test_count);
 
 	//TODO(ches) fill this out
 
