@@ -37,7 +37,7 @@ namespace loquat
 		AABB3f bounds() const noexcept;
 
 		[[nodiscard]]
-		std::optional<ShapeIntersection> intersection(const Ray& ray,
+		pstd::optional<ShapeIntersection> intersect(const Ray& ray,
 			Float t_max = FLOAT_INFINITY) const noexcept;
 
 		[[nodiscard]]
@@ -56,7 +56,7 @@ namespace loquat
 		AABB3f bounds() const noexcept;
 
 		[[nodiscard]]
-		std::optional<ShapeIntersection> intersect(const Ray& ray, Float t_max)
+		pstd::optional<ShapeIntersection> intersect(const Ray& ray, Float t_max)
 			const noexcept;
 
 		[[nodiscard]]
@@ -80,7 +80,7 @@ namespace loquat
 		AABB3f bounds() const noexcept;
 
 		[[nodiscard]]
-		std::optional<ShapeIntersection> intersect(const Ray& ray, Float t_max)
+		pstd::optional<ShapeIntersection> intersect(const Ray& ray, Float t_max)
 			const noexcept;
 
 		[[nodiscard]]
@@ -108,7 +108,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::optional<ShapeIntersection> intersect(const Ray& ray, Float t_max)
+		pstd::optional<ShapeIntersection> intersect(const Ray& ray, Float t_max)
 			const noexcept;
 
 		[[nodiscard]]
@@ -134,7 +134,7 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::optional<ShapeIntersection> intersect(const Ray& ray, Float t_max)
+		pstd::optional<ShapeIntersection> intersect(const Ray& ray, Float t_max)
 			const noexcept;
 
 		[[nodiscard]]

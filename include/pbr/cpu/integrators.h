@@ -50,7 +50,7 @@ namespace loquat
 			Float t_max = FLOAT_INFINITY) const;
 		
 		[[nodiscard]]
-		std::optional<ShapeIntersection> intersect(const Ray& ray,
+		pstd::optional<ShapeIntersection> intersect(const Ray& ray,
 			Float t_max = FLOAT_INFINITY) const;
 
 		[[nodiscard]]

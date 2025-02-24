@@ -228,7 +228,7 @@ namespace loquat
                 ImageMetadata metadata;
                 metadata.render_time_seconds = progress.elapsed_seconds();
                 metadata.samples_per_pixel = wave_start;
-                if (reference_image)
+                if (reference_image && mse_out_file != 0)
                 {
                     ImageMetadata filmMetadata;
                     Image filmImage =
@@ -302,16 +302,16 @@ namespace loquat
             // Issue warning if unexpected radiance value is returned
             if (L.has_NaNs())
             {
-                LOG_ERROR("Not-a-number radiance value returned for pixel (%d, "
-                    "%d), sample %d. Setting to black.",
-                    pixel.x, pixel.y, sample_index);
+                LOG_ERROR(std::format("Not-a-number radiance value returned for pixel ({}, "
+                    "{}), sample {}. Setting to black.",
+                    pixel.x, pixel.y, sample_index));
                 L = SampledSpectrum(0.f);
             }
             else if (is_inf(L.y(lambda)))
             {
-                LOG_ERROR("Infinite radiance value returned for pixel (%d, %d), "
-                    "sample %d. Setting to black.",
-                    pixel.x, pixel.y, sample_index);
+                LOG_ERROR(std::format("Infinite radiance value returned for pixel ({}, {}), "
+                    "sample {}. Setting to black.",
+                    pixel.x, pixel.y, sample_index));
                 L = SampledSpectrum(0.f);
             }
 
@@ -334,6 +334,111 @@ namespace loquat
     STAT_COUNTER("Intersections/Regular ray intersection tests", intersection_test_count);
     STAT_COUNTER("Intersections/Shadow ray intersection tests", shadow_test_count);
 
+    pstd::optional<ShapeIntersection> Integrator::intersect(const Ray& ray,
+        Float t_max) const
+    {
+        ++intersection_test_count;
+        DCHECK_NE(ray.direction, Vec3f(0, 0, 0));
+        if (aggregate)
+        {
+            return aggregate.intersect(ray, t_max);
+        }
+        else
+        {
+            return {};
+        }
+    }
+
+    bool Integrator::has_intersection(const Ray& ray, Float t_max) const
+    {
+        ++shadow_test_count;
+        DCHECK_NE(ray.direction, Vec3f(0, 0, 0));
+        if (aggregate)
+        {
+            return aggregate.has_intersection(ray, t_max);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    SampledSpectrum Integrator::transmittance(const Interaction& p0, const Interaction& p1,
+        const SampledWavelengths& lambda) const
+    {
+        RNG rng(hash(p0.p()), hash(p1.p()));
+
+        // :-(
+        Ray ray =
+            p0.is_surface_interaction() 
+            ? p0.as_surface().spawn_ray_to(p1) 
+            : p0.spawn_ray_to(p1);
+        SampledSpectrum transmittance(1.f), inv_w(1.f);
+        if (length_squared(ray.direction) == 0)
+        {
+            return transmittance;
+        }
+
+        while (true)
+        {
+            pstd::optional<ShapeIntersection> si = intersect(ray, 1 - SHADOW_EPSILON);
+            // Handle opaque surface along ray's path
+            if (si && si->interaction.material)
+                return SampledSpectrum(0.0f);
+
+            // Update transmittance for current ray segment
+            if (ray.medium) {
+                Point3f pExit = ray(si ? si->t_hit : (1 - SHADOW_EPSILON));
+                ray.direction = pExit - ray.origin;
+
+                SampledSpectrum T_maj =
+                    sample_t_maj(ray, 1.f, rng.uniform<Float>(), rng, lambda,
+                        [&](Point3f p, MediumProperties mp, SampledSpectrum sigma_maj,
+                            SampledSpectrum T_maj) {
+                                SampledSpectrum sigma_n =
+                                    clamp_zero(sigma_maj - mp.sigma_a - mp.sigma_s);
+
+                                // ratio-tracking: only evaluate null scattering
+                                Float pr = T_maj[0] * sigma_maj[0];
+                                transmittance *= T_maj * sigma_n / pr;
+                                inv_w *= T_maj * sigma_maj / pr;
+
+                                if (!transmittance || !inv_w)
+                                {
+                                    return false;
+                                }
+
+                                return true;
+                        });
+                transmittance *= T_maj / T_maj[0];
+                inv_w *= T_maj / T_maj[0];
+            }
+
+            // Generate next ray segment or return final transmittance
+            if (!si)
+            {
+                break;
+            }
+            ray = si->interaction.spawn_ray_to(p1);
+        }
+        LOG_INFO(std::format("transmittance from {} to {} = {}", p0.point, p1.point, transmittance));
+        return transmittance / inv_w.average();
+    }
+
+    std::string Integrator::to_string() const
+    {
+        std::string s = std::format("[ Integrator aggregate: {} lights[{}]: [ ", 
+            aggregate.to_string(), lights.size());
+        for (const auto& l : lights)
+            s += std::format("{}, ", l.to_string());
+        s += std:: format("] infiniteLights[{}]: [ ", infinite_lights.size());
+        for (const auto& l : infinite_lights)
+        {
+            s += std::format("{}, ", l.to_string());
+        }
+        return s + " ]";
+    }
+
 	//TODO(ches) fill this out
 
 	[[nodiscard]]
@@ -343,7 +448,7 @@ namespace loquat
 		ScratchBuffer& scratch_buffer, int depth) const
 	{
 
-		std::optional<ShapeIntersection> intersection = intersect(ray);
+		pstd::optional<ShapeIntersection> intersection = intersect(ray);
 
 		if (!intersection)
 		{
