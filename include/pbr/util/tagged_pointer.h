@@ -13,6 +13,7 @@
 #include <type_traits>
 
 #include "debug/logger.h"
+#include "pbr/util/print.h"
 
 namespace loquat
 {
@@ -1031,7 +1032,7 @@ namespace loquat
 
 		std::string to_string() const
 		{
-			return std::format("[ TaggedPointer ptr: {:#x} tag: {:d} ]",
+			return string_printf("[ TaggedPointer ptr: {:#x} tag: {:d} ]",
 				pointer(), tag());
 		}
 

@@ -421,7 +421,7 @@ namespace loquat
             }
             ray = si->interaction.spawn_ray_to(p1);
         }
-        LOG_INFO(std::format("transmittance from {} to {} = {}", p0.point, p1.point, transmittance));
+        LOG_INFO(string_printf("transmittance from {} to {} = {}", p0.point, p1.point, transmittance));
         return transmittance / inv_w.average();
     }
 

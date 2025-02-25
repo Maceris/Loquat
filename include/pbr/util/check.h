@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "pbr/util/print.h"
+
 namespace loquat
 {
 #ifdef LOQUAT_IS_GPU_CODE
@@ -26,7 +28,7 @@ namespace loquat
 
 #else
 
-#define CHECK(x) (!(!(x) && (LOG_FATAL("Check failed: %s", #x), true)))
+#define CHECK(x) (!(!(x) && (LOG_FATAL(string_printf("Check failed: %s", #x)), true)))
 
 #define CHECK_EQ(a, b) CHECK_IMPL(a, b, ==)
 #define CHECK_NE(a, b) CHECK_IMPL(a, b, !=)
@@ -40,8 +42,8 @@ namespace loquat
         auto va = a;                                                                   \
         auto vb = b;                                                                   \
         if (!(va op vb))                                                               \
-            LOG_FATAL("Check failed: %s " #op " %s with %s = %s, %s = %s", #a, #b, #a, \
-                      va, #b, vb);                                                     \
+            LOG_FATAL(string_printf("Check failed: %s " #op " %s with %s = %s, %s = %s", #a, #b, #a, \
+                      va, #b, vb));                                                     \
     } while (false)
 
 #endif
