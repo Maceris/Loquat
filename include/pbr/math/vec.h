@@ -8,9 +8,31 @@
 
 #include <concepts>
 #include <format>
+#include <ostream>
+#include <string>
 
 namespace loquat
 {
+	namespace internal {
+
+		template <typename T>
+		std::string to_string_1(T x);
+		template <typename T>
+		std::string to_string_2(T x, T y);
+		template <typename T>
+		std::string to_string_3(T x, T y, T z);
+
+	}
+
+	extern template std::string internal::to_string_1(float);
+	extern template std::string internal::to_string_1(double);
+	extern template std::string internal::to_string_2(float, float);
+	extern template std::string internal::to_string_2(double, double);
+	extern template std::string internal::to_string_2(int, int);
+	extern template std::string internal::to_string_3(float, float, float);
+	extern template std::string internal::to_string_3(double, double, double);
+	extern template std::string internal::to_string_3(int, int, int);
+
 	template <typename T>
 	using Vec1 = glm::vec<1, T, glm::defaultp>;
 
@@ -55,6 +77,24 @@ namespace loquat
 		|| std::same_as<T, Vec3i>
 		|| std::same_as<T, Vec3fi>;
 
+	template <typename T>
+	std::string to_string(const Vec1<T>& vector)
+	{
+		return internal::to_string_1(vector.x);
+	}
+
+	template <typename T>
+	std::string to_string(const Vec2<T>& vector)
+	{
+		return internal::to_string_2(vector.x, vector.y);
+	}
+
+	template <typename T>
+	std::string to_string(const Vec3<T>& vector)
+	{
+		return internal::to_string_3(vector.x, vector.y, vector.z);
+	}
+
 	namespace vector
 	{
 		template<typename T>
@@ -76,24 +116,6 @@ namespace loquat
 				}
 			}
 			return false;
-		}
-
-		template <typename T>
-		std::string to_string(Vec1<T> vector)
-		{
-			return std::format("[ %s ]", vector.x);
-		}
-
-		template <typename T>
-		std::string to_string(Vec2<T> vector)
-		{
-			return std::format("[ %s, %s ]", vector.x, vector.y);
-		}
-
-		template <typename T>
-		std::string to_string(Vec3<T> vector)
-		{
-			return std::format("[ %s, %s, %s ]", vector.x, vector.y, vector.z);
 		}
 	}
 
@@ -185,5 +207,23 @@ namespace loquat
 			}
 			return false;
 		}
+	}
+}
+
+namespace std
+{
+	static std::ostream& operator<<(std::ostream& os, const loquat::Vec1f& v)
+	{
+		return os << loquat::to_string(v);
+	}
+
+	static std::ostream& operator<<(std::ostream& os, const loquat::Vec2f& v)
+	{
+		return os << loquat::to_string(v);
+	}
+
+	static std::ostream& operator<<(std::ostream& os, const loquat::Vec3f& v)
+	{
+		return os << loquat::to_string(v);
 	}
 }

@@ -17,12 +17,14 @@
 #include <type_traits>
 #include <typeinfo>
 
+#include "debug/logger.h"
 #include "main/loquat.h"
 
 #ifdef __GNUG__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #endif  // __GNUG__
+
 
 namespace loquat
 {
@@ -34,7 +36,8 @@ namespace loquat
     }
 
     template <typename T>
-    static auto operator<<(std::ostream& os, const T& v) -> decltype(to_string(v), os)
+        requires requires(T v) { to_string(v); }
+    static auto operator<<(std::ostream& os, const T& v) -> decltype(os)
     {
         return os << to_string(v);
     }
@@ -65,8 +68,8 @@ namespace loquat
         }
     }
 
-    namespace detail {
-
+    namespace detail
+    {
         std::string float_to_string(float v);
         std::string double_to_string(double v);
 

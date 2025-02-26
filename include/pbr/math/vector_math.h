@@ -14,9 +14,11 @@
 #include "pbr/math/float.h"
 #include "pbr/math/math.h"
 #include "pbr/math/vec.h"
+#include "pbr/util/print.h"
 
 namespace loquat
 {
+	
 
 	class Point3fi : public Vec3<Interval>
 	{
@@ -52,7 +54,7 @@ namespace loquat
 		{}
 
 		LOQUAT_CPU_GPU
-		Vec3f error() const noexcept
+		Vec3f error() const
 		{
 			return {
 				x.width() / 2,
@@ -61,14 +63,14 @@ namespace loquat
 			};
 		}
 		LOQUAT_CPU_GPU
-		bool is_exact() const noexcept
+		bool is_exact() const
 		{
 			return x.width() == 0 && y.width() == 0 && z.width() == 0;
 		}
 
 		[[nodiscard]]
 		LOQUAT_CPU_GPU
-		Vec3f to_vec() const noexcept
+		Vec3f to_vec() const
 		{
 			return Vec3f{ x.midpoint(), y.midpoint(), z.midpoint() };
 		}
@@ -120,19 +122,19 @@ namespace loquat
 		Frame(Vec3f x, Vec3f y, Vec3f z);
 
 		LOQUAT_CPU_GPU
-		static Frame from_xz(Vec3f x, Vec3f z) noexcept
+		static Frame from_xz(Vec3f x, Vec3f z)
 		{
 			return Frame{ x, cross(z, x), z };
 		}
 
 		LOQUAT_CPU_GPU
-		static Frame from_xy(Vec3f x, Vec3f y) noexcept
+		static Frame from_xy(Vec3f x, Vec3f y)
 		{
 			return Frame{ x, y, cross(x, y) };
 		}
 
 		LOQUAT_CPU_GPU
-		static Frame from_x(Vec3f x) noexcept
+		static Frame from_x(Vec3f x)
 		{
 			Vec3f y;
 			Vec3f z;
@@ -141,7 +143,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		static Frame from_y(Vec3f y) noexcept
+		static Frame from_y(Vec3f y)
 		{
 			Vec3f x;
 			Vec3f z;
@@ -150,7 +152,7 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		static Frame from_z(Vec3f z) noexcept
+		static Frame from_z(Vec3f z)
 		{
 			Vec3f x;
 			Vec3f y;
@@ -159,22 +161,20 @@ namespace loquat
 		}
 
 		LOQUAT_CPU_GPU
-		Vec3f to_local(Vec3f vector) const noexcept
+		Vec3f to_local(Vec3f vector) const
 		{
 			return Vec3f{ dot(vector, x), dot(vector, y), dot(vector, z) };
 		}
 
 		LOQUAT_CPU_GPU
-		Vec3f from_local(Vec3f vector) const noexcept
+		Vec3f from_local(Vec3f vector) const
 		{
 			return vector.x * x + vector.y * y + vector.z * z;
 		}
 
-		std::string to_string() const noexcept
+		std::string to_string() const
 		{
-			return std::format("[ Frame x: %s, y: %s, z: %s ]",
-				vector::to_string(x), vector::to_string(y), 
-				vector::to_string(z));
+			return string_printf("[ Frame x: %s, y: %s, z: %s ]", x, y, z);
 		}
 
 		Vec3f x;
@@ -443,18 +443,18 @@ namespace loquat
 		DirectionCone() = default;
 
 		LOQUAT_CPU_GPU
-		DirectionCone(Vec3f direction, Float cos_theta) noexcept
+		DirectionCone(Vec3f direction, Float cos_theta)
 			: direction{ normalize(direction) }
 			, cos_theta{ cos_theta }
 		{}
 
 		LOQUAT_CPU_GPU
-		explicit DirectionCone(Vec3f direction) noexcept
+		explicit DirectionCone(Vec3f direction)
 			: DirectionCone(direction, 1)
 		{}
 
 		LOQUAT_CPU_GPU
-		bool is_empty() const noexcept
+		bool is_empty() const
 		{
 			return cos_theta == FLOAT_INFINITY;
 		}
@@ -466,10 +466,10 @@ namespace loquat
 		}
 
 		[[nodiscard]]
-		std::string to_string() const noexcept;
+		std::string to_string() const;
 
 		LOQUAT_CPU_GPU
-		Vec3f closest_vector_in_cone(Vec3f vec) const noexcept;
+		Vec3f closest_vector_in_cone(Vec3f vec) const;
 
 		Vec3f direction;
 		Float cos_theta = FLOAT_INFINITY;
@@ -594,8 +594,7 @@ namespace loquat
 
 		std::string to_string() const
 		{
-			return std::format("[ {} - {} ]", vector::to_string(min),
-				vector::to_string(max));
+			return string_printf("[ %s - %s ]", min, max);
 		}
 
 		LOQUAT_CPU_GPU
@@ -879,7 +878,7 @@ namespace loquat
 
 	LOQUAT_CPU_GPU
 	inline Vec3f spherical_direction(Float sin_theta, Float cos_theta,
-		Float phi) noexcept
+		Float phi)
 	{
 		LOG_ASSERT(sin_theta >= -1.0001 && sin_theta <= 1.0001);
 		LOG_ASSERT(cos_theta >= -1.0001 && cos_theta <= 1.0001);

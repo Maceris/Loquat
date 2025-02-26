@@ -1241,7 +1241,6 @@ namespace loquat
         Float low;
         Float high;
     };
-
     
     LOQUAT_CPU_GPU
     inline bool in_range(Float v, Interval i)

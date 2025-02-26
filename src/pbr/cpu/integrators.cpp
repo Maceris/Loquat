@@ -421,20 +421,20 @@ namespace loquat
             }
             ray = si->interaction.spawn_ray_to(p1);
         }
-        LOG_INFO(string_printf("transmittance from {} to {} = {}", p0.point, p1.point, transmittance));
+        LOG_INFO(string_printf("transmittance from %s to %s = %s", p0.point, p1.point, transmittance));
         return transmittance / inv_w.average();
     }
 
     std::string Integrator::to_string() const
     {
-        std::string s = std::format("[ Integrator aggregate: {} lights[{}]: [ ", 
+        std::string s = string_printf("[ Integrator aggregate: %s lights[%s]: [ ",
             aggregate.to_string(), lights.size());
         for (const auto& l : lights)
-            s += std::format("{}, ", l.to_string());
-        s += std:: format("] infiniteLights[{}]: [ ", infinite_lights.size());
+            s += string_printf("%s, ", l.to_string());
+        s += string_printf("] infiniteLights[%s]: [ ", infinite_lights.size());
         for (const auto& l : infinite_lights)
         {
-            s += std::format("{}, ", l.to_string());
+            s += string_printf("%s, ", l.to_string());
         }
         return s + " ]";
     }
