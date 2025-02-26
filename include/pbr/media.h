@@ -95,8 +95,8 @@ namespace loquat
             : called(true)
         {}
         LOQUAT_CPU_GPU
-        HomogeneousMajorantIterator(Float tMin, Float tMax, SampledSpectrum sigma_maj)
-            : seg{ tMin, tMax, sigma_maj }
+        HomogeneousMajorantIterator(Float t_min, Float t_max, SampledSpectrum sigma_maj)
+            : seg{ t_min, t_max, sigma_maj }
             , called(false)
         {}
 
@@ -159,10 +159,10 @@ namespace loquat
     public:
         DDAMajorantIterator() = default;
         LOQUAT_CPU_GPU
-        DDAMajorantIterator(Ray ray, Float tMin, Float tMax, const MajorantGrid* grid,
+        DDAMajorantIterator(Ray ray, Float t_min, Float t_max, const MajorantGrid* grid,
             SampledSpectrum sigma_t)
-            : tMin(tMin)
-            , tMax(tMax)
+            : t_min(t_min)
+            , t_max(t_max)
             , grid(grid)
             , sigma_t(sigma_t)
         {
@@ -170,7 +170,7 @@ namespace loquat
             Vec3f diag = grid->bounds.diagonal();
             Ray ray_grid(Point3f(grid->bounds.offset(ray.origin)),
                 Vec3f(ray.direction.x / diag.x, ray.direction.y / diag.y, ray.direction.z / diag.z));
-            Point3f grid_intersect = ray_grid(tMin);
+            Point3f grid_intersect = ray_grid(t_min);
             for (int axis = 0; axis < 3; ++axis) {
                 // Initialize ray stepping parameters for _axis_
                 // Compute current voxel for axis and handle negative zero direction
@@ -184,7 +184,7 @@ namespace loquat
                     // Handle ray with positive direction for voxel stepping
                     Float next_voxel_pox = Float(voxel[axis] + 1) / grid->res[axis];
                     nextCrossingT[axis] =
-                        tMin + (next_voxel_pox - grid_intersect[axis]) / ray_grid.direction[axis];
+                        t_min + (next_voxel_pox - grid_intersect[axis]) / ray_grid.direction[axis];
                     step[axis] = 1;
                     voxelLimit[axis] = grid->res[axis];
 
@@ -193,7 +193,7 @@ namespace loquat
                     // Handle ray with negative direction for voxel stepping
                     Float next_voxel_pox = Float(voxel[axis]) / grid->res[axis];
                     nextCrossingT[axis] =
-                        tMin + (next_voxel_pox - grid_intersect[axis]) / ray_grid.direction[axis];
+                        t_min + (next_voxel_pox - grid_intersect[axis]) / ray_grid.direction[axis];
                     step[axis] = -1;
                     voxelLimit[axis] = -1;
                 }
@@ -203,7 +203,7 @@ namespace loquat
         LOQUAT_CPU_GPU
         pstd::optional<RayMajorantSegment> next()
         {
-            if (tMin >= tMax)
+            if (t_min >= t_max)
             {
                 return {};
             }
@@ -213,19 +213,19 @@ namespace loquat
                 ((nextCrossingT[1] < nextCrossingT[2]));
             const int cmpToAxis[8] = { 2, 1, 2, 1, 2, 2, 0, 0 };
             int stepAxis = cmpToAxis[bits];
-            Float tVoxelExit = std::min(tMax, nextCrossingT[stepAxis]);
+            Float tVoxelExit = std::min(t_max, nextCrossingT[stepAxis]);
 
             // Get _maxDensity_ for current voxel and initialize _RayMajorantSegment_, _seg_
             SampledSpectrum sigma_maj = sigma_t * grid->lookup(voxel[0], voxel[1], voxel[2]);
-            RayMajorantSegment seg{ tMin, tVoxelExit, sigma_maj };
+            RayMajorantSegment seg{ t_min, tVoxelExit, sigma_maj };
 
             // Advance to next voxel in maximum density grid
-            tMin = tVoxelExit;
-            if (nextCrossingT[stepAxis] > tMax)
-                tMin = tMax;
+            t_min = tVoxelExit;
+            if (nextCrossingT[stepAxis] > t_max)
+                t_min = t_max;
             voxel[stepAxis] += step[stepAxis];
             if (voxel[stepAxis] == voxelLimit[stepAxis])
-                tMin = tMax;
+                t_min = t_max;
             nextCrossingT[stepAxis] += deltaT[stepAxis];
 
             return seg;
@@ -235,8 +235,8 @@ namespace loquat
 
     private:
         SampledSpectrum sigma_t;
-        Float tMin = INFINITY;
-        Float tMax = -INFINITY;
+        Float t_min = INFINITY;
+        Float t_max = -INFINITY;
         const MajorantGrid* grid;
         Float nextCrossingT[3];
         Float deltaT[3];
@@ -277,12 +277,12 @@ namespace loquat
         }
 
         LOQUAT_CPU_GPU
-        HomogeneousMajorantIterator sample_ray(Ray ray, Float tMax,
+        HomogeneousMajorantIterator sample_ray(Ray ray, Float t_max,
             const SampledWavelengths& lambda) const
         {
             SampledSpectrum sigma_a = sigma_a_spec.sample(lambda);
             SampledSpectrum sigma_s = sigma_s_spec.sample(lambda);
-            return HomogeneousMajorantIterator(0, tMax, sigma_a + sigma_s);
+            return HomogeneousMajorantIterator(0, t_max, sigma_a + sigma_s);
         }
 
         std::string to_string() const;
@@ -364,17 +364,17 @@ namespace loquat
         {
             // Transform ray to medium's space and compute bounds overlap
             ray = renderFromMedium.apply_inverse(ray, &raytMax);
-            Float tMin, tMax;
-            if (!bounds.has_intersection(ray.origin, ray.direction, raytMax, &tMin, &tMax))
+            Float t_min, t_max;
+            if (!bounds.has_intersection(ray.origin, ray.direction, raytMax, &t_min, &t_max))
                 return {};
-            LOG_ASSERT(tMax <= raytMax);
+            LOG_ASSERT(t_max <= raytMax);
 
             // sample spectra for grid medium $\sigmaa$ and $\sigmas$
             SampledSpectrum sigma_a = sigma_a_spec.sample(lambda);
             SampledSpectrum sigma_s = sigma_s_spec.sample(lambda);
 
             SampledSpectrum sigma_t = sigma_a + sigma_s;
-            return DDAMajorantIterator(ray, tMin, tMax, &majorantGrid, sigma_t);
+            return DDAMajorantIterator(ray, t_min, t_max, &majorantGrid, sigma_t);
         }
 
     private:
@@ -448,13 +448,13 @@ namespace loquat
         {
             // Transform ray to medium's space and compute bounds overlap
             ray = renderFromMedium.apply_inverse(ray, &raytMax);
-            Float tMin, tMax;
-            if (!bounds.has_intersection(ray.origin, ray.direction, raytMax, &tMin, &tMax))
+            Float t_min, t_max;
+            if (!bounds.has_intersection(ray.origin, ray.direction, raytMax, &t_min, &t_max))
                 return {};
-            LOG_ASSERT(tMax <= raytMax);
+            LOG_ASSERT(t_max <= raytMax);
 
             SampledSpectrum sigma_t(1);
-            return DDAMajorantIterator(ray, tMin, tMax, &majorantGrid, sigma_t);
+            return DDAMajorantIterator(ray, t_min, t_max, &majorantGrid, sigma_t);
         }
 
     private:
@@ -523,18 +523,18 @@ namespace loquat
         {
             // Transform ray to medium's space and compute bounds overlap
             ray = renderFromMedium.apply_inverse(ray, &raytMax);
-            Float tMin, tMax;
-            if (!bounds.has_intersection(ray.origin, ray.direction, raytMax, &tMin, &tMax))
+            Float t_min, t_max;
+            if (!bounds.has_intersection(ray.origin, ray.direction, raytMax, &t_min, &t_max))
             {
                 return {};
             }
-            LOG_ASSERT(tMax <= raytMax);
+            LOG_ASSERT(t_max <= raytMax);
 
             // Compute $\sigmat$ bound for cloud medium and initialize majorant iterator
             SampledSpectrum sigma_a = sigma_a_spec.sample(lambda);
             SampledSpectrum sigma_s = sigma_s_spec.sample(lambda);
             SampledSpectrum sigma_t = sigma_a + sigma_s;
-            return HomogeneousMajorantIterator(tMin, tMax, sigma_t);
+            return HomogeneousMajorantIterator(t_min, t_max, sigma_t);
         }
 
     private:
@@ -712,17 +712,17 @@ namespace loquat
                 const SampledWavelengths& lambda) const {
             // Transform ray to medium's space and compute bounds overlap
             ray = renderFromMedium.apply_inverse(ray, &raytMax);
-            Float tMin, tMax;
-            if (!bounds.has_intersection(ray.origin, ray.direction, raytMax, &tMin, &tMax))
+            Float t_min, t_max;
+            if (!bounds.has_intersection(ray.origin, ray.direction, raytMax, &t_min, &t_max))
                 return {};
-            LOG_ASSERT(tMax <= raytMax);
+            LOG_ASSERT(t_max <= raytMax);
 
             // sample spectra for grid $\sigmaa$ and $\sigmas$
             SampledSpectrum sigma_a = sigma_a_spec.sample(lambda);
             SampledSpectrum sigma_s = sigma_s_spec.sample(lambda);
 
             SampledSpectrum sigma_t = sigma_a + sigma_s;
-            return DDAMajorantIterator(ray, tMin, tMax, &majorantGrid, sigma_t);
+            return DDAMajorantIterator(ray, t_min, t_max, &majorantGrid, sigma_t);
         }
 
     private:
@@ -792,17 +792,17 @@ namespace loquat
         return dispatch(sample);
     }
 
-    inline RayMajorantIterator Medium::sample_ray(Ray ray, Float tMax,
+    inline RayMajorantIterator Medium::sample_ray(Ray ray, Float t_max,
         const SampledWavelengths& lambda,
         ScratchBuffer& buf) const
     {
         // Explicit capture to work around MSVC weirdness; it doesn't see |buf| otherwise...
-        auto sample = [ray, tMax, lambda, &buf](auto medium) {
+        auto sample = [ray, t_max, lambda, &buf](auto medium) {
             // Return _RayMajorantIterator_ for medium's majorant iterator
             using ConcreteMedium = typename std::remove_reference_t<decltype(*medium)>;
             using Iter = typename ConcreteMedium::MajorantIterator;
             Iter* iter = (Iter*)buf.alloc(sizeof(Iter), alignof(Iter));
-            *iter = medium->sample_ray(ray, tMax, lambda);
+            *iter = medium->sample_ray(ray, t_max, lambda);
             return RayMajorantIterator(iter);
             };
         return dispatchCPU(sample);
@@ -810,28 +810,28 @@ namespace loquat
 
     template <typename F>
     LOQUAT_CPU_GPU
-    SampledSpectrum sample_t_maj(Ray ray, Float tMax, Float u, RNG& rng,
+    SampledSpectrum sample_t_maj(Ray ray, Float t_max, Float u, RNG& rng,
         const SampledWavelengths& lambda, F callback)
     {
         auto sample = [&](auto medium) {
             using M = typename std::remove_reference_t<decltype(*medium)>;
-            return sample_t_maj<M>(ray, tMax, u, rng, lambda, callback);
+            return sample_t_maj<M>(ray, t_max, u, rng, lambda, callback);
             };
         return ray.medium.dispatch(sample);
     }
 
     template <typename ConcreteMedium, typename F>
     LOQUAT_CPU_GPU
-    SampledSpectrum sample_t_maj(Ray ray, Float tMax, Float u, RNG& rng,
+    SampledSpectrum sample_t_maj(Ray ray, Float t_max, Float u, RNG& rng,
         const SampledWavelengths& lambda, F callback)
     {
         // normalize ray direction and update _tMax_ accordingly
-        tMax *= length(ray.direction);
+        t_max *= length(ray.direction);
         ray.direction = normalize(ray.direction);
 
         // Initialize _MajorantIterator_ for ray majorant sampling
         ConcreteMedium* medium = ray.medium.cast<ConcreteMedium>();
-        typename ConcreteMedium::MajorantIterator iter = medium->sample_ray(ray, tMax, lambda);
+        typename ConcreteMedium::MajorantIterator iter = medium->sample_ray(ray, t_max, lambda);
 
         // Generate ray majorant samples until termination
         SampledSpectrum T_maj(1.0f);
@@ -845,9 +845,9 @@ namespace loquat
             // Handle zero-valued majorant for current segment
             if (seg->sigma_maj[0] == 0)
             {
-                Float dt = seg->tMax - seg->tMin;
+                Float dt = seg->t_max - seg->t_min;
                 // Handle infinite _dt_ for ray majorant segment
-                if (IsInf(dt))
+                if (is_inf(dt))
                 {
                     dt = std::numeric_limits<Float>::max();
                 }
@@ -857,19 +857,19 @@ namespace loquat
             }
 
             // Generate samples along current majorant segment
-            Float tMin = seg->tMin;
+            Float t_min = seg->t_min;
             while (true)
             {
                 // Try to generate sample along current majorant segment
-                Float t = tMin + SampleExponential(u, seg->sigma_maj[0]);
-                LOG_INFO(std::format("Sampled t = {} from tMin {} u {} sigma_maj[0] {}\n", t, tMin, u,
+                Float t = t_min + sample_exponential(u, seg->sigma_maj[0]);
+                LOG_INFO(std::format("Sampled t = {} from t_min {} u {} sigma_maj[0] {}\n", t, t_min, u,
                     seg->sigma_maj[0]));
                 u = rng.uniform<Float>();
-                if (t < seg->tMax)
+                if (t < seg->t_max)
                 {
                     // Call callback function for sample within segment
-                    LOG_INFO("t < seg->tMax\n");
-                    T_maj *= fast_exp(-(t - tMin) * seg->sigma_maj);
+                    LOG_INFO("t < seg->t_max\n");
+                    T_maj *= fast_exp(-(t - t_min) * seg->sigma_maj);
                     MediumProperties mp = medium->sample_point(ray(t), lambda);
                     if (!callback(ray(t), mp, seg->sigma_maj, T_maj)) {
                         // Returning out of doubly-nested while loop is not as good perf. wise
@@ -878,19 +878,19 @@ namespace loquat
                         break;
                     }
                     T_maj = SampledSpectrum(1.0f);
-                    tMin = t;
+                    t_min = t;
 
                 }
                 else
                 {
                     // Handle sample past end of majorant segment
-                    Float dt = seg->tMax - tMin;
+                    Float dt = seg->t_max - t_min;
                     // Handle infinite _dt_ for ray majorant segment
-                    if (IsInf(dt))
+                    if (is_inf(dt))
                         dt = std::numeric_limits<Float>::max();
 
                     T_maj *= fast_exp(-dt * seg->sigma_maj);
-                    LOG_ASSERT(std::format("Past end, added dt {} * maj[0] {}\n", dt, seg->sigma_maj[0]));
+                    LOG_INFO(string_printf("Past end, added dt %s * maj[0] %s\n", dt, seg->sigma_maj[0]));
                     break;
                 }
             }
