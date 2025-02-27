@@ -1067,13 +1067,13 @@ namespace loquat
 		camera_sample.pFilm = Point2f(pixel) + filter_sample.sample + Point2f(0.5f, 0.5f);
 		camera_sample.time = sampler.get_1D();
 		camera_sample.pLens = sampler.get_2D();
-		camera_sample.filterWeight = filter_sample.weight;
+		camera_sample.filter_weight = filter_sample.weight;
 
 		if (get_options().disable_pixel_jitter) {
 			camera_sample.pFilm = Point2f(pixel) + Point2f{ 0.5f, 0.5f };
 			camera_sample.time = 0.5f;
 			camera_sample.pLens = Point2f{ 0.5f, 0.5f };
-			camera_sample.filterWeight = 1;
+			camera_sample.filter_weight = 1;
 		}
 		return camera_sample;
 	}

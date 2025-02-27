@@ -91,7 +91,8 @@ namespace loquat
             Sampler tile_sampler = sampler_prototype.clone(Allocator());
             tile_sampler.start_pixel_sample(p_pixel, sample_index);
 
-            evaluate_pixel_sample(p_pixel, sample_index, tile_sampler, scratch_buffer);
+            evaluate_pixel_sample(p_pixel, sample_index, tile_sampler,
+                scratch_buffer);
 
             return;
         }
@@ -99,14 +100,15 @@ namespace loquat
         thread_local Point2i thread_pixel;
         thread_local int thread_sample_index;
         CheckCallbackScope _([&]() {
-            return std::format("Rendering failed at pixel ({}, {}) sample {}. Debug with "
+            return std::format(
+                "Rendering failed at pixel ({}, {}) sample {}. Debug with "
                 "\"--debugstart {},{},{}\"\n",
                 thread_pixel.x, thread_pixel.y, thread_sample_index,
                 thread_pixel.x, thread_pixel.y, thread_sample_index);
             });
 
         // Declare common variables for rendering image in tiles
-        ThreadLocal<ScratchBuffer> scratchBuffers([]() { return ScratchBuffer(); });
+        ThreadLocal<ScratchBuffer> scratch_buffers([]() { return ScratchBuffer(); });
 
         ThreadLocal<Sampler> samplers([this]() { return sampler_prototype.clone(); });
 
@@ -117,7 +119,7 @@ namespace loquat
 
         int wave_start = 0;
         int wave_end = 1;
-        int nextWaveSize = 1;
+        int next_wave_size = 1;
 
         if (options->record_pixel_statistics)
         {
@@ -150,15 +152,16 @@ namespace loquat
             // in turn gives us the section of the MSE image to crop. (This is
             // complicated by the fact that Image doesn't support pixel
             // bounds...)
-            AABB2i cropBounds(Point2i(pixel_bounds.min - mse_pixel_bounds.min),
+            AABB2i crop_bounds(Point2i(pixel_bounds.min - mse_pixel_bounds.min),
                 Point2i(pixel_bounds.max - mse_pixel_bounds.min));
-            *reference_image = reference_image->crop(cropBounds);
+            *reference_image = reference_image->crop(crop_bounds);
             LOG_ASSERT(reference_image->get_resolution() == Point2i(pixel_bounds.diagonal()));
 
             mse_out_file = fopen_write(options->mse_reference_output);
             if (!mse_out_file)
             {
-                LOG_FATAL(std::format("{}: {}", options->mse_reference_output, error_string()));
+                LOG_FATAL(std::format("{}: {}", options->mse_reference_output,
+                    error_string()));
             }
         }
 
@@ -184,18 +187,20 @@ namespace loquat
         while (wave_start < spp)
         {
             // Render current wave's image tiles in parallel
-            parallel_for_2D(pixel_bounds, [&](AABB2i tileBounds) {
+            parallel_for_2D(pixel_bounds, [&](AABB2i tile_bounds) {
                 // Render image tile given by _tileBounds_
-                ScratchBuffer& scratch_buffer = scratchBuffers.get();
+                ScratchBuffer& scratch_buffer = scratch_buffers.get();
                 Sampler& sampler = samplers.get();
                 LOG_INFO(std::format("Starting image tile ({},{})-({},{}) wave_start {}, wave_end {}\n",
-                    tileBounds.min.x, tileBounds.min.y, tileBounds.max.x,
-                    tileBounds.max.y, wave_start, wave_end));
-                for (Point2i p_pixel : tileBounds) {
+                    tile_bounds.min.x, tile_bounds.min.y, tile_bounds.max.x,
+                    tile_bounds.max.y, wave_start, wave_end));
+                for (Point2i p_pixel : tile_bounds)
+                {
                     stats_report_pixel_start(p_pixel);
                     thread_pixel = p_pixel;
                     // Render samples in pixel _pPixel_
-                    for (int sample_index = wave_start; sample_index < wave_end; ++sample_index) {
+                    for (int sample_index = wave_start; sample_index < wave_end; ++sample_index)
+                    {
                         thread_sample_index = sample_index;
                         sampler.start_pixel_sample(p_pixel, sample_index);
                         evaluate_pixel_sample(p_pixel, sample_index, sampler, scratch_buffer);
@@ -204,17 +209,18 @@ namespace loquat
 
                     stats_report_pixel_end(p_pixel);
                 }
-                LOG_INFO(std::format("Finished image tile ({},{})-({},{})\n", tileBounds.min.x,
-                    tileBounds.min.y, tileBounds.max.x, tileBounds.max.y));
-                progress.update((wave_end - wave_start) * tileBounds.area());
+                LOG_INFO(std::format("Finished image tile ({},{})-({},{})\n",
+                    tile_bounds.min.x, tile_bounds.min.y,
+                    tile_bounds.max.x, tile_bounds.max.y));
+                progress.update((wave_end - wave_start) * tile_bounds.area());
                 });
 
             // Update start and end wave
             wave_start = wave_end;
-            wave_end = std::min(spp, wave_end + nextWaveSize);
+            wave_end = std::min(spp, wave_end + next_wave_size);
             if (!reference_image)
             {
-                nextWaveSize = std::min(2 * nextWaveSize, 64);
+                next_wave_size = std::min(2 * next_wave_size, 64);
             }
             if (wave_start == spp)
             {
@@ -230,11 +236,11 @@ namespace loquat
                 metadata.samples_per_pixel = wave_start;
                 if (reference_image && mse_out_file != 0)
                 {
-                    ImageMetadata filmMetadata;
-                    Image filmImage =
-                        camera.get_film().get_image(&filmMetadata, 1.f / wave_start);
+                    ImageMetadata film_metadata;
+                    Image film_image =
+                        camera.get_film().get_image(&film_metadata, 1.f / wave_start);
                     ImageChannelValues mse =
-                        filmImage.MSE(filmImage.all_channels_desc(), *reference_image);
+                        film_image.MSE(film_image.all_channels_desc(), *reference_image);
                     fprintf(mse_out_file, "%d, %.9g\n", wave_start, mse.average());
                     metadata.MSE = mse.average();
                     fflush(mse_out_file);
@@ -268,36 +274,36 @@ namespace loquat
 
         // Initialize _CameraSample_ for current sample
         Filter filter = camera.get_film().get_filter();
-        CameraSample cameraSample = get_camera_sample(sampler, pixel, filter);
+        CameraSample camera_sample = get_camera_sample(sampler, pixel, filter);
 
         // Generate camera ray for current sample
-        pstd::optional<CameraRayDifferential> cameraRay =
-            camera.generate_ray_differential(cameraSample, lambda);
+        pstd::optional<CameraRayDifferential> camera_ray =
+            camera.generate_ray_differential(camera_sample, lambda);
 
         // Trace _cameraRay_ if valid
         SampledSpectrum L(0.);
-        VisibleSurface visibleSurface;
-        if (cameraRay)
+        VisibleSurface visible_surface;
+        if (camera_ray)
         {
             // Double check that the ray's direction is normalized.
-            DCHECK_GT(length(cameraRay->ray.direction), 0.999f);
-            DCHECK_LT(length(cameraRay->ray.direction), 1.001f);
+            DCHECK_GT(length(camera_ray->ray.direction), 0.999f);
+            DCHECK_LT(length(camera_ray->ray.direction), 1.001f);
             // Scale camera ray differentials based on image sampling rate
-            Float rayDiffScale =
+            Float ray_diff_scale =
                 std::max<Float>(.125f, 1 
                     / std::sqrt((Float)sampler.get_samples_per_pixel()));
             if (!options->disable_pixel_jitter)
             {
-                cameraRay->ray.scale_differentials(rayDiffScale);
+                camera_ray->ray.scale_differentials(ray_diff_scale);
             }
 
             ++camera_ray_count;
             // Evaluate radiance along camera ray
-            bool initializeVisibleSurface = 
+            bool initialize_visible_surface = 
                 camera.get_film().uses_visible_surface();
-            L = cameraRay->weight * light_incoming(cameraRay->ray, lambda,
+            L = camera_ray->weight * light_incoming(camera_ray->ray, lambda,
                 sampler, scratch_buffer,
-                initializeVisibleSurface ? &visibleSurface : nullptr);
+                initialize_visible_surface ? &visible_surface : nullptr);
 
             // Issue warning if unexpected radiance value is returned
             if (L.has_NaNs())
@@ -316,19 +322,19 @@ namespace loquat
             }
 
             LOG_INFO(std::format(
-                "Camera sample: {} -> ray {} -> L = {}, visibleSurface {}\n",
-                cameraSample.to_string(), cameraRay->ray.to_string(),
+                "Camera sample: {} -> ray {} -> L = {}, visible_surface {}\n",
+                camera_sample.to_string(), camera_ray->ray.to_string(),
                 L.to_string(),
-                (visibleSurface ? visibleSurface.to_string() : "(none)")));
+                (visible_surface ? visible_surface.to_string() : "(none)")));
         }
         else
         {
             LOG_INFO(std::format("Camera sample: {} -> no ray generated", 
-                cameraSample.to_string()));
+                camera_sample.to_string()));
         }
         // Add camera ray's contribution to image
-        camera.get_film().add_sample(pixel, L, lambda, &visibleSurface,
-            cameraSample.filterWeight);
+        camera.get_film().add_sample(pixel, L, lambda, &visible_surface,
+            camera_sample.filter_weight);
     }
 
     STAT_COUNTER("Intersections/Regular ray intersection tests", intersection_test_count);
@@ -387,9 +393,10 @@ namespace loquat
                 return SampledSpectrum(0.0f);
 
             // Update transmittance for current ray segment
-            if (ray.medium) {
-                Point3f pExit = ray(si ? si->t_hit : (1 - SHADOW_EPSILON));
-                ray.direction = pExit - ray.origin;
+            if (ray.medium)
+            {
+                Point3f p_exit = ray(si ? si->t_hit : (1 - SHADOW_EPSILON));
+                ray.direction = p_exit - ray.origin;
 
                 SampledSpectrum T_maj =
                     sample_t_maj(ray, 1.f, rng.uniform<Float>(), rng, lambda,
@@ -430,7 +437,9 @@ namespace loquat
         std::string s = string_printf("[ Integrator aggregate: %s lights[%s]: [ ",
             aggregate.to_string(), lights.size());
         for (const auto& l : lights)
+        {
             s += string_printf("%s, ", l.to_string());
+        }
         s += string_printf("] infiniteLights[%s]: [ ", infinite_lights.size());
         for (const auto& l : infinite_lights)
         {

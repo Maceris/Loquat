@@ -20,7 +20,7 @@ namespace loquat
 		Point2f pFilm;
 		Point2f pLens;
 		Float time = 0;
-		Float filterWeight = 1;
+		Float filter_weight = 1;
 		std::string to_string() const noexcept;
 	};
 
