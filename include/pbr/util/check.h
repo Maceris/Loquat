@@ -28,7 +28,11 @@ namespace loquat
 
 #else
 
-#define CHECK(x) (!(!(x) && (LOG_FATAL(string_printf("Check failed: %s", #x)), true)))
+#define CHECK(x)                                              \
+    do {                                                      \
+        if (!(x))                                             \
+            LOG_FATAL(string_printf("Check failed: %s", #x)); \
+    } while (false)
 
 #define CHECK_EQ(a, b) CHECK_IMPL(a, b, ==)
 #define CHECK_NE(a, b) CHECK_IMPL(a, b, !=)
@@ -89,7 +93,7 @@ namespace loquat
     do {                                                                                \
         static thread_local int64_t numTrue, total;                                     \
         static StatRegisterer reg([](StatsAccumulator &accum) {                         \
-            accum.report_rare_check(__FILE__ " " CHECK_RARE_EXPAND_AND_TO_STRING(         \
+            accum.report_rare_check(__FILE__ " " CHECK_RARE_EXPAND_AND_TO_STRING(       \
                                       __LINE__) ": CHECK_RARE failed: " #condition,     \
                                   freq, numTrue, total);                                \
             numTrue = total = 0;                                                        \
