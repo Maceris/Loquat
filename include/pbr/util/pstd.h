@@ -1066,7 +1066,7 @@ namespace pstd
             stored_count = allocated_count;
         }
 
-        vector(vector&& other)
+        vector(vector&& other) noexcept
             : alloc{ other.alloc }
         {
             stored_count = other.stored_count;

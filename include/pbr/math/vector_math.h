@@ -289,6 +289,21 @@ namespace loquat
 
 	template <typename T>
 	LOQUAT_CPU_GPU
+	inline T length_squared(Vec3<T> n)
+	{
+		return square(n.x) + square(n.y) + square(n.z);
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
+	inline T length(Vec3<T> n)
+	{
+		using std::sqrt;
+		return sqrt(length_squared(n));
+	}
+
+	template <typename T>
+	LOQUAT_CPU_GPU
 	inline Float angle_between(Normal3<T> a, Normal3<T> b)
 	{
 		if (dot(a, b) < 0)
@@ -418,7 +433,7 @@ namespace loquat
 
 	template <typename T>
 	LOQUAT_CPU_GPU
-		inline auto normalize(Vec2<T> v)
+	inline auto normalize(Vec2<T> v)
 	{
 		return v / glm::length(v);
 	}
@@ -1049,6 +1064,23 @@ namespace loquat
 
 	LOQUAT_CPU_GPU
 	DirectionCone bounds_union(const DirectionCone& a, const DirectionCone& b);
+
+	LOQUAT_CPU_GPU
+	inline DirectionCone bound_subtended_directions(const AABB3f& b, Point3f p)
+	{
+		// Compute bounding sphere for _b_ and check if _p_ is inside
+		Float radius;
+		Point3f pCenter;
+		b.bounding_sphere(&pCenter, &radius);
+		if (distance_squared(p, pCenter) < square(radius))
+			return DirectionCone::entire_sphere();
+
+		// Compute and return _DirectionCone_ for bounding sphere
+		Vec3f w = normalize(pCenter - p);
+		Float sin2ThetaMax = square(radius) / distance_squared(pCenter, p);
+		Float cosThetaMax = safe_square_root(1 - sin2ThetaMax);
+		return DirectionCone(w, cosThetaMax);
+	}
 
 	//TODO(ches) finish this
 }

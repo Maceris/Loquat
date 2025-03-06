@@ -20,7 +20,7 @@ namespace loquat
 	/// </summary>
 	struct SampledLight
 	{
-		Float light;
+		Light light;
 		Float probability = 0;
 
 		[[nodiscard]]

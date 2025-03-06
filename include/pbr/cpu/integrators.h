@@ -162,7 +162,55 @@ namespace loquat
 		[[nodiscard]]
 		SampledSpectrum light_incoming_random_walk(RayDifferential ray,
 			SampledWavelengths& lambda, Sampler sampler,
-			ScratchBuffer& scratch_buffer, int depth) const;
+			ScratchBuffer& scratch_buffer, int depth) const
+		{
+			pstd::optional<ShapeIntersection> intersection = intersect(ray);
+
+			if (!intersection)
+			{
+				SampledSpectrum result{ 0.0f };
+				for (Light light : infinite_lights)
+				{
+					result += light.infinite_light_contribution(ray, lambda);
+				}
+				return result;
+			}
+
+			SurfaceInteraction& surface = intersection->interaction;
+
+			Vec3f outgoing_direction = -ray.direction;
+			SampledSpectrum emitted = surface.emitted_radiance(
+				outgoing_direction, lambda);
+
+			if (depth == max_depth)
+			{
+				return emitted;
+			}
+
+			BSDF bsdf = surface.get_BSDF(ray, lambda, camera, scratch_buffer,
+				sampler);
+
+			if (!bsdf)
+			{
+				return emitted;
+			}
+
+			Point2f u = sampler.get_2D();
+			Vec3f wp = sample_uniform_sphere(u);
+
+			SampledSpectrum fcos = bsdf.f(outgoing_direction, wp) *
+				absolute_dot(wp, surface.shading.normal);
+
+			if (!fcos)
+			{
+				return emitted;
+			}
+
+			ray = surface.spawn_ray(wp);
+			return emitted + fcos * light_incoming_random_walk(ray, lambda,
+				sampler, scratch_buffer, depth + 1) /
+				(1 / (4 * PI));
+		}
 
 		int max_depth;
 	};
@@ -172,8 +220,7 @@ namespace loquat
 	public:
 		SimplePathIntegrator(int max_depth, bool sample_lights,
 			bool sample_BSDF, Camera camera, Sampler sampler,
-			Primitive aggregate, std::vector<Light> lights,
-			const FileLoc* loc);
+			Primitive aggregate, std::vector<Light> lights);
 
 		[[nodiscard]]
 		SampledSpectrum light_incoming(RayDifferential ray,
@@ -184,7 +231,8 @@ namespace loquat
 		[[nodiscard]]
 		static std::unique_ptr<SimplePathIntegrator> create(
 			const ParameterDictionary& parameters, Camera camera,
-			Sampler sampler, Primitive aggregate, std::vector<Light> lights)
+			Sampler sampler, Primitive aggregate, std::vector<Light> lights,
+			const FileLoc* loc)
 			;
 
 		[[nodiscard]]
