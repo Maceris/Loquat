@@ -21,11 +21,6 @@ OPTION(LOQUAT_INSTALL
   ON
 )
 
-OPTION(ADDRESS_SANITIZER
-  "Enable address sanitizer"
-  OFF
-)
-
 OPTION(UB_SANITIZER
   "Enable Undefined Behavior sanitizer."
   OFF
@@ -184,12 +179,6 @@ ENDIF()
 
 IF (LOQUAT_BUILD_GPU_RENDERER)
   ADD_DEFINITIONS(-DLOQUAT_BUILD_GPU_RENDERER)
-ENDIF()
-
-IF (ADDRESS_SANITIZER)
-  MESSAGE(STATUS "Address sanitizer enabled")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-  SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fsanitize=address")
 ENDIF()
 
 IF (UB_SANITIZER)
