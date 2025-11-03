@@ -9,6 +9,11 @@ License: LICENSE_pbrt.txt
 
 ## Building
 
+This is being written in Hemera, at the time of writing we don't have a full compiler for that yet. Build info
+will be updated when third party libraries and builds are better ironed out.
+
+A partial build existed in C++ before the rewrite and is currently located on the cpp_backup branch, the below were notes related to that.
+
 This project uses submodules for some third party libraries, and so the `--recursive` flag must be used when cloning the
 repository.
 
@@ -32,9 +37,3 @@ The cmake output will indicate whether it was successful.
 It is necessary to manually set the cmake `LOQUAT_OPTIX7_PATH` configuration option to point at an OptiX installation.
 By default, the GPU shader model is set automatically based on the GPU in the system.
 Alternatively, the `LOQUAT_GPU_SHADER_MODEL` option can be set manually (e.g., `-DLOQUAT_GPU_SHADER_MODEL=sm_80`).
-
-To create the project or solution files for the project, you can run `regenerate-project.bat` or `regenerate-project.sh`. 
-This will generate all of the project files in the `bin` folder. These can be rerun to wipe out the whole bin directory
-again and regenerate the project contents.
-
-If using Visual Studio, you can open the Loquat solution and build and run it from there.
