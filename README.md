@@ -1,5 +1,7 @@
 # Loquat
 
+# This is a backup uf the main branch, before we switched to Hemera
+
 Loquat is a rendering engine written in Vulkan.
 
 The PBR portion is based on pbrt v4.
