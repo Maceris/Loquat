@@ -157,4 +157,4 @@ namespace loquat
 /// Used to block off sections of code that use defined code that
 /// will have linker errors.
 /// </summary>
-#define ENABLE_WIP_CODE 0
+#define ENABLE_WIP_CODE 1
