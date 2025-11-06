@@ -1,6 +1,5 @@
-package pipeline
+package render
 
-import shader from "../"
 import vulkan from "vendor"
 
 Pipeline :: struct {

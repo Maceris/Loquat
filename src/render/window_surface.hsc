@@ -1,4 +1,4 @@
-package window
+package render
 
 import vulkan from "vendor"
 

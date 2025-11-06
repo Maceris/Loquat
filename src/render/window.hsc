@@ -1,4 +1,4 @@
-package window
+package render
 
 Window :: struct {
     width : u32,

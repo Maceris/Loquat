@@ -1,4 +1,4 @@
-package shader
+package render
 
 import vulkan from "vendor"
 
