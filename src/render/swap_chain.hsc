@@ -9,3 +9,9 @@ SwapChain :: struct {
     extent : VkExtent2D,
     image_format : VkFormat,
 }
+
+SwapChainSupport :: struct {
+    capabilities : VkSurfaceCapabilitiesKHR,
+    formats : VkSurfaceFormatKHR[..],
+    present_modes : VkPresentModeKHR[..],
+}
