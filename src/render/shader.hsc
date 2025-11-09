@@ -16,3 +16,8 @@ ShaderType :: enum {
     FRAGMENT,
     VERTEX,
 }
+
+stage_type :: fn(stage: ShaderType) -> VkShaderStageFlagBits {
+    //TODO(ches) fill this out
+    return VK_SHADER_STAGE_ALL
+}
