@@ -2,6 +2,8 @@ package render
 
 import vulkan from "vendor"
 
+MAX_FRAMES_IN_FLIGHT : u32 : 2
+
 Pipeline :: struct {
     frame_buffers: VkFrameBuffer[..],
     graphics_pipeline: VkPipeline,
