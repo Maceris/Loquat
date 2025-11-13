@@ -8,12 +8,12 @@ WindowSurface :: struct {
     presentMode :: VkPresentModeKHR,
 }
 
-select_present_mode :: fn(available_present_modes: VkPresentModeKHR[]) -> VkPresentModeKHR {
+select_present_mode :: fn(surface: ptr[mut WindowSurface], available_present_modes: VkPresentModeKHR[]) -> VkPresentModeKHR {
     //TODO(ches) fill this out
     return .VK_PRESENT_MODE_FIFO_KHR
 }
 
-select_surface_format :: fn(available_formats: VkSurfaceFormatKHR[]) -> VkSurfaceFormatKHR {
+select_surface_format :: fn(surface: ptr[mut WindowSurface], available_formats: VkSurfaceFormatKHR[]) -> VkSurfaceFormatKHR {
     //TODO(ches) fill this out
     result : VkSurfaceFormatKHR
     return result

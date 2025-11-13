@@ -44,12 +44,19 @@ check_swap_chain_support :: fn(device: VkPhysicalDevice, surface: VkSurfaceKHR) 
     return result
 }
 
-configure_surface :: fn(device: ptr[mut Device]) {
-    //TODO(ches) fill this out
+configure_surface :: fn(device: ptr[mut Device], surface: ptr[mut WindowSurface]) {
+    //TODO(ches) this SwapChainSupport struct feels kinda pointless, can we just inline this function?
+    swap_chain_support : SwapChainSupport = check_swap_chain_support(device.physical_device, surface.vulkan_surface)
+    select_present_mode(surface, swap_chain_support.present_modes)
+    select_surface_format(surface, swap_chain_support.formats)
 }
 
 create_queues :: fn(device: ptr[mut Device]) {
-    //TODO(ches) fill this out
+    queue_index : u32 : 0
+    vkGetDeviceQueue(device.logical_device, device.indices.present_family or_return void,
+        queue_index, &device.present_queue);
+    vkGetDeviceQueue(device.logical_device, device.indices.graphics_family or_return void,
+        queue_index, &device.graphics_queue);
 }
 
 destroy_device :: fn(device: ptr[mut Device]) {
