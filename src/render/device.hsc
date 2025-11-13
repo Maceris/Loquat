@@ -20,9 +20,27 @@ QueueFamilyIndices :: struct {
     present_family : VkQueueFlags?,
 }
 
-check_swap_chain_support :: fn(device: VkPhysicalDevice) -> SwapChainSupport {
-    //TODO(ches) fill this out
+check_swap_chain_support :: fn(device: VkPhysicalDevice, surface: VkSurfaceKHR) -> SwapChainSupport {
     result : SwapChainSupport
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &result.capabilities)
+
+    format_count : u32
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &format_count, null)
+
+    if format_count > 0 {
+        array_reserve(result.formats, format_count)
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &format_count, result.formats)
+    }
+
+    present_mode_count : u32
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &format_count, null)
+
+    if present_mode_count > 0 {
+        array_reserve(result.present_modes, present_mode_count)
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &present_mode_count, result.present_modes)
+    }
+
     return result
 }
 
