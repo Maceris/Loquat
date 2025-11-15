@@ -69,9 +69,33 @@ destroy_device :: fn(device: ptr[mut Device]) {
     }
 }
 
-find_queue_families :: fn(device: VkPhysicalDevice) -> QueueFamilyIndices {
-    //TODO(ches) fill this out
+find_queue_families :: fn(device: VkPhysicalDevice, surface: ptr[mut WindowSurface]) -> QueueFamilyIndices {
     result : QueueFamilyIndices
+
+    queue_family_count : u32 = 0
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, null)
+
+    queue_families : VkQueueFamilyProperties[..]
+    array_reserve(queue_families, queue_family_count)
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families)
+
+    for queue_family, index in queue_families {
+        if queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT != 0 {
+            result.graphics_family = cast[VkQueueFlags](index)
+        }
+
+        present_support : b32 = false
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, cast[u32](index), surface, &present_support)
+
+        if present_support {
+            result.present_family = cast[VkQueueFlags](index)
+        }
+
+        if result.graphics_family is_some && result.present_family is_some {
+            break
+        }
+    }
+
     return result
 }
 
