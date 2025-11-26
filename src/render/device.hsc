@@ -1,5 +1,6 @@
 package render
 
+import os from "std"
 import vulkan from "vendor"
 
 DEVICE_REQUIRED_EXTENSIONS :: string[]{
@@ -119,7 +120,8 @@ initialize_device :: fn(device: ptr[mut Device]) {
     descriptor_pool_info.poolSizes = pool_sizes
 
     if vkCreateDescriptorPool(device.logical_device, &descriptor_pool_info, null, &device.descriptor_pool) != .VK_SUCCESS {
-        //TODO(ches) fatal log
+        log_fatal("Unable to create a descriptor pool")
+        os.exit(-1)
     }
 }
 
