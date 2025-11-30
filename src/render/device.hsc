@@ -70,7 +70,7 @@ destroy_device :: fn(device: ptr[mut Device]) {
     }
 }
 
-find_queue_families :: fn(device: VkPhysicalDevice, surface: ptr[mut WindowSurface]) -> QueueFamilyIndices {
+find_queue_families :: fn(device: VkPhysicalDevice, surface: VkSurfaceKHR) -> QueueFamilyIndices {
     result : QueueFamilyIndices
 
     queue_family_count : u32 = 0
@@ -125,9 +125,41 @@ initialize_device :: fn(device: ptr[mut Device]) {
     }
 }
 
-rate_device :: fn(device: VkPhysicalDevice) -> uint {
-    //TODO(ches) fill this out
-    return 0
+rate_device :: fn(device: VkPhysicalDevice, surface: VkSurfaceKHR) -> uint {
+    score: uint = 0
+    
+    device_features : VkPhysicalDeviceFeatures
+    vkGetPhysicalDeviceFeatures(device, &device_features)
+
+    if !device_features.geometryShader {
+        return 0
+    }
+
+    queue_families : QueueFamilyIndices : find_queue_families(device, surface)
+
+    if queue_families.graphics_family is_none || queue_families.present_family is_none {
+        return 0
+    }
+
+    if !supports_required_extensions(device) {
+        return 0
+    }
+    
+    swap_chain_support : SwapChainSupport : check_swap_chain_support(device, surface)
+    if swap_chain_support.formats.count == 0 || swap_chain_support.present_modes.count == 0 {
+        return 0
+    }
+
+    device_properties : VkPhysicalDeviceProperties
+    vkGetPhysicalDeviceProperties(device, &device_properties)
+
+    if device_properties.deviceType == .VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU {
+        score += 1000
+    }
+
+    score += cast[uint](device_properties.limits.maxImageDimension2D)
+
+    return score
 }
 
 select_logical_device :: fn(device: ptr[mut Device]) {
