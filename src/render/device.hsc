@@ -13,6 +13,7 @@ Device :: struct {
     graphics_queue  : VkQueue,
     present_queue   : VkQueue,
     descriptor_pool : VkDescriptorPool,
+    //TODO(ches) can we just keep this in a couple functions?
     indices         : QueueFamilyIndices,
 }
 
@@ -162,8 +163,33 @@ rate_device :: fn(device: VkPhysicalDevice, surface: VkSurfaceKHR) -> uint {
     return score
 }
 
-select_logical_device :: fn(device: ptr[mut Device]) {
+select_logical_device :: fn(device: ptr[mut Device], surface: VkSurfaceKHR) {
     //TODO(ches) fill this out
+    device.indices = find_queue_families(device.physical_device, surface)
+
+    unique_queue_count : usize = 1
+    if (device.indices.graphics_family or_else 0) != (device.indices.present_family or_else 0) {
+        unique_queue_count = 2
+    }
+
+    queue_create_infos : VkDeviceQueueCreateInfo[..]
+    defer array_free(queue_create_infos)
+    array_reserve(queue_create_infos, unique_queue_count)
+    
+    queue_priorities : f32[..]
+    defer array_free(queue_priorities)
+    array_reserve(queue_priorities, unique_queue_count)
+
+    with {
+        i : usize = 0
+    }
+    loop {
+        defer i += 1
+        //TODO(ches) set up VkDeviceQueueCreateInfo's
+    }
+    while i < unique_queue_count
+    
+
 }
 
 select_physical_device :: fn(device: ptr[mut Device]) {
