@@ -7,6 +7,12 @@ DEVICE_REQUIRED_EXTENSIONS :: string[]{
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 }
 
+ENABLE_VALIDATION_LAYERS :: true
+
+VALIDATION_LAYERS :: string[] {
+    "VK_LAYER_KHRONOS_validation"
+}
+
 Device :: struct {
     physical_device : VkPhysicalDevice,
     logical_device  : VkDevice,
@@ -164,7 +170,6 @@ rate_device :: fn(device: VkPhysicalDevice, surface: VkSurfaceKHR) -> uint {
 }
 
 select_logical_device :: fn(device: ptr[mut Device], surface: VkSurfaceKHR) {
-    //TODO(ches) fill this out
     device.indices = find_queue_families(device.physical_device, surface)
 
     unique_queue_count : usize = 1
@@ -176,20 +181,50 @@ select_logical_device :: fn(device: ptr[mut Device], surface: VkSurfaceKHR) {
     defer array_free(queue_create_infos)
     array_reserve(queue_create_infos, unique_queue_count)
     
-    queue_priorities : f32[..]
-    defer array_free(queue_priorities)
-    array_reserve(queue_priorities, unique_queue_count)
+    queue_priorities := f32[] { 1 }
 
     with {
         i : usize = 0
     }
     loop {
         defer i += 1
-        //TODO(ches) set up VkDeviceQueueCreateInfo's
+        array_add(queue_create_infos, VkDeviceQueueCreateInfo.{
+            sType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            pNext = null,
+            flags = 0,
+            queueFamilyIndex = match i {
+                0 => device.indices.graphics_family or_else 0
+                1 => device.indices.present_family or_else 0
+                _ => 0
+            },
+            queueCount = 1,
+            queuePriorities = queue_priorities,
+        })
     }
     while i < unique_queue_count
-    
 
+    device_features : VkPhysicalDeviceFeatures
+    //TODO(ches) select physical device features
+
+    enabled_validation_layers : string[] = match ENABLE_VALIDATION_LAYERS {
+        true => VALIDATION_LAYERS
+        false => string[0]{}
+    }
+
+    create_info := VkDeviceCreateInfo.{
+        sType = .VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+        pNext = null,
+        flags = 0,
+        queueCreateInfos = queue_create_infos,
+        enabledLayerNames = enabled_validation_layers,
+        enabledExtensionNames = DEVICE_REQUIRED_EXTENSIONS,
+        enabledFeatures = &device_features,
+    }
+
+    if vkCreateDevice(device.physical_device, &create_info, null, &device.logical_device) != .VK_SUCCESS {
+        log_fatal("Could not create a logical device")
+        os.exit(-1)
+    }
 }
 
 select_physical_device :: fn(device: ptr[mut Device]) {
