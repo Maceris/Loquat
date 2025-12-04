@@ -227,8 +227,38 @@ select_logical_device :: fn(device: ptr[mut Device], surface: VkSurfaceKHR) {
     }
 }
 
-select_physical_device :: fn(device: ptr[mut Device]) {
-    //TODO(ches) fill this out
+select_physical_device :: fn(instance: VkInstance, surface: VkSurfaceKHR, device: ptr[mut Device]) {
+    device_count : u32 = 0
+
+    vkEnumeratePhysicalDevices(instance, &device_count)
+
+    if device_count == 0 {
+        log_fatal("No GPUs support Vulkan")
+        os.exit(-1)
+    }
+
+    devices : VkPhysicalDevice[..]
+    defer array_free(devices)
+    array_reserve(devices, device_count)
+
+    vkEnumeratePhysicalDevices(instance, &device_count, devices)
+    
+    best_device : VkPhysicalDevice? = null
+    best_score : uint = max_value(uint)
+    for device in devices {
+        score : uint : rate_device(device, surface)
+        if score > 0 && score < best_score {
+            best_device = device
+            best_score = score
+        }
+    }
+
+    if best_device is_none {
+        log_fatal("No GPUs are suitable for this program")
+        os.exit(-1)
+    }
+
+    device.physical_device = best_device or_return
 }
 
 supports_required_extensions(device: VkPhysicalDevice) -> bool {
