@@ -262,6 +262,27 @@ select_physical_device :: fn(instance: VkInstance, surface: VkSurfaceKHR, device
 }
 
 supports_required_extensions(device: VkPhysicalDevice) -> bool {
-    //TODO(ches) fill this out
-    return false
+    extension_count : u32 = 0
+    vkEnumerateDeviceExtensionProperties(device, null, &extension_count, null)
+
+    extensions : VkExtensionProperties[..]
+    defer array_free(extensions)
+    array_reserve(extensions, extension_count)
+
+    vkEnumerateDeviceExtensionProperties(device, null, &extension_count, extensions)
+
+    for extension_name in DEVICE_REQUIRED_EXTENSIONS {
+        found_extension := false
+        for extension_properties in extensions {
+            if extension_properties.extensionName == extension_name {
+                found_extension = true
+                break
+            }
+        }
+        if !found_extension {
+            return false
+        }
+    }
+
+    return true
 }
